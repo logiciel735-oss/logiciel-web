@@ -1,4 +1,5 @@
 import { PencilSquareIcon, TrashIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export const RoleBadge = ({ role }) => (
   <span
@@ -15,7 +16,7 @@ export const RoleBadge = ({ role }) => (
 export const UserAvatar = ({ user, size = "h-9 w-9" }) =>
   user.avatar ? (
     <img
-      src={user.avatar}
+      src={optimizeImage(user.avatar, 120)}
       alt={user.name}
       className={`${size} shrink-0 rounded-full object-cover`}
     />

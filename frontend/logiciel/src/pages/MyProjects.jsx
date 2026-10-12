@@ -4,6 +4,8 @@ import { useProjects } from "../entities/project/model/useProjects";
 import { useMiembros } from "../entities/member/model/useMiembros";
 import ProjectCard from "../entities/project/ui/ProjectCard";
 import Loader from "../shared/components/Loader";
+import PageHeader from "../shared/ui/PageHeader";
+import SectionHeader from "../shared/ui/SectionHeader";
 
 export default function MyProjects() {
   const { user } = useAuth();
@@ -36,42 +38,42 @@ export default function MyProjects() {
     });
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-
-      <h1 className="text-3xl font-bold mb-10 text-center">
-        Mis Proyectos
-      </h1>
-
-      <Section
-        title="Proyectos Activos"
-        projects={misActivos}
-        loading={loading}
-        normalizeAutores={normalizeAutores}
+    <div>
+      <PageHeader
+        eyebrow="Mi cuenta"
+        title="Mis proyectos"
+        description="Proyectos de investigación en los que participas como integrante."
       />
 
-      <Section
-        title="Proyectos Finalizados"
-        projects={misFinalizados}
-        loading={loading}
-        normalizeAutores={normalizeAutores}
-      />
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
 
+        <Section
+          title="Proyectos Activos"
+          projects={misActivos}
+          loading={loading}
+          normalizeAutores={normalizeAutores}
+        />
+
+        <Section
+          title="Proyectos Finalizados"
+          projects={misFinalizados}
+          loading={loading}
+          normalizeAutores={normalizeAutores}
+        />
+      </div>
     </div>
   );
 }
 
 function Section({ title, projects, loading, normalizeAutores }) {
   return (
-    <div className="mb-12">
+    <section className="mb-14">
+      <SectionHeader title={title} />
 
-      <h2 className="text-2xl font-bold mb-6 text-[#0a192f]">
-        {title}
-      </h2>
-
-      {loading && <Loader text="Cargando proyectos..." />}
+      {loading && <div className="relative min-h-[200px]"><Loader text="Cargando proyectos..." /></div>}
 
       {!loading && projects.length === 0 && (
-        <p className="text-gray-500">
+        <p className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-slate-500">
           No tienes proyectos
         </p>
       )}
@@ -89,7 +91,6 @@ function Section({ title, projects, loading, normalizeAutores }) {
           ))}
         </div>
       )}
-
-    </div>
+    </section>
   );
 }

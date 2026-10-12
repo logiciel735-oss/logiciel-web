@@ -31,7 +31,7 @@ export default function NewsList() {
       const result = await uploadFile(file);
       manage.setForm((prev) => ({ ...prev, image: result.url }));
     } catch (error) {
-      toast.error("Error subiendo imagen");
+      toast.error(error?.uploadMessage || "Error subiendo imagen");
       console.error("Error uploading image", error);
     } finally {
       setUploading(false);

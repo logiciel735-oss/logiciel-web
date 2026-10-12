@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import SanJose from "../../../shared/assets/images/san_jose.png";
+import SanJose from "../../../shared/assets/images/san_jose.webp";
 import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { Link } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useCircularHorizontalScroll } from "../../../shared/hooks/design/useCircularHorizontalScroll";
 import { useHomeSlides } from "../model/useHomeSlides";
 import { LogoIcon } from "../../../shared/ui/Logo";
+import { optimizeImage } from "../../../shared/lib/image";
 
 const HeroSection = () => {
   const slides = useHomeSlides();
@@ -145,7 +146,7 @@ const HeroSection = () => {
                   >
                     <div className="h-36 overflow-hidden">
                       <img
-                        src={item.image || item.imagen || placeholderImg}
+                        src={optimizeImage(item.image || item.imagen, 600) || placeholderImg}
                         alt=""
                         className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
                       />

@@ -2,6 +2,7 @@ import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { Link } from "react-router-dom";
 import { ArrowRightIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export default function NewsCard({
   item,
@@ -22,7 +23,7 @@ export default function NewsCard({
     <article className="card group flex flex-col overflow-hidden hover:-translate-y-1">
       <div className="h-48 overflow-hidden bg-slate-100">
         <img
-          src={item.image || placeholderImg}
+          src={optimizeImage(item.image, 800) || placeholderImg}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           alt={item.title}
         />

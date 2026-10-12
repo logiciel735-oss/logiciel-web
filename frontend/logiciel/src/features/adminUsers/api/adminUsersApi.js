@@ -15,10 +15,16 @@ const COL_MIEMBROS = "miembros";
 const USER_FIELDS = ["name", "email", "avatar", "universidad", "descripcion", "cvlac_url", "numero"];
 const MIEMBRO_FIELDS = ["user_id", "name", "role", "image"];
 
-// ── Lectura pública ──────────────────────────────────
+// ── Lectura (solo admin: RLS restringe users a la fila propia o admin) ──
 export const getPublicUsers = () => fetchCollection(COL_USERS, "name", "asc");
 
-export const getPublicUser = (uid) => fetchDoc(COL_USERS, uid);
+// Perfil público de un miembro (función SQL perfil_publico: solo campos aptos para publicar)
+export const getPublicUser = async (uid) => {
+  const { data, error } = await supabase.rpc("perfil_publico", { p_id: uid });
+  if (error) throw error;
+  if (!data) throw new Error("users not found");
+  return data;
+};
 
 // ── Admin ────────────────────────────────────────────
 export const getAllUsers = async () => {

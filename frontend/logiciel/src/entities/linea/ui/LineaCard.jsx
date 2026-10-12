@@ -1,5 +1,6 @@
 import { UserIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export default function LineaCard({
   linea,
@@ -12,7 +13,7 @@ export default function LineaCard({
       {linea.imagen_url && (
         <div className="h-48 overflow-hidden bg-slate-100">
           <img
-            src={linea.imagen_url}
+            src={optimizeImage(linea.imagen_url, 800)}
             alt={linea.nombre}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />

@@ -18,8 +18,8 @@ export default function ProjectEditModal({ data, onChange, onSave, onClose }) {
       setUploading(true);
       const result = await uploadFile(file);
       onChange("image", result.url);
-    } catch {
-      toast.error("Error subiendo imagen");
+    } catch (err) {
+      toast.error(err?.uploadMessage || "Error subiendo imagen");
     } finally {
       setUploading(false);
     }

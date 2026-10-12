@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { ArrowPathIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { confirmEmailRequest } from "../features/auth/api/authApi";
+import AuthLayout from "../features/auth/ui/AuthLayout";
+
+// Ícono de carga girando
+const SpinningIcon = ({ className }) => <ArrowPathIcon className={`${className} animate-spin`} />;
 
 const ConfirmEmail = () => {
   const [searchParams] = useSearchParams();
@@ -31,56 +36,32 @@ const ConfirmEmail = () => {
   }, [token]);
 
 
+  if (status === "loading") {
+    return (
+      <AuthLayout icon={SpinningIcon} title="Confirmando correo...">
+        <p className="text-center text-slate-600">Por favor espera un momento.</p>
+      </AuthLayout>
+    );
+  }
+
+  if (status === "success") {
+    return (
+      <AuthLayout icon={CheckCircleIcon} tone="success" title="¡Correo confirmado!">
+        <p className="text-center leading-relaxed text-slate-600">{message}</p>
+        <Link to="/login" className="btn-primary mt-7 w-full py-3">
+          Ir a iniciar sesión
+        </Link>
+      </AuthLayout>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full text-center">
-
-        {status === "loading" && (
-          <>
-            <h2 className="text-xl font-semibold mb-4">
-              Confirmando correo...
-            </h2>
-            <p className="text-gray-600">
-              Por favor espera un momento.
-            </p>
-          </>
-        )}
-
-        {status === "success" && (
-          <>
-            <h2 className="text-2xl font-bold text-green-600 mb-4">
-              ✅ ¡Correo confirmado!
-            </h2>
-            <p className="text-gray-700 mb-6">
-              {message}
-            </p>
-            <Link
-              to="/login"
-              className="inline-block bg-[#0a192f] text-white px-6 py-2 rounded hover:bg-[#64ffda] hover:text-[#0a192f] transition"
-            >
-              Ir a iniciar sesión
-            </Link>
-          </>
-        )}
-
-        {status === "error" && (
-          <>
-            <h2 className="text-2xl font-bold text-red-600 mb-4">
-              ❌ Error
-            </h2>
-            <p className="text-gray-700 mb-6">
-              {message}
-            </p>
-            <Link
-              to="/register"
-              className="inline-block bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition"
-            >
-              Volver a registrarme
-            </Link>
-          </>
-        )}
-      </div>
-    </div>
+    <AuthLayout icon={XCircleIcon} tone="error" title="No se pudo confirmar">
+      <p className="text-center leading-relaxed text-slate-600">{message}</p>
+      <Link to="/register" className="btn-primary mt-7 w-full py-3">
+        Volver a registrarme
+      </Link>
+    </AuthLayout>
   );
 };
 

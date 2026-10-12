@@ -22,6 +22,7 @@ import { uploadFile } from "../uploadFile/api/uploadApi";
 import { useMiembros } from "../../entities/member/model/useMiembros";
 
 import AuthorSelector from "./AuthorSelector";
+import { optimizeImage } from "../lib/image";
 
 export default function CMSDetailView({
   item,
@@ -91,8 +92,8 @@ export default function CMSDetailView({
       await onUpdate(item.id, { gallery: newGallery });
       toast.success("Imagen añadida");
       await refresh();
-    } catch {
-      toast.error("Error subiendo imagen");
+    } catch (err) {
+      toast.error(err?.uploadMessage || "Error subiendo imagen");
     } finally {
       setUploading(false);
     }
@@ -193,7 +194,7 @@ export default function CMSDetailView({
       <section className="relative overflow-hidden text-white">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${mainImage})` }}
+          style={{ backgroundImage: `url(${optimizeImage(mainImage, 1600)})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-navy/80 to-brand-navy/95" />
 
@@ -386,7 +387,7 @@ export default function CMSDetailView({
               </p>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleAddImage}
                 disabled={uploading}
                 className="block w-full cursor-pointer text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-teal file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-brand-teal-dark disabled:opacity-50"
@@ -405,7 +406,7 @@ export default function CMSDetailView({
                 Principal
               </span>
               <img
-                src={item.image}
+                src={optimizeImage(item.image, 1200)}
                 className="w-full object-cover"
                 alt="Imagen principal"
               />
@@ -424,7 +425,7 @@ export default function CMSDetailView({
                 </button>
               )}
               <img
-                src={img}
+                src={optimizeImage(img, 1200)}
                 className="w-full object-cover"
                 alt={`Imagen ${i + 1} de la galería`}
               />

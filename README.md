@@ -88,7 +88,9 @@ Ejecutar en **SQL Editor**, en este orden:
 1. [`supabase/migracion_firestore.sql`](supabase/migracion_firestore.sql) — columnas, políticas RLS,
    protección del rol, trigger de perfiles, `admin_delete_user` y límites del formulario de contacto.
 2. [`supabase/recuperacion_password.sql`](supabase/recuperacion_password.sql) — función `email_registrado`.
-3. Primer administrador:
+3. [`supabase/videos.sql`](supabase/videos.sql) — columna `videos` en noticias y proyectos (solo enlaces de YouTube o Google Drive).
+4. [`supabase/seguridad_usuarios.sql`](supabase/seguridad_usuarios.sql) — la tabla `users` deja de ser pública; los perfiles de miembros se leen con `perfil_publico()`.
+5. Primer administrador:
    ```sql
    update public.users set role = 'admin' where email = 'correo@ejemplo.com';
    ```
@@ -101,6 +103,19 @@ En el panel:
 | Authentication → Sign In / Providers | **Confirm email** activado |
 | Authentication → Emails → SMTP Settings | Host `smtp.gmail.com`, puerto `465`, usuario y remitente = el Gmail del grupo, contraseña = **contraseña de aplicación** de Google |
 | Authentication → Emails → Templates | *Confirm sign up* ← [`supabase/templates/confirmacion.html`](supabase/templates/confirmacion.html) · *Reset password* ← [`supabase/templates/recuperacion.html`](supabase/templates/recuperacion.html) |
+
+### Cloudinary (upload preset)
+
+El preset es *unsigned*, así que cualquiera que lo conozca puede subir archivos. En **Settings → Upload →
+(preset) → Upload control** limitar:
+
+| Opción | Valor |
+|---|---|
+| Allowed formats | `jpg, jpeg, png, webp, gif` |
+| Max file size | `5000000` (5 MB) |
+| Incoming transformation | `c_limit,w_2000,h_2000` |
+
+La web también valida tipo y tamaño antes de subir, y muestra las imágenes optimizadas (`f_auto,q_auto`).
 
 ### Aviso del formulario de contacto
 
@@ -154,9 +169,12 @@ logiciel-web/
 ├── supabase/
 │   ├── migracion_firestore.sql
 │   ├── recuperacion_password.sql
+│   ├── videos.sql
+│   ├── seguridad_usuarios.sql
 │   ├── functions/notificar-contacto/
 │   └── templates/             # plantillas de correo en español
 ├── requirements.txt
+├── CLAUDE.md              # guía para Claude Code
 └── README.md
 ```
 

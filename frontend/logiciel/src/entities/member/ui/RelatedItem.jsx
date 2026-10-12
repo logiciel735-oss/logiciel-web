@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import placeholderImg from "../../../shared/assets/images/placeholder.svg";
+import { optimizeImage } from "../../../shared/lib/image";
 
 // Fila enlazada para listas relacionadas del perfil (proyectos, noticias).
 export default function RelatedItem({ to, image, title, subtitle, date }) {
@@ -10,7 +11,7 @@ export default function RelatedItem({ to, image, title, subtitle, date }) {
       className="group flex items-center gap-4 rounded-xl border border-slate-200 p-3 transition hover:border-brand-teal/50 hover:bg-brand-teal-light/40"
     >
       <img
-        src={image || placeholderImg}
+        src={optimizeImage(image, 160) || placeholderImg}
         alt=""
         className="h-16 w-16 shrink-0 rounded-lg object-cover"
       />

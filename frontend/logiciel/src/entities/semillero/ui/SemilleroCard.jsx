@@ -1,5 +1,6 @@
 import { ArrowTopRightOnSquareIcon, AcademicCapIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export default function SemilleroCard({
   semillero,
@@ -13,7 +14,7 @@ export default function SemilleroCard({
       <div className="flex h-40 items-center justify-center border-b border-slate-100 bg-slate-50 p-6">
         {semillero.imagen_url ? (
           <img
-            src={semillero.imagen_url}
+            src={optimizeImage(semillero.imagen_url, 800)}
             alt={semillero.nombre}
             className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
           />

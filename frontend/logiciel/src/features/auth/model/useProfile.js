@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getMyProfile, updateMyProfile } from "../api/profileApi";
 import toast from "react-hot-toast";
+import { validateImageFile } from "../../../shared/uploadFile/api/uploadApi";
 
 const MAX_DESCRIPTION_CHARS = 600;
 
@@ -147,6 +148,12 @@ export const useProfile = () => {
 
     if (!file) return;
 
+    const invalid = validateImageFile(file);
+    if (invalid) {
+      toast.error(invalid);
+      return;
+    }
+
     setForm(prev => ({
       ...prev,
       avatar: file
@@ -224,7 +231,7 @@ export const useProfile = () => {
     } catch (err) {
 
       console.error("Error actualizando perfil:", err);
-      toast.error("Error actualizando perfil");
+      toast.error(err?.uploadMessage || "Error actualizando perfil");
 
     } finally {
 

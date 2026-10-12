@@ -37,8 +37,8 @@ export default function ProjectFormModal({ open, onClose, onSubmit, loading }) {
       setUploading(true);
       const result = await uploadFile(file);
       set("image", result.url);
-    } catch {
-      toast.error("Error subiendo imagen");
+    } catch (err) {
+      toast.error(err?.uploadMessage || "Error subiendo imagen");
     } finally {
       setUploading(false);
     }

@@ -1,4 +1,9 @@
+import { CameraIcon } from "@heroicons/react/24/outline";
 import Loader from "../../../shared/components/Loader";
+import PageHeader from "../../../shared/ui/PageHeader";
+import FormField from "../../../shared/ui/FormField";
+
+const CVLAC_REGEX = /^https:\/\/scienti\.minciencias\.gov\.co\/cvlac\/.+/;
 
 const ProfileForm = ({
   user,
@@ -15,188 +20,133 @@ const ProfileForm = ({
   MAX_DESCRIPTION_CHARS,
 }) => {
 
-
   if (loading) {
-    return <Loader text="Cargando perfil..." />;
+    return <div className="relative min-h-[60vh]"><Loader text="Cargando perfil..." /></div>;
   }
 
+  const cvlacError = form.cvlac_url && !CVLAC_REGEX.test(form.cvlac_url)
+    ? "Debe ser un enlace válido de CVLAC"
+    : null;
+  const descriptionTooLong = descriptionLength > MAX_DESCRIPTION_CHARS;
+
   return (
-    <div className="min-h-screen bg-[#eaf3f1] p-6 flex justify-center">
-      <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-2xl">
+    <div>
+      <PageHeader
+        eyebrow="Mi cuenta"
+        title="Mi perfil"
+        description="Esta información aparece en tu perfil público como miembro del grupo."
+      />
 
-        {/* HEADER */}
-        <div className="flex flex-col items-center mb-6">
-
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-[#0a192f] text-white flex items-center justify-center text-3xl font-bold">
-
-              {avatarPreview ? (
-                <img
-                  src={avatarPreview}
-                  alt="avatar"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                form.name.charAt(0).toUpperCase()
-              )}
-
-            </div>
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleAvatarChange(e.target.files[0])}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </div>
-
-          <p className="text-sm text-gray-500 mt-2">
-            Haz clic para cambiar tu foto
-          </p>
-
-          <h2 className="text-3xl font-bold text-[#0a192f] mt-3">
-            Mi Perfil
-          </h2>
-
-          <p className="text-gray-600 mt-1">
-            Rol: <span className="font-semibold">{user.role}</span>
-          </p>
-
-        </div>
-
-        {/* FORM */}
+      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             saveProfile();
           }}
-          className="space-y-6"
+          className="card grid gap-8 p-6 hover:shadow-sm sm:p-8 md:grid-cols-[220px_1fr]"
         >
 
-          {/* NOMBRE */}
-          <div>
-            <label className="block mb-1 text-gray-700 font-semibold">
-              Nombre completo
+          {/* AVATAR */}
+          <div className="flex flex-col items-center text-center md:border-r md:border-slate-100 md:pr-8">
+            <label className="group relative cursor-pointer">
+              <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-brand-navy text-4xl font-semibold text-white ring-4 ring-brand-teal-light">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="avatar" className="h-full w-full object-cover" />
+                ) : (
+                  form.name.charAt(0).toUpperCase()
+                )}
+              </div>
+              <span className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-brand-teal text-white shadow transition group-hover:bg-brand-teal-dark">
+                <CameraIcon className="h-5 w-5" />
+              </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={(e) => handleAvatarChange(e.target.files[0])}
+                className="sr-only"
+              />
             </label>
 
-            <input
-              type="text"
-              className="w-full p-3 border rounded-md"
-              value={form.name}
-              onChange={(e) =>
-                setForm({ ...form, name: e.target.value })
-              }
-            />
+            <p className="mt-3 text-xs text-slate-500">Haz clic en la foto para cambiarla</p>
+
+            <p className="mt-5 font-semibold text-brand-navy">{form.name || "Sin nombre"}</p>
+            {user?.role && (
+              <span className="mt-2 inline-block rounded-full bg-brand-teal-light px-3 py-1 text-xs font-semibold capitalize text-brand-teal-dark">
+                {user.role}
+              </span>
+            )}
           </div>
 
-          {/* EMAIL */}
-          <div>
-            <label className="block mb-1 text-gray-700 font-semibold">
-              Correo electrónico
-            </label>
+          {/* CAMPOS */}
+          <div className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <FormField label="Nombre completo">
+                <input
+                  type="text"
+                  className="input-base"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+              </FormField>
 
-            <input
-              type="email"
-              className="w-full p-3 border rounded-md"
-              value={form.email}
-              onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
-              }
-            />
-          </div>
+              <FormField label="Correo electrónico">
+                <input
+                  type="email"
+                  className="input-base"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+              </FormField>
+            </div>
 
-          {/* CVLAC */}
-          <div>
-            <label className="block mb-1 text-gray-700 font-semibold">
-              Enlace CVLAC
-            </label>
+            <FormField label="Universidad">
+              <input
+                type="text"
+                className="input-base"
+                value={form.universidad}
+                onChange={(e) => setForm({ ...form, universidad: e.target.value })}
+              />
+            </FormField>
 
-            <input
-              type="url"
-              className={`w-full p-3 border rounded-md ${form.cvlac_url &&
-                  !/^https:\/\/scienti\.minciencias\.gov\.co\/cvlac\/.+/.test(form.cvlac_url)
-                  ? "border-red-500"
-                  : ""
-                }`}
-              value={form.cvlac_url}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  cvlac_url: e.target.value,
-                })
-              }
-            />
+            <FormField
+              label="Enlace CvLAC"
+              hint="Ej.: https://scienti.minciencias.gov.co/cvlac/visualizador/..."
+              error={cvlacError}
+            >
+              <input
+                type="url"
+                className={`input-base ${cvlacError ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""}`}
+                value={form.cvlac_url}
+                onChange={(e) => setForm({ ...form, cvlac_url: e.target.value })}
+              />
+            </FormField>
 
-            {form.cvlac_url &&
-              !/^https:\/\/scienti\.minciencias\.gov\.co\/cvlac\/.+/.test(form.cvlac_url) && (
-                <p className="text-red-500 text-sm mt-1">
-                  Debe ser un enlace válido de CVLAC
-                </p>
+            <FormField label="Descripción">
+              <textarea
+                rows={5}
+                className="input-base"
+                value={form.descripcion}
+                onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+              />
+              <p className={`mt-1 text-right text-xs ${descriptionTooLong ? "font-semibold text-red-600" : "text-slate-500"}`}>
+                {descriptionLength} / {MAX_DESCRIPTION_CHARS}
+              </p>
+            </FormField>
+
+            <div className="flex flex-col-reverse items-center gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+              {!hasChanges && (
+                <p className="text-sm text-slate-500">No has realizado cambios en tu perfil</p>
               )}
+              <button
+                type="submit"
+                disabled={!formIsValid || saving || !hasChanges}
+                className="btn-primary w-full sm:w-auto"
+              >
+                {saving ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
           </div>
-
-          {/* UNIVERSIDAD */}
-          <div>
-
-            <label className="block mb-1 text-gray-700 font-semibold">
-              Universidad
-            </label>
-
-            <input
-              type="text"
-              className="w-full p-3 border rounded-md"
-              value={form.universidad}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  universidad: e.target.value,
-                })
-              }
-            />
-
-          </div>
-
-          {/* DESCRIPCIÓN */}
-          <div>
-
-            <label className="block mb-1 text-gray-700 font-semibold">
-              Descripción
-            </label>
-
-            <textarea
-              rows={4}
-              className="w-full p-3 border rounded-md"
-              value={form.descripcion}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  descripcion: e.target.value,
-                })
-              }
-            />
-
-            <p className="text-sm text-gray-600 mt-1">
-              Caracteres: {descriptionLength} / {MAX_DESCRIPTION_CHARS}
-            </p>
-
-          </div>
-
-          {/* BOTÓN */}
-          {!hasChanges && (
-            <p className="text-sm text-gray-500 text-center">
-              No has realizado cambios en tu perfil
-            </p>
-          )}
-          <button
-            type="submit"
-            disabled={!formIsValid || saving || !hasChanges}
-            className="w-full bg-[#64ffda] text-[#0a192f] font-bold py-3 rounded-md hover:bg-teal-300 transition disabled:bg-gray-300"
-          >
-            {saving ? "Guardando..." : "Guardar cambios"}
-          </button>
-
         </form>
-
       </div>
     </div>
   );

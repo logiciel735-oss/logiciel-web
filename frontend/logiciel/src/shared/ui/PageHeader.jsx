@@ -1,4 +1,4 @@
-import SanJose from "../assets/images/san_jose.png";
+import SanJose from "../assets/images/san_jose.webp";
 
 // Encabezado institucional de página: banda navy con la foto del campus atenuada.
 // `action` permite ubicar botones (p. ej. "+ Nueva noticia" para administradores).

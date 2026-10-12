@@ -1,5 +1,6 @@
 import { BuildingLibraryIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export default function AliadosInstitucionalesCard({
   aliado,
@@ -39,7 +40,7 @@ export default function AliadosInstitucionalesCard({
       <div className="my-5 flex h-24 items-center justify-center">
         {aliado.logo_url ? (
           <img
-            src={aliado.logo_url}
+            src={optimizeImage(aliado.logo_url, 400)}
             alt={aliado.nombre}
             className="max-h-full max-w-[85%] object-contain transition-transform duration-500 group-hover:scale-105"
           />

@@ -4,6 +4,7 @@ import { getMiembros } from "../api/miembroApi";
 import toast from "react-hot-toast";
 import Modal from "../../../shared/ui/Modal";
 import FormField from "../../../shared/ui/FormField";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export default function MiembroModal({
     data,
@@ -130,7 +131,7 @@ export default function MiembroModal({
                                     >
                                         {user.avatar ? (
                                             <img
-                                                src={user.avatar}
+                                                src={optimizeImage(user.avatar, 160)}
                                                 alt={user.name}
                                                 className="mb-2 h-14 w-14 rounded-full object-cover"
                                             />

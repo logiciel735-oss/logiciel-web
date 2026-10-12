@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import AdminActions from "../../../shared/ui/AdminActions";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export default function MiembroCard({
   miembro,
@@ -20,7 +21,7 @@ export default function MiembroCard({
     >
       {miembro.image ? (
         <img
-          src={miembro.image}
+          src={optimizeImage(miembro.image, 400)}
           alt={miembro.name}
           className="h-28 w-28 rounded-full object-cover ring-4 ring-slate-100 transition group-hover:ring-brand-teal-light"
         />

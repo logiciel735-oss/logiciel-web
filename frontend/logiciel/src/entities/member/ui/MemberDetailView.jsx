@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowLeftIcon, BeakerIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import Loader from "../../../shared/components/Loader";
-import SanJose from "../../../shared/assets/images/san_jose.png";
+import SanJose from "../../../shared/assets/images/san_jose.webp";
 import MemberProfileCard from "./MemberProfileCard";
 import RelatedItem from "./RelatedItem";
 
 import PublicationCard from "../../publication/ui/PublicationCard";
 import { useMiembros } from "../model/useMiembros";
+import { optimizeImage } from "../../../shared/lib/image";
 
 export default function MemberDetailView({
   member,
@@ -66,7 +67,7 @@ export default function MemberDetailView({
           <div className="mt-6 flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
             {member.avatar ? (
               <img
-                src={member.avatar}
+                src={optimizeImage(member.avatar, 300)}
                 alt={member.name}
                 className="h-28 w-28 shrink-0 rounded-full border-4 border-white/90 object-cover shadow-lg"
               />

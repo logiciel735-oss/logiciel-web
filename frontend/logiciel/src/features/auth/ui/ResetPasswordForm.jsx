@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { ExclamationTriangleIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import AuthLayout, { AuthField, AuthError, Spinner } from "./AuthLayout";
+import PasswordInput from "./PasswordInput";
 
 export default function ResetPasswordForm({
   linkError,
@@ -13,89 +15,63 @@ export default function ResetPasswordForm({
 }) {
   if (linkError) {
     return (
-      <div className="min-h-screen flex justify-center items-center px-4">
-        <div className="bg-white p-10 rounded-xl shadow-lg w-96 text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Enlace inválido</h2>
-          <p className="text-gray-700 mb-6">{linkError}</p>
-          <Link
-            to="/forgot-password"
-            className="inline-block bg-teal-400 w-full py-3 rounded font-bold"
-          >
-            Solicitar un nuevo enlace
-          </Link>
-        </div>
-      </div>
+      <AuthLayout icon={ExclamationTriangleIcon} tone="error" title="Enlace inválido">
+        <p className="text-center leading-relaxed text-slate-600">{linkError}</p>
+        <Link to="/forgot-password" className="btn-primary mt-7 w-full py-3">
+          Solicitar un nuevo enlace
+        </Link>
+      </AuthLayout>
     );
   }
 
-  const type = showPassword ? "text" : "password";
-
   return (
-    <div className="min-h-screen flex justify-center items-center px-4">
-      <form
-        className="bg-white shadow-lg p-10 rounded-xl w-96"
-        onSubmit={handleSubmit}
-      >
-        <h2 className="text-2xl font-bold mb-2 text-center">
-          Nueva contraseña
-        </h2>
-        <p className="text-gray-600 text-sm text-center mb-6">
-          Escribe tu nueva contraseña (mínimo 6 caracteres).
-        </p>
-
-        <div className="relative mb-4">
-          <input
-            type={type}
+    <AuthLayout
+      icon={LockClosedIcon}
+      title="Nueva contraseña"
+      description="Escribe tu nueva contraseña (mínimo 6 caracteres)."
+    >
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <AuthField label="Nueva contraseña" htmlFor="reset-password">
+          <PasswordInput
+            id="reset-password"
+            autoComplete="new-password"
             placeholder="Nueva contraseña"
-            className="w-full p-3 border rounded pr-12"
+            show={showPassword}
+            onToggle={() => setShowPassword((prev) => !prev)}
             value={form.password}
             onChange={handleChange("password")}
             disabled={loading}
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-          >
-            {showPassword ? (
-              <EyeIcon className="h-5 w-5" />
-            ) : (
-              <EyeSlashIcon className="h-5 w-5" />
-            )}
-          </button>
-        </div>
+        </AuthField>
 
-        <input
-          type={type}
-          placeholder="Confirmar contraseña"
-          className="w-full p-3 border mb-4 rounded"
-          value={form.confirm}
-          onChange={handleChange("confirm")}
-          disabled={loading}
-        />
+        <AuthField label="Confirmar contraseña" htmlFor="reset-confirm">
+          <PasswordInput
+            id="reset-confirm"
+            autoComplete="new-password"
+            placeholder="Repite la contraseña"
+            show={showPassword}
+            value={form.confirm}
+            onChange={handleChange("confirm")}
+            disabled={loading}
+          />
+        </AuthField>
 
         {error && (
-          <div className="text-red-500 mb-4 text-sm">
+          <AuthError>
             <p>{error}</p>
             {/expir|inválido/i.test(error) && (
-              <Link to="/forgot-password" className="text-blue-500 underline">
+              <Link to="/forgot-password" className="mt-1 inline-block font-semibold underline">
                 Solicitar un nuevo enlace
               </Link>
             )}
-          </div>
+          </AuthError>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-teal-400 w-full py-3 rounded font-bold flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {loading && (
-            <span className="h-5 w-5 border-2 border-[#0a192f] border-t-transparent rounded-full animate-spin" />
-          )}
+        <button type="submit" disabled={loading} className="btn-primary w-full py-3">
+          {loading && <Spinner />}
           {loading ? "Guardando..." : "Guardar contraseña"}
         </button>
       </form>
-    </div>
+    </AuthLayout>
   );
 }

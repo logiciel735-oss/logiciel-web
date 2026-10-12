@@ -18,7 +18,7 @@ export default function ImageUploader({ value, onChange, showPreview = true, con
       toast.success("Imagen subida correctamente");
     } catch (err) {
       console.error(err);
-      toast.error("Error subiendo imagen");
+      toast.error(err?.uploadMessage || "Error subiendo imagen");
     } finally {
       setUploading(false);
     }

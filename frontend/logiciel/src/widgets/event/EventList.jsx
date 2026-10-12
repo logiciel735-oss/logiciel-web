@@ -28,8 +28,8 @@ export default function EventList() {
       setUploading(true);
       const result = await uploadFile(file);
       manage.setForm((prev) => ({ ...prev, image: result.url }));
-    } catch {
-      alert("Error subiendo imagen");
+    } catch (err) {
+      alert(err?.uploadMessage || "Error subiendo imagen");
     } finally {
       setUploading(false);
     }

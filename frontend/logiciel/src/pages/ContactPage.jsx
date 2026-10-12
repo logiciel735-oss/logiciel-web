@@ -1,0 +1,5 @@
+import ContactSection from "@/widgets/contact-section/ContactSection";
+
+export default function ContactPage() {
+  return <ContactSection />;
+}

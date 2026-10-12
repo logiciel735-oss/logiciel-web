@@ -20,9 +20,15 @@ export default function LoginForm({ handleChange, handleSubmit, loading, error }
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full p-3 border mb-4 rounded"
+          className="w-full p-3 border mb-2 rounded"
           onChange={handleChange("password")}
         />
+
+        <div className="text-right mb-4">
+          <Link to="/forgot-password" className="text-sm text-blue-500 hover:underline">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
 
         {error && (
           <p className="text-red-500 mb-4 text-sm">

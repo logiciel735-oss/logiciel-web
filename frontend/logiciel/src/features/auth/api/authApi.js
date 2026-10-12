@@ -13,10 +13,22 @@ const AUTH_ERRORS = {
   "Unable to validate email address: invalid format": "El correo no es válido",
   "Error sending confirmation email":
     "No pudimos enviar el correo de verificación. Intenta más tarde o contacta al administrador.",
+  "Error sending recovery email":
+    "No pudimos enviar el correo de recuperación. Intenta más tarde.",
+  "New password should be different from the old password.":
+    "La nueva contraseña debe ser diferente a la anterior",
+  "Auth session missing!": "El enlace de recuperación expiró. Solicita uno nuevo.",
 };
 
-const authError = (error, fallback) =>
-  new Error(AUTH_ERRORS[error?.message] || error?.message || fallback);
+const authError = (error, fallback) => {
+  const message = error?.message || "";
+
+  // "For security purposes, you can only request this after 42 seconds."
+  const wait = message.match(/after (\d+) seconds?/);
+  if (wait) return new Error(`Por seguridad, espera ${wait[1]} segundos antes de intentarlo de nuevo.`);
+
+  return new Error(AUTH_ERRORS[message] || message || fallback);
+};
 
 export const loginRequest = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -54,6 +66,41 @@ export const logoutRequest = async () => {
   const { error } = await supabase.auth.signOut();
 
   if (error) throw new Error("Error cerrando sesión");
+
+  return true;
+};
+
+// El correo de recuperación debe apuntar a /reset-password?token={{ .TokenHash }}
+export const requestPasswordReset = async (email) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    email.toLowerCase().trim(),
+    { redirectTo: `${window.location.origin}/reset-password` }
+  );
+
+  if (error) throw authError(error, "Error enviando el correo de recuperación");
+
+  return true;
+};
+
+// Valida el token del correo: inicia una sesión temporal de recuperación
+export const verifyRecoveryToken = async (token) => {
+  const { error } = await supabase.auth.verifyOtp({
+    token_hash: token,
+    type: "recovery",
+  });
+
+  if (error) throw authError(error, "Token inválido o expirado");
+
+  return true;
+};
+
+// Guarda la nueva contraseña (requiere haber verificado el token)
+export const updatePassword = async (password) => {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw authError(error, "Error actualizando la contraseña");
+
+  // Se cierra la sesión de recuperación para que entre con la nueva contraseña
+  await supabase.auth.signOut();
 
   return true;
 };

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export default function ResetPasswordForm({
-  token,
+  linkError,
   form,
   showPassword,
   setShowPassword,
@@ -11,14 +11,12 @@ export default function ResetPasswordForm({
   handleChange,
   handleSubmit,
 }) {
-  if (!token) {
+  if (linkError) {
     return (
       <div className="min-h-screen flex justify-center items-center px-4">
         <div className="bg-white p-10 rounded-xl shadow-lg w-96 text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Enlace inválido</h2>
-          <p className="text-gray-700 mb-6">
-            El enlace de recuperación no es válido o está incompleto.
-          </p>
+          <p className="text-gray-700 mb-6">{linkError}</p>
           <Link
             to="/forgot-password"
             className="inline-block bg-teal-400 w-full py-3 rounded font-bold"

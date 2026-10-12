@@ -16,9 +16,9 @@ export default function ForgotPasswordForm({
           <EnvelopeIcon className="h-14 w-14 text-teal-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-4">Revisa tu correo</h2>
           <p className="text-gray-700 mb-6">
-            Si existe una cuenta con <span className="font-semibold">{sentTo}</span>,
-            te enviamos un enlace para restablecer tu contraseña. Revisa tu bandeja
-            de entrada o spam.
+            Te enviamos un enlace a <span className="font-semibold">{sentTo}</span>{" "}
+            para restablecer tu contraseña. Revisa tu bandeja de entrada o spam.
+            El enlace expira en 1 hora.
           </p>
           <Link
             to="/login"

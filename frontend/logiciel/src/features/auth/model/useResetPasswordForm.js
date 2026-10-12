@@ -2,13 +2,23 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { verifyRecoveryToken, updatePassword } from "../api/authApi";
+import { recoveryRedirect } from "../../../shared/config/supabase";
 
 const MIN_PASSWORD = 6;
 
 export function useResetPasswordForm() {
   const [searchParams] = useSearchParams();
+  // Enlace propio: /reset-password?token=...  (plantilla en español)
   const token = searchParams.get("token");
+  // Enlace por defecto de Supabase: llega con la sesión de recuperación ya iniciada
+  const hasRecoverySession = recoveryRedirect.isRecovery;
   const navigate = useNavigate();
+
+  const linkError = recoveryRedirect.error
+    ? "El enlace de recuperación expiró o ya fue usado. Solicita uno nuevo."
+    : !token && !hasRecoverySession
+      ? "El enlace de recuperación no es válido o está incompleto."
+      : null;
 
   const [form, setForm] = useState({ password: "", confirm: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +48,7 @@ export function useResetPasswordForm() {
       setLoading(true);
       setError(null);
 
-      if (!verified) {
+      if (token && !verified) {
         await verifyRecoveryToken(token);
         setVerified(true);
       }
@@ -55,7 +65,7 @@ export function useResetPasswordForm() {
   };
 
   return {
-    token,
+    linkError,
     form,
     showPassword,
     setShowPassword,

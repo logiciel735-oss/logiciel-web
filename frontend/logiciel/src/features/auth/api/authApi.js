@@ -72,8 +72,18 @@ export const logoutRequest = async () => {
 
 // El correo de recuperación debe apuntar a /reset-password?token={{ .TokenHash }}
 export const requestPasswordReset = async (email) => {
+  const cleanEmail = email.toLowerCase().trim();
+
+  // Verifica que el correo tenga una cuenta (función SQL email_registrado)
+  const { data: exists, error: checkError } = await supabase.rpc("email_registrado", {
+    p_email: cleanEmail,
+  });
+
+  if (checkError) throw new Error("No pudimos verificar el correo. Intenta más tarde.");
+  if (!exists) throw new Error("No existe una cuenta registrada con ese correo.");
+
   const { error } = await supabase.auth.resetPasswordForEmail(
-    email.toLowerCase().trim(),
+    cleanEmail,
     { redirectTo: `${window.location.origin}/reset-password` }
   );
 

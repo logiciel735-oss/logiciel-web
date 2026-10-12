@@ -1,10 +1,33 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getPublicUser } from "../../../features/adminUsers/api/adminUsersApi";
 import { getMiembroByUserId } from "../api/miembroApi";
 import { getProjects } from "../../project/api/projectApi";
 import { getPublicaciones } from "../../publication/api/publicationApi";
 import { getNoticias } from "../../news/api/newsApi";
 import { mapNewsFromApi } from "../../news/model/newsMapper";
+
+// Perfil de un miembro: null si el usuario no está en la tabla miembros
+const cargarMiembro = async (uid) => {
+  const miembro = await getMiembroByUserId(uid);
+  if (!miembro) return null;
+
+  // Datos de perfil (foto, descripción, CvLAC...) desde users
+  const user = await getPublicUser(uid).catch(() => null);
+
+  return {
+    ...user,
+    id: uid,
+    miembro_id: miembro.id,
+    name: user?.name || miembro.name,
+    role: miembro.role,                       // rol en el grupo, no el de la plataforma
+    avatar: user?.avatar || miembro.image,
+  };
+};
+
+const participa = (lista, memberId) =>
+  (Array.isArray(lista) ? lista : []).some(
+    (x) => x.miembro_id === memberId || x.uid === memberId
+  );
 
 export const useMiembroDetail = (uid) => {
   const [member, setMember]               = useState(null);
@@ -16,113 +39,79 @@ export const useMiembroDetail = (uid) => {
   const [noticias, setNoticias]           = useState([]);
   const [loading, setLoading]             = useState(true);
   const [loadingRelated, setLoadingRelated] = useState(true);
+  const [reloadKey, setReloadKey]         = useState(0);
 
-  const loadMember = useCallback(async () => {
+  useEffect(() => {
     if (!uid) return;
+    let active = true;
 
-    try {
-      setLoading(true);
-      setError(null);
-      setNotFound(false);
-
-      // 1. El perfil solo existe si el usuario está en la tabla miembros
-      const miembro = await getMiembroByUserId(uid);
-
-      if (!miembro) {
-        setMember(null);
-        setNotFound(true);
-        return;
-      }
-
-      // 2. Datos de perfil (foto, descripción, CvLAC...) desde users
-      const user = await getPublicUser(uid).catch(() => null);
-
-      setMember({
-        ...user,
-        id: uid,
-        miembro_id: miembro.id,
-        name: user?.name || miembro.name,
-        role: miembro.role,                       // rol en el grupo, no el de la plataforma
-        avatar: user?.avatar || miembro.image,
-      });
-    } catch (err) {
-      console.error("Error cargando miembro:", err);
-      setMember(null);
-      setError("No se pudo cargar el perfil del miembro. Revisa tu conexión e inténtalo de nuevo.");
-    } finally {
-      setLoading(false);
-    }
-  }, [uid]);
-
-  useEffect(() => {
-    loadMember();
-  }, [loadMember]);
-
-  useEffect(() => {
-    if (!member) return;
-
-    const loadRelated = async () => {
+    const run = async () => {
       try {
-        setLoadingRelated(true);
+        const data = await cargarMiembro(uid);
+        if (!active) return;
+        setMember(data);
+        setNotFound(!data);
+        setError(null);
+      } catch (err) {
+        if (!active) return;
+        console.error("Error cargando miembro:", err);
+        setMember(null);
+        setError("No se pudo cargar el perfil del miembro. Revisa tu conexión e inténtalo de nuevo.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
 
+    run();
+    return () => { active = false; };
+  }, [uid, reloadKey]);
+
+  // Proyectos, publicaciones y noticias en las que participa el miembro
+  const memberId = member?.id;
+
+  useEffect(() => {
+    if (!memberId) return;
+    let active = true;
+
+    const run = async () => {
+      try {
         const [proyectos, pubs, newsRaw] = await Promise.all([
           getProjects(),
           getPublicaciones(),
           getNoticias(),
         ]);
+        if (!active) return;
 
-        const memberId = member.id;
+        const misProyectos = (proyectos || []).filter((p) => participa(p.integrantes, memberId));
 
-        setActivos(
-          (proyectos || []).filter(
-            (p) =>
-              p.estado === "activo" &&
-              Array.isArray(p.integrantes) &&
-              p.integrantes.some(
-                (i) => i.miembro_id === memberId || i.uid === memberId
-              )
-          )
+        setActivos(misProyectos.filter((p) => p.estado === "activo"));
+        setFinalizados(misProyectos.filter((p) => p.estado === "finalizado"));
+        setPublicaciones((pubs || []).filter((p) => participa(p.autores, memberId)));
+        setNoticias(
+          (newsRaw || [])
+            .filter((n) => participa(n.autores, memberId))
+            .map(mapNewsFromApi)
         );
-
-        setFinalizados(
-          (proyectos || []).filter(
-            (p) =>
-              p.estado === "finalizado" &&
-              Array.isArray(p.integrantes) &&
-              p.integrantes.some(
-                (i) => i.miembro_id === memberId || i.uid === memberId
-              )
-          )
-        );
-
-        setPublicaciones(
-          (pubs || []).filter((p) =>
-            (Array.isArray(p.autores) ? p.autores : []).some(
-              (a) => a.miembro_id === memberId || a.uid === memberId
-            )
-          )
-        );
-
-        const noticiasFiltered = (newsRaw || []).filter((n) =>
-          (Array.isArray(n.autores) ? n.autores : []).some(
-            (a) => a.miembro_id === memberId
-          )
-        );
-        setNoticias(noticiasFiltered.map(mapNewsFromApi));
-
-      } catch (e) {
-        console.error("Error cargando relaciones:", e);
+      } catch (err) {
+        console.error("Error cargando relaciones:", err);
       } finally {
-        setLoadingRelated(false);
+        if (active) setLoadingRelated(false);
       }
     };
 
-    loadRelated();
-  }, [member]);
+    run();
+    return () => { active = false; };
+  }, [memberId]);
+
+  const refresh = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
   return {
     member, error, notFound, activos, finalizados,
     publicaciones, noticias, loading, loadingRelated,
-    refresh: loadMember,
+    refresh,
   };
 };

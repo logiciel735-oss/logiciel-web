@@ -63,6 +63,7 @@ const AdminUsersManagement = () => {
         />
 
         <EditUserModal
+          key={editingUser?.id ?? "sin-usuario"}
           user={editingUser}
           onClose={() => setEditingUser(null)}
           onSave={updateUser}

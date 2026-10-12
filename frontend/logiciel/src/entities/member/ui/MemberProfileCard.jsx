@@ -5,7 +5,6 @@ export default function MemberProfileCard({
   noticias = [],
   loadingRelated = false,
 }) {
-  console.log("MEMBER:", member);
   return (
     <div className="space-y-8">
 

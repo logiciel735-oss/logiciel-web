@@ -1,0 +1,49 @@
+# =====================================================================
+# LOGICIEL — CMS Académico · Requisitos del proyecto
+# =====================================================================
+# Documento de referencia. Este proyecto es Node.js: las dependencias se
+# instalan con pnpm desde frontend/logiciel/package.json y pnpm-lock.yaml
+# (este archivo NO se usa con pip).
+#
+#   cd frontend/logiciel
+#   pnpm install
+# =====================================================================
+
+# ── Herramientas de desarrollo ───────────────────────────────────────
+node>=22.12.0            # Vite 7 requiere Node 20.19+ o 22.12+ (probado con 22.14.0)
+pnpm>=9.0.0              # gestor de paquetes (probado con 11.1.1)
+git>=2.40
+
+# ── Dependencias de producción (frontend/logiciel) ───────────────────
+@supabase/supabase-js==2.117.3   # base de datos, autenticación y RPC
+react==19.2.6
+react-dom==19.2.6
+react-router-dom==7.15.0         # rutas públicas y privadas
+react-hot-toast==2.6.0           # notificaciones
+@heroicons/react==2.2.0          # iconos
+
+# ── Dependencias de desarrollo ───────────────────────────────────────
+vite==7.3.3                      # servidor de desarrollo y build
+@vitejs/plugin-react==5.2.0
+tailwindcss==3.4.19
+postcss==8.5.14
+postcss-cli==11.0.1
+autoprefixer==10.5.0
+eslint==9.39.4
+@eslint/js==9.39.4
+eslint-plugin-react-hooks==7.1.1
+eslint-plugin-react-refresh==0.4.26
+globals==16.5.0
+@types/react==19.2.14
+@types/react-dom==19.2.3
+
+# ── Servicios externos (cuentas necesarias) ──────────────────────────
+# Supabase     → PostgreSQL, Auth, Edge Functions, Database Webhooks (plan Free)
+# Cloudinary   → almacenamiento de imágenes con upload preset "unsigned"
+# Vercel       → hosting del frontend (plan Hobby)
+# Gmail        → SMTP de Supabase Auth (contraseña de aplicación)
+# Resend       → correo del formulario de contacto (Edge Function)
+
+# ── Opcional ─────────────────────────────────────────────────────────
+# supabase CLI   → desplegar Edge Functions desde la terminal
+# k6             → pruebas de carga

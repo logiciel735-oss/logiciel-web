@@ -15,7 +15,7 @@ import {
 } from "../../entities/linea/api/lineaApi";
 
 export default function LineasWidget() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
   const { lineas, loading, refresh } = useLineas();
@@ -28,10 +28,10 @@ export default function LineasWidget() {
   const handleSave = async () => {
     try {
       if (editData?.id) {
-        await updateLinea(editData.id, editData, token);
+        await updateLinea(editData.id, editData);
         toast.success("Línea actualizada correctamente");
       } else {
-        await createLinea(editData, token);
+        await createLinea(editData);
         toast.success("Línea creada correctamente");
       }
 
@@ -47,7 +47,7 @@ export default function LineasWidget() {
   /* ================= DELETE ================= */
   const handleDelete = async () => {
     try {
-      await deleteLinea(confirmDelete.id, token);
+      await deleteLinea(confirmDelete.id);
       toast.success("Línea eliminada correctamente");
 
       await refresh();

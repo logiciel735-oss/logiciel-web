@@ -1,5 +1,5 @@
 import CMSDetailView from "../../../shared/ui/CMSDetailView";
-import { updateEvento } from "../../../features/manage-content/api/adminContentApi";
+import { updateEvento } from "../../../features/manage-events/api/adminEventApi";
 import { validateDateRange } from "../../../shared/lib/validators";
 import { formatDateInput } from "../../../shared/utils/formatDateInput";
 

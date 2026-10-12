@@ -1,4 +1,5 @@
-import { createContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { AuthContext } from "../model/authContext";
 import { supabase } from "../../../shared/config/supabase";
 import {
   loginRequest,
@@ -6,8 +7,6 @@ import {
   logoutRequest,
 } from "../api/authApi";
 import { getMyProfile } from "../api/profileApi";
-
-export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

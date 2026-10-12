@@ -1,22 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 
+// El padre le pone key={user.id}: al cambiar de usuario se vuelve a montar con sus datos
 const EditUserModal = ({ user, onClose, onSave }) => {
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    role: "",
-  });
-
-  useEffect(() => {
-    if (user) {
-      setForm({
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
-    }
-  }, [user]);
+  const [form, setForm] = useState(() => ({
+    name: user?.name || "",
+    email: user?.email || "",
+    role: user?.role || "",
+  }));
 
   if (!user) return null;
 

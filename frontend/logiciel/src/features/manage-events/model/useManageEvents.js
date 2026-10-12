@@ -44,6 +44,7 @@ export function useManageEvents(refresh) {
       setOpenModal(false);
       toast.success("Guardado correctamente");
     } catch (err) {
+      console.error(err);
       toast.error("Error al guardar");
     }
   };

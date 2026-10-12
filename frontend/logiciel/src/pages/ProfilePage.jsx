@@ -4,9 +4,9 @@ import ProfileForm from "../features/auth/ui/ProfileForm";
 
 export default function ProfilePage() {
 
-  const { user, token } = useAuth();
+  const { user } = useAuth();
 
-  const profileForm = useProfile(token);
+  const profileForm = useProfile();
 
   return (
     <ProfileForm

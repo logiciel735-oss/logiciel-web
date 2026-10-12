@@ -12,19 +12,29 @@ export const useAdminUsers = () => {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const loadUsers = async () => {
-    try {
-      setLoading(true);
-      const data = await getAllUsers();
-      setUsers(data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Error cargando usuarios");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Recarga la lista en segundo plano (la tabla sigue visible mientras tanto)
+  const loadUsers = () => setReloadKey((k) => k + 1);
+
+  useEffect(() => {
+    let active = true;
+
+    const run = async () => {
+      try {
+        const data = await getAllUsers();
+        if (active) setUsers(data);
+      } catch (error) {
+        console.error(error);
+        if (active) toast.error("Error cargando usuarios");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    run();
+    return () => { active = false; };
+  }, [reloadKey]);
 
   const updateUser = async (uid, data) => {
     try {
@@ -32,6 +42,7 @@ export const useAdminUsers = () => {
       toast.success("Usuario actualizado");
       loadUsers();
     } catch (error) {
+      console.error(error);
       toast.error("Error actualizando usuario");
     }
   };
@@ -42,6 +53,7 @@ export const useAdminUsers = () => {
       toast.success("Usuario eliminado");
       loadUsers();
     } catch (error) {
+      console.error(error);
       toast.error("Error eliminando usuario");
     }
   };
@@ -52,13 +64,10 @@ export const useAdminUsers = () => {
       toast.success("Usuario promovido a admin");
       loadUsers();
     } catch (error) {
+      console.error(error);
       toast.error("Error promoviendo usuario");
     }
   };
-
-  useEffect(() => {
-    loadUsers();
-  }, []);
 
   return {
     users,

@@ -17,13 +17,13 @@ import {
 } from "../../features/adminUsers/api/adminUsersApi";
 
 export default function MiembrosWidget() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
   const { miembros, loading, error, refresh } = useMiembros();
 
   const { ref, hasOverflow, scrollLeft, scrollRight } =
-    useCircularHorizontalScroll([miembros]);
+    useCircularHorizontalScroll(miembros.length);
 
   const [openModal, setOpenModal] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -32,10 +32,10 @@ export default function MiembrosWidget() {
   const handleSave = async () => {
     try {
       if (editData?.id) {
-        await updateMiembro(editData.id, editData, token);
+        await updateMiembro(editData.id, editData);
         toast.success("Miembro actualizado correctamente");
       } else {
-        await createMiembro(editData, token);
+        await createMiembro(editData);
         toast.success("Miembro creado correctamente");
       }
       await refresh();
@@ -48,7 +48,7 @@ export default function MiembrosWidget() {
 
   const handleDelete = async () => {
     try {
-      await deleteMiembro(confirmDelete.id, token);
+      await deleteMiembro(confirmDelete.id);
       toast.success("Miembro eliminado correctamente");
       await refresh();
       setConfirmDelete(null);

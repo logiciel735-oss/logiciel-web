@@ -1,26 +1,3 @@
-// import { useCMSData } from "../../../shared/lib/useCMSData";
-// import { getProjects } from "../api/projectApi";
-
-// export function useProjects(estado) {
-
-//   const {
-//     data,
-//     loading,
-//     refresh,
-//   } = useCMSData(
-//     `cms_proyectos_${estado}`,
-//     () => getProjects(estado)
-//   );
-
-//   const projects = Array.isArray(data) ? data : [];
-
-//   return {
-//     projects,
-//     loading,
-//     refresh,
-//   };
-// }
-
 import { useCMSData } from "../../../shared/lib/useCMSData";
 import { getProjects } from "../api/projectApi";
 

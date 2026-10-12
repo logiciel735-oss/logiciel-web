@@ -3,6 +3,11 @@ const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 // Subir archivos (imágenes o PDFs) directamente a Cloudinary con un upload preset unsigned
 export const uploadFile = async (file, folder = "cms") => {
+  if (!CLOUD_NAME || !UPLOAD_PRESET) {
+    throw new Error(
+      "Faltan VITE_CLOUDINARY_CLOUD_NAME y/o VITE_CLOUDINARY_UPLOAD_PRESET en las variables de entorno."
+    );
+  }
 
   const formData = new FormData();
   formData.append("file", file);

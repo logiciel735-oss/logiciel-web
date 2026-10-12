@@ -20,12 +20,11 @@ const hasChanged = (current, original) => {
   return normalize(current) !== normalize(original);
 };
 
-export const useProfile = (token) => {
+export const useProfile = () => {
 
   const [form, setForm] = useState({
     name: "",
     email: "",
-    // numero: "",
     cvlac_url: "",
     descripcion: "",
     universidad: "",
@@ -41,53 +40,61 @@ export const useProfile = (token) => {
   // CARGAR PERFIL
   // ======================
 
+  const applyProfile = (data) => {
+    const profileData = {
+      name: data.name || "",
+      email: data.email || "",
+      cvlac_url: data.cvlac_url || "",
+      descripcion: data.descripcion || "",
+      universidad: data.universidad || "",
+    };
+
+    setForm({
+      ...profileData,
+      avatar: null,
+    });
+
+    setOriginalProfile(profileData);
+
+    if (data.avatar) {
+      setAvatarPreview(data.avatar);
+    }
+  };
+
+  // Recarga tras guardar
   const loadProfile = async () => {
     try {
-
-      const data = await getMyProfile(token);
-
-      if (!data) return;
-
-      const profileData = {
-        name: data.name || "",
-        email: data.email || "",
-        // numero: data.numero || "",
-        cvlac_url: data.cvlac_url || "",
-        descripcion: data.descripcion || "",
-        universidad: data.universidad || "",
-      };
-
-      setForm({
-        ...profileData,
-        avatar: null,
-      });
-
-      setOriginalProfile(profileData);
-
-      if (data.avatar) {
-        setAvatarPreview(data.avatar);
-      }
-
+      const data = await getMyProfile();
+      if (data) applyProfile(data);
     } catch (err) {
-
       console.error("Error cargando perfil:", err);
-
-    } finally {
-
-      setLoading(false);
-
+      toast.error("No se pudo cargar tu perfil");
     }
   };
 
   useEffect(() => {
-    loadProfile();
-  }, [token]);
+    let active = true;
+
+    const run = async () => {
+      try {
+        const data = await getMyProfile();
+        if (active && data) applyProfile(data);
+      } catch (err) {
+        console.error("Error cargando perfil:", err);
+        if (active) toast.error("No se pudo cargar tu perfil");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    run();
+    return () => { active = false; };
+  }, []);
 
   // ======================
   // VALIDACIONES
   // ======================
 
-  // const phoneIsValid = /^[0-9]{7,15}$/.test(form.numero);
   const cvlacIsValid = useMemo(() => {
     if (!form.cvlac_url) return true; // opcional
 
@@ -104,7 +111,6 @@ export const useProfile = (token) => {
   const descriptionIsValid =
     descriptionLength <= MAX_DESCRIPTION_CHARS;
 
-  // const formIsValid = phoneIsValid && descriptionIsValid;
   const formIsValid = cvlacIsValid && descriptionIsValid;
 
   // ======================
@@ -118,7 +124,6 @@ export const useProfile = (token) => {
     const fields = [
       "name",
       "email",
-      // "numero",
       "cvlac_url",
       "descripcion",
       "universidad"
@@ -181,7 +186,6 @@ export const useProfile = (token) => {
       const fields = [
         "name",
         "email",
-        // "numero",
         "cvlac_url",
         "descripcion",
         "universidad"
@@ -204,10 +208,6 @@ export const useProfile = (token) => {
         formData.append("avatar", form.avatar);
       }
 
-      // DEBUG
-      for (let [key, value] of formData.entries()) {
-        console.log("ENVIANDO:", key, value);
-      }
 
       if ([...formData.keys()].length === 0) {
         toast("No hay cambios para guardar", { icon: "ℹ️" });

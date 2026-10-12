@@ -1,71 +1,40 @@
+import { useMemo } from "react";
 import { useAuth } from "../features/auth/model/useAuth";
 import { useProjects } from "../entities/project/model/useProjects";
+import { useMiembros } from "../entities/member/model/useMiembros";
 import ProjectCard from "../entities/project/ui/ProjectCard";
 import Loader from "../shared/components/Loader";
-import { getMiembros } from "../entities/member/api/miembroApi";
-import { useState, useEffect } from "react";
 
 export default function MyProjects() {
-
   const { user } = useAuth();
+  const { miembros } = useMiembros();
+  const { projects, loading } = useProjects();
 
-  const [miembros, setMiembros] = useState([]);
+  // Proyectos en los que el usuario figura como integrante
+  const misProyectos = useMemo(
+    () =>
+      projects.filter((p) =>
+        (p.integrantes || []).some(
+          (i) => String(i.miembro_id).trim() === String(user?.id).trim()
+        )
+      ),
+    [projects, user?.id]
+  );
 
-  useEffect(() => {
-    getMiembros().then(setMiembros).catch(() => { });
-  }, []);
+  const misActivos = misProyectos.filter((p) => p.estado === "activo");
+  const misFinalizados = misProyectos.filter((p) => p.estado === "finalizado");
 
-  const {
-    projects: activos,
-    loading: loadingActivos,
-    refresh: refreshActivos
-  } = useProjects("activo");
-
-  const {
-    projects: finalizados,
-    loading: loadingFinalizados,
-    refresh: refreshFinalizados
-  } = useProjects("finalizado");
-  console.log("USER:", user);
-  useEffect(() => {
-    if (user) {
-      refreshActivos();
-      refreshFinalizados();
-    }
-  }, [user]);
-
-  /* filtro  */
-  const filtrarMisProyectos = (projects = []) => {
-    return projects.filter((p) =>
-      (p.integrantes || []).some((i) => {
-
-        return (
-          String(i.miembro_id).trim() ===
-          String(user?.id).trim()
-        );
-      })
-    );
-  };
-
-  const misActivos = filtrarMisProyectos(activos);
-  const misFinalizados = filtrarMisProyectos(finalizados);
-
-
-  /* 🧠 normalizador (igual que ya usas) */
-  const normalizeAutores = (integrantes = []) => {
-    return integrantes.map((i) => {
+  const normalizeAutores = (integrantes = []) =>
+    integrantes.map((i) => {
       const miembro = miembros.find(
         (m) => String(m.user_id) === String(i.miembro_id)
       );
 
       return {
-        nombre:
-          miembro?.name ||
-          i.nombre_externo ||
-          "Sin nombre",
+        nombre: miembro?.name || i.nombre_externo || "Sin nombre",
       };
     });
-  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
 
@@ -73,19 +42,17 @@ export default function MyProjects() {
         Mis Proyectos
       </h1>
 
-      {/* ───── ACTIVOS ───── */}
       <Section
         title="Proyectos Activos"
         projects={misActivos}
-        loading={loadingActivos}
+        loading={loading}
         normalizeAutores={normalizeAutores}
       />
 
-      {/* ───── FINALIZADOS ───── */}
       <Section
         title="Proyectos Finalizados"
         projects={misFinalizados}
-        loading={loadingFinalizados}
+        loading={loading}
         normalizeAutores={normalizeAutores}
       />
 
@@ -93,10 +60,7 @@ export default function MyProjects() {
   );
 }
 
-/* ───────────────────────────── */
-
 function Section({ title, projects, loading, normalizeAutores }) {
-
   return (
     <div className="mb-12">
 
@@ -114,7 +78,6 @@ function Section({ title, projects, loading, normalizeAutores }) {
 
       {!loading && projects.length > 0 && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
           {projects.map((p) => (
             <ProjectCard
               key={p.id}
@@ -124,7 +87,6 @@ function Section({ title, projects, loading, normalizeAutores }) {
               normalizeAutores={normalizeAutores}
             />
           ))}
-
         </div>
       )}
 

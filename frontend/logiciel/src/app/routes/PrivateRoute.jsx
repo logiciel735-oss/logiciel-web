@@ -18,22 +18,6 @@ export const privateRoutes = [
           </ProtectedRoutes>
         ),
       },
-      // {
-      //   path: "/dashboard",
-      //   element: (
-      //     <ProtectedRoutes role="user">
-      //       <UserDashboard />
-      //     </ProtectedRoutes>
-      //   ),
-      // },
-      // {
-      //   path: "/admin",
-      //   element: (
-      //     <ProtectedRoutes role="admin">
-      //       <AdminDashboard />
-      //     </ProtectedRoutes>
-      //   ),
-      // },
       {
         path: "/admin/users",
         element: (

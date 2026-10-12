@@ -1,3 +1,4 @@
+import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { Link } from "react-router-dom";
 import {
   PencilSquareIcon,
@@ -40,7 +41,7 @@ export default function EventCard({
         <img
           src={
             item.image ||
-            "/assets/images/placeholder.jpg"
+            placeholderImg
           }
           alt={item.title}
           className="

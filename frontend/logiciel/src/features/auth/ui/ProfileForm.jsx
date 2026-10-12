@@ -15,7 +15,6 @@ const ProfileForm = ({
   MAX_DESCRIPTION_CHARS,
 }) => {
 
-  // const phoneIsValid = /^[0-9]{7,15}$/.test(form.numero);
 
   if (loading) {
     return <Loader text="Cargando perfil..." />;
@@ -106,36 +105,6 @@ const ProfileForm = ({
             />
           </div>
 
-          {/* NUMERO */}
-          {/* <div>
-
-            <label className="block mb-1 text-gray-700 font-semibold">
-              Número de contacto
-            </label>
-
-            <input
-              type="text"
-              inputMode="numeric"
-              className={`w-full p-3 border rounded-md ${form.numero && !phoneIsValid
-                  ? "border-red-500"
-                  : ""
-                }`}
-              value={form.numero}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  numero: e.target.value.replace(/\D/g, ""),
-                })
-              }
-            />
-
-            {form.numero && !phoneIsValid && (
-              <p className="text-red-500 text-sm mt-1">
-                El número debe tener entre 7 y 15 dígitos
-              </p>
-            )}
-
-          </div> */}
           {/* CVLAC */}
           <div>
             <label className="block mb-1 text-gray-700 font-semibold">

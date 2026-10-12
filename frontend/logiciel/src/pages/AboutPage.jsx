@@ -12,7 +12,6 @@ const AboutPage = () => {
       {/* HERO - Más estilizado */}
      <section
         className="relative h-[60vh] flex items-center justify-center text-white text-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/assets/images/about-bg.jpg')" }}
       >
         <div className="absolute inset-0 bg-[rgba(10,25,47,0.75)]"></div>
         <div className="relative z-10">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 import { useAuth } from "../../features/auth/model/useAuth";
@@ -8,12 +8,7 @@ import ProjectFormModal from "../../features/manage-project/ui/ProjectFormModal"
 import { useManageProject } from "../../features/manage-project/model/useManageProject";
 import { useMiembros } from "../../entities/member/model/useMiembros";
 import ProjectEditModal from "../../features/manage-project/ui/ProjectEditModal";
-
-
 import { deleteProject, updateProject } from "../../features/manage-project/api/adminProjectApi";
-// Nota: ajusta la ruta relativa si no usas alias (@), por ejemplo:
-// import { deleteProject } from "../../../features/manage-project/api/adminProjectApi";
-
 import ConfirmModal from "../../shared/ui/ConfirmModal";
 import Loader from "../../shared/components/Loader";
 import { validateDateRange } from "../../shared/lib/validators";
@@ -37,27 +32,22 @@ export default function ProjectList() {
     });
   };
 
-  const {
-    projects: activos,
-    loading: loadingActivos,
-    refresh: refreshActivos,
-  } = useProjects("activo");
+  // Una sola consulta; se separa por estado en el cliente
+  const { projects, loading: loadingProjects, refresh: refreshAll } = useProjects();
 
-  const {
-    projects: finalizados,
-    loading: loadingFinalizados,
-    refresh: refreshFinalizados,
-  } = useProjects("finalizado");
+  const activos = useMemo(
+    () => projects.filter((p) => p.estado === "activo"),
+    [projects]
+  );
+  const finalizados = useMemo(
+    () => projects.filter((p) => p.estado === "finalizado"),
+    [projects]
+  );
 
-  const manage = useManageProject(refreshActivos, refreshFinalizados);
+  const manage = useManageProject(refreshAll, refreshAll);
 
   const [editData, setEditData] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-
-  const refreshAll = async () => {
-    await refreshActivos();
-    await refreshFinalizados();
-  };
 
   const handleSave = async () => {
   const fechaInicio = formatDateInput(editData.fecha_inicio);
@@ -105,7 +95,6 @@ export default function ProjectList() {
       {/* HERO */}
       <section
         className="relative h-[45vh] sm:h-[60vh] bg-cover bg-center flex items-center justify-center text-white px-4"
-        style={{ backgroundImage: "url('/assets/images/projects-bg.jpg')" }}
       >
         <div className="absolute inset-0 bg-[rgba(10,25,47,0.75)]"></div>
         <div className="relative z-10 text-center flex flex-col items-center gap-4">
@@ -126,7 +115,8 @@ export default function ProjectList() {
       <Section
         title="Proyectos Activos"
         projects={activos}
-        loading={loadingActivos || loadingMiembros}
+        loading={loadingProjects || loadingMiembros}
+        emptyText="No hay proyectos activos por el momento."
         isAdmin={isAdmin}
         onEdit={(p) => setEditData(p)}
         onDelete={(p) => setConfirmDelete(p)}
@@ -136,7 +126,8 @@ export default function ProjectList() {
       <Section
         title="Proyectos Finalizados"
         projects={finalizados}
-        loading={loadingFinalizados || loadingMiembros}
+        loading={loadingProjects || loadingMiembros}
+        emptyText="No hay proyectos finalizados por el momento."
         isAdmin={isAdmin}
         gray
         onEdit={(p) => setEditData(p)}
@@ -174,7 +165,7 @@ export default function ProjectList() {
   );
 }
 
-function Section({ title, projects, loading, isAdmin, onEdit, onDelete, gray, normalizeAutores }) {
+function Section({ title, projects, loading, isAdmin, onEdit, onDelete, gray, normalizeAutores, emptyText }) {
   return (
     <section className={`relative py-12 px-4 ${gray ? "bg-gray-100" : "bg-white"}`}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-center text-[#0a192f]">
@@ -182,7 +173,10 @@ function Section({ title, projects, loading, isAdmin, onEdit, onDelete, gray, no
       </h2>
       <div className="relative max-w-7xl mx-auto min-h-[200px]">
         {loading && <Loader text="Cargando proyectos..." />}
-        {!loading && (
+        {!loading && projects.length === 0 && (
+          <p className="text-center text-gray-500 py-16">{emptyText}</p>
+        )}
+        {!loading && projects.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((p) => (
               <ProjectCard

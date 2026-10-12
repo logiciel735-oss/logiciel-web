@@ -23,10 +23,12 @@ export const useHomeSlides = () => {
           __type: "event",
         }));
 
+        // Noticias por fecha de creación, eventos por fecha de inicio (más recientes primero)
+        const fecha = (item) =>
+          new Date(item.fecha_creacion || item.fecha_inicio || item.created_at || 0);
+
         const ordenados = [...noticiasConTipo, ...eventosConTipo].sort(
-          (a, b) =>
-            new Date(b.date || b.fecha) -
-            new Date(a.date || a.fecha)
+          (a, b) => fecha(b) - fecha(a)
         );
 
         setSlides(ordenados);

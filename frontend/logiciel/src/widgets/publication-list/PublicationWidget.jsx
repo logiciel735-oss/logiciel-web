@@ -20,7 +20,6 @@ export default function PublicationList() {
   } = usePublications();
 
   const manage = useManagePublication(refresh);
-  const showLoader = loading || manage.processing;
   return (
     <div className="w-full min-h-screen flex flex-col">
       {manage.processing && (

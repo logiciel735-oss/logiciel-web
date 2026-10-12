@@ -1,106 +1,171 @@
-# Logiciel — CMS Académico
+# LOGICIEL — CMS Académico
 
-Sistema web para gestión de publicaciones científicas, proyectos de investigación, miembros, eventos y noticias.
+Plataforma web del grupo de investigación **LOGICIEL** (Fundación Universitaria de Popayán) para gestionar
+y publicar noticias, eventos, proyectos de investigación, publicaciones científicas, líneas de investigación,
+semilleros, aliados institucionales y miembros del grupo.
 
-**Stack:** React 19 + Vite · TailwindCSS · Django 5 · Firestore · JWT en HTTP Only Cookies
+🌐 **Producción:** https://logiciel-web.vercel.app
 
----
-
-## Requisitos previos
-
-- Python **3.10+**
-- Node.js **18+**
-- Cuenta Firebase con Firestore habilitado
-- Archivo `serviceAccount.json` de Firebase (pedírselo al equipo, no está en el repo)
+**Stack:** React 19 · Vite 7 · TailwindCSS 3 · Supabase (PostgreSQL + Auth) · Cloudinary · Vercel
 
 ---
 
-## Backend (Django)
+## Arquitectura
+
+```
+                 ┌──────────────────────────┐
+                 │  React + Vite (Vercel)   │
+                 └────────────┬─────────────┘
+          ┌───────────────────┼────────────────────┐
+          ▼                   ▼                    ▼
+   Supabase Auth      Supabase PostgreSQL     Cloudinary
+   (registro, login,  (datos + RLS)           (imágenes, upload
+    recuperación)          │                    preset unsigned)
+          │                │ webhook INSERT
+          ▼                ▼
+     SMTP Gmail     Edge Function notificar-contacto ──► Resend
+```
+
+- **No hay backend propio.** El frontend habla directamente con Supabase; la seguridad la imponen las
+  políticas **RLS** de PostgreSQL (lectura pública, escritura solo para usuarios con `role = 'admin'`).
+- **Correos de autenticación** (confirmación de cuenta y recuperación de contraseña) se envían por el SMTP
+  de Gmail configurado en Supabase, con plantillas propias en español.
+- **Formulario de contacto:** guarda el mensaje en `contacto_mensajes`; un webhook dispara la Edge Function
+  que envía el aviso por Resend. Un trigger limita los envíos por correo e IP.
+
+---
+
+## Requisitos
+
+| Herramienta | Versión |
+|---|---|
+| Node.js | **22.12+** (o 20.19+) |
+| pnpm | 9+ |
+
+Además: cuentas de **Supabase**, **Cloudinary** y **Vercel**. El detalle de versiones está en
+[`requirements.txt`](requirements.txt).
+
+---
+
+## Instalación local
 
 ```bash
-# 1. Entrar a la carpeta del backend
-cd backend
+git clone https://github.com/logiciel735-oss/logiciel-web.git
+cd logiciel-web/frontend/logiciel
 
-# 2. Crear entorno virtual
-python -m venv env
-
-# 3. Activar entorno virtual
-# Windows:
-env\Scripts\activate
-# Mac/Linux:
-source env/bin/activate
-
-# 4. Instalar dependencias
-pip install -r requirements.txt
-
-# 5. Configurar variables de entorno
-cp .env.example .env
-# Editar .env con tus credenciales
-
-# 6. Correr el servidor
-python manage.py runserver
+pnpm install
+cp .env.example .env      # completar con las credenciales (ver abajo)
+pnpm dev                  # http://localhost:5173
 ```
 
-### Variables de entorno — Backend (`.env`)
-```
-SECRET_KEY=tu_clave_secreta_django
-DEBUG=True
-FIREBASE_CREDENTIALS=ruta/al/serviceAccount.json
-FRONTEND_URL=http://localhost:5173
-CLOUDINARY_CLOUD_NAME=tu_cloud_name
-CLOUDINARY_API_KEY=tu_api_key
-CLOUDINARY_API_SECRET=tu_api_secret
-```
+### Scripts
+
+| Comando | Qué hace |
+|---|---|
+| `pnpm dev` | Servidor de desarrollo |
+| `pnpm build` | Build de producción en `dist/` |
+| `pnpm preview` | Sirve el build localmente |
+| `pnpm lint` | ESLint |
+
+### Variables de entorno (`frontend/logiciel/.env`)
+
+| Variable | Dónde se obtiene |
+|---|---|
+| `VITE_SUPABASE_URL` | Supabase → Project Settings → API (URL base, **sin** `/rest/v1`) |
+| `VITE_SUPABASE_ANON_KEY` | Supabase → Project Settings → API → `anon` key |
+| `VITE_CLOUDINARY_CLOUD_NAME` | Cloudinary → Dashboard |
+| `VITE_CLOUDINARY_UPLOAD_PRESET` | Cloudinary → Settings → Upload → preset **Unsigned** |
+
+La `anon key` es pública por diseño; la protección real está en las políticas RLS.
+**Nunca** uses la `service_role` key en el frontend.
 
 ---
 
-## Frontend (React + Vite)
+## Configuración de Supabase (proyecto nuevo)
 
-```bash
-# 1. Entrar a la carpeta del frontend
-cd frontend
+Ejecutar en **SQL Editor**, en este orden:
 
-# 2. Instalar dependencias
-npm install
+1. [`supabase/migracion_firestore.sql`](supabase/migracion_firestore.sql) — columnas, políticas RLS,
+   protección del rol, trigger de perfiles, `admin_delete_user` y límites del formulario de contacto.
+2. [`supabase/recuperacion_password.sql`](supabase/recuperacion_password.sql) — función `email_registrado`.
+3. Primer administrador:
+   ```sql
+   update public.users set role = 'admin' where email = 'correo@ejemplo.com';
+   ```
 
-# 3. Configurar variables de entorno
-cp .env.example .env
-# Editar .env con la URL del backend
+En el panel:
 
-# 4. Correr en desarrollo
-npm run dev
-```
+| Sección | Configuración |
+|---|---|
+| Authentication → URL Configuration | **Site URL:** `https://logiciel-web.vercel.app` · **Redirect URLs:** la de producción y `http://localhost:5173/**` |
+| Authentication → Sign In / Providers | **Confirm email** activado |
+| Authentication → Emails → SMTP Settings | Host `smtp.gmail.com`, puerto `465`, usuario y remitente = el Gmail del grupo, contraseña = **contraseña de aplicación** de Google |
+| Authentication → Emails → Templates | *Confirm sign up* ← [`supabase/templates/confirmacion.html`](supabase/templates/confirmacion.html) · *Reset password* ← [`supabase/templates/recuperacion.html`](supabase/templates/recuperacion.html) |
 
-### Variables de entorno — Frontend (`.env`)
-```
-VITE_API_URL=http://127.0.0.1:8000/api
-```
+### Aviso del formulario de contacto
+
+1. **Edge Functions → Deploy new function → Via Editor**: nombre `notificar-contacto`, código de
+   [`supabase/functions/notificar-contacto/index.ts`](supabase/functions/notificar-contacto/index.ts).
+   Desactivar **Enforce JWT Verification**.
+2. **Edge Functions → Secrets**:
+
+   | Secret | Valor |
+   |---|---|
+   | `RESEND_API_KEY` | API key de Resend |
+   | `WEBHOOK_SECRET` | cadena aleatoria |
+   | `CONTACT_TO` | correo que recibe los avisos |
+   | `CONTACT_FROM` | *(opcional)* remitente; por defecto `onboarding@resend.dev` |
+
+3. **Database → Webhooks**: tabla `contacto_mensajes`, evento **Insert**, tipo *Supabase Edge Function*
+   → `notificar-contacto`, header `x-webhook-secret` = el mismo `WEBHOOK_SECRET`.
+
+> Sin dominio verificado, Resend solo envía al correo dueño de la cuenta de Resend.
 
 ---
 
-## Estructura del repositorio
+## Despliegue (Vercel)
+
+1. Importar el repositorio en Vercel.
+2. **Root Directory:** `frontend/logiciel` · Framework: **Vite**.
+3. Añadir las 4 variables `VITE_*` en *Settings → Environment Variables*.
+4. Cada `git push` a `main` despliega automáticamente.
+
+`vercel.json` redirige todas las rutas a `index.html` para que funcione el enrutado del cliente.
+
+---
+
+## Estructura
+
+El frontend sigue **Feature-Sliced Design**:
 
 ```
-/
-├── backend/
-│   ├── requirements.txt
+logiciel-web/
+├── frontend/logiciel/
+│   ├── public/email/          # recursos públicos usados por los correos
+│   ├── src/
+│   │   ├── app/               # punto de entrada, rutas, proveedores
+│   │   ├── pages/             # páginas (composición de widgets)
+│   │   ├── widgets/           # bloques de UI completos (listas, navbar, detalle…)
+│   │   ├── features/          # acciones de usuario (auth, gestión admin, contacto…)
+│   │   ├── entities/          # entidades de negocio: api/, model/ (hooks), ui/
+│   │   └── shared/            # config de Supabase, utilidades, UI y hooks reutilizables
 │   ├── .env.example
-│   └── manage.py
-├── frontend/
-│   ├── package.json
-│   ├── .env.example
-│   └── src/
+│   └── vercel.json
+├── supabase/
+│   ├── migracion_firestore.sql
+│   ├── recuperacion_password.sql
+│   ├── functions/notificar-contacto/
+│   └── templates/             # plantillas de correo en español
+├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## Importante — archivos que NO están en el repositorio
+## Seguridad — archivos que nunca se suben
 
-Estos archivos contienen credenciales y deben pedirse al equipo:
+- `.env` (credenciales locales) — usar `.env.example` como guía.
+- Claves `service_role` de Supabase, API keys de Resend o contraseñas de aplicación de Gmail.
+- Cualquier archivo de credenciales (`*serviceAccount*.json`, `*firebase-credentials*.json`).
 
-- `serviceAccount.json` — credenciales de Firebase
-- `.env` del backend
-- `.env` del frontend
-
-Nunca los subas a GitHub.
+Todos están cubiertos por el [`.gitignore`](.gitignore).

@@ -2,7 +2,7 @@ import { useCMSData } from "../../../shared/lib/useCMSData";
 import { getPublicaciones } from "../api/publicationApi";
 import { useMiembros } from "../../member/model/useMiembros";  
 import { useLocation } from "react-router-dom";
-import { useState, useMemo } from "react"; 
+import { useState, useMemo, useCallback } from "react"; 
 export function usePublications() {
 
   const location = useLocation();
@@ -26,11 +26,11 @@ export function usePublications() {
     }
   );
 
-  const publicaciones = Array.isArray(data) ? data : [];
+  const publicaciones = useMemo(() => (Array.isArray(data) ? data : []), [data]);
 
   const [searchTerm, setSearchTerm] = useState(filterByUser);
 
-  const normalizeAutores = (autores = []) => {
+  const normalizeAutores = useCallback((autores = []) => {
     if (!Array.isArray(autores)) return [];
     return autores.map((a) => {
       const miembro = miembros.find(
@@ -41,7 +41,7 @@ export function usePublications() {
         miembro_id: a.miembro_id || "",
       };
     });
-  };
+  }, [miembros]);
 
   const publicacionesFiltradas = useMemo(() => {
     if (!searchTerm) return publicaciones;
@@ -58,7 +58,7 @@ export function usePublications() {
         p.anio?.toString().includes(term)
       );
     });
-  }, [publicaciones, searchTerm, miembros]);
+  }, [publicaciones, searchTerm, normalizeAutores]);
 
 
   const loading = loadingPublicaciones || loadingMiembros;

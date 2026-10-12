@@ -16,13 +16,13 @@ import {
 } from "../../entities/universidad/api/aliadosInstitucionales";
 
 export default function AliadosInstitucionalesWidget() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
   const { aliadosInstitucionales, loading, refresh } = useAliadoInstitucionales();
 
   const { ref, hasOverflow, scrollLeft, scrollRight } =
-    useCircularHorizontalScroll([aliadosInstitucionales]);
+    useCircularHorizontalScroll(aliadosInstitucionales?.length);
 
   const [openModal, setOpenModal] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -31,10 +31,10 @@ export default function AliadosInstitucionalesWidget() {
   const handleSave = async () => {
     try {
       if (editData?.id) {
-        await updateAliadoInstitucional(editData.id, editData, token);
+        await updateAliadoInstitucional(editData.id, editData);
         toast.success("Universidad actualizada correctamente");
       } else {
-        await createAliadoInstitucional(editData, token);
+        await createAliadoInstitucional(editData);
         toast.success("Universidad creada correctamente");
       }
       await refresh();
@@ -47,7 +47,7 @@ export default function AliadosInstitucionalesWidget() {
 
   const handleDelete = async () => {
     try {
-      await deleteAliadoInstitucional(confirmDelete.id, token);
+      await deleteAliadoInstitucional(confirmDelete.id);
       toast.success("Universidad eliminada correctamente");
       await refresh();
       setConfirmDelete(null);

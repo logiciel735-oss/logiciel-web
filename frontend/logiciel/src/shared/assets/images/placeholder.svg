@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a192f"/>
+      <stop offset="1" stop-color="#133a5e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#g)"/>
+  <g fill="none" stroke="#64ffda" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.55">
+    <rect x="320" y="160" width="160" height="120" rx="14"/>
+    <circle cx="362" cy="198" r="14"/>
+    <path d="M330 268l50-48 34 32 22-20 34 36"/>
+  </g>
+  <text x="400" y="330" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold" fill="#64ffda" opacity="0.7" letter-spacing="4">LOGICIEL</text>
+</svg>

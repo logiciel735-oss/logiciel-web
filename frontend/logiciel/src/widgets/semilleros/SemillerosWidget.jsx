@@ -22,7 +22,7 @@ import {
 } from "../../entities/semillero/api/semilleroApi";
 
 export default function SemillerosWidget() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
   const { semilleros, loading, refresh } = useSemilleros();
@@ -41,10 +41,10 @@ export default function SemillerosWidget() {
       const data = { ...editData, link: editData?.link?.trim() || "" };
 
       if (editData?.id) {
-        await updateSemillero(editData.id, data, token);
+        await updateSemillero(editData.id, data);
         toast.success("Semillero actualizado correctamente");
       } else {
-        await createSemillero(data, token);
+        await createSemillero(data);
         toast.success("Semillero creado correctamente");
       }
 
@@ -59,7 +59,7 @@ export default function SemillerosWidget() {
 
   const handleDelete = async () => {
     try {
-      await deleteSemillero(confirmDelete.id, token);
+      await deleteSemillero(confirmDelete.id);
       toast.success("Semillero eliminado correctamente");
 
       await refresh();

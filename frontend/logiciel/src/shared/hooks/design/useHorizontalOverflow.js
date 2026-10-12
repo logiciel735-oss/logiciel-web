@@ -1,21 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 
-export function useHorizontalOverflow(deps = []) {
+const measure = (el) => el.scrollWidth > el.clientWidth;
+
+export function useHorizontalOverflow(itemCount = 0) {
   const ref = useRef(null);
   const [hasOverflow, setHasOverflow] = useState(false);
 
+  // Se vuelve a medir cuando cambia la cantidad de elementos.
   useEffect(() => {
-    const checkOverflow = () => {
-      const el = ref.current;
-      if (!el) return;
-      setHasOverflow(el.scrollWidth > el.clientWidth);
+    if (ref.current) setHasOverflow(measure(ref.current));
+  }, [itemCount]);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (ref.current) setHasOverflow(measure(ref.current));
     };
 
-    checkOverflow();
-    window.addEventListener("resize", checkOverflow);
-
-    return () => window.removeEventListener("resize", checkOverflow);
-  }, deps);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   return { ref, hasOverflow };
 }

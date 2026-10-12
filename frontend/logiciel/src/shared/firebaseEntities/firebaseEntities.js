@@ -8,24 +8,25 @@ import { supabase } from "../config/supabase";
 const DATE_FIELDS = ["fecha_inicio", "fecha_fin", "fecha_creacion"];
 
 /**
- * Obtener lista ordenada
+ * Obtener lista ordenada.
+ * Lanza el error en vez de devolver [] para que useCMSData no guarde en caché
+ * una lista vacía cuando la consulta falla.
  */
 export const fetchCollection = async (table, orderField = null, direction = "desc") => {
-  try {
-    let query = supabase.from(table).select("*");
+  let query = supabase.from(table).select("*");
 
-    if (orderField) {
-      query = query.order(orderField, { ascending: direction === "asc" });
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-
-    return data;
-  } catch (error) {
-    console.error(`ERROR FETCH ${table}:`, error);
-    return [];
+  if (orderField) {
+    query = query.order(orderField, { ascending: direction === "asc" });
   }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error(`ERROR FETCH ${table}:`, error);
+    throw error;
+  }
+
+  return data;
 };
 
 /**

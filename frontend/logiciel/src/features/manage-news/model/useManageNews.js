@@ -12,7 +12,6 @@ export function useManageNews(refresh) {
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({});
-  const [error, setError] = useState("");
 
   const handleEdit = (item) => {
     setEditing(item);
@@ -34,6 +33,7 @@ export function useManageNews(refresh) {
       setOpenModal(false);
       toast.success("Guardado correctamente");
     } catch (err) {
+      console.error(err);
       toast.error("Error al guardar");
     }
   };
@@ -54,7 +54,6 @@ export function useManageNews(refresh) {
     editing,
     form,
     setForm,
-    error,
     handleEdit,
     handleSave,
     handleDelete,

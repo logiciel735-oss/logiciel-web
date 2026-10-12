@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import placeholderImg from "../assets/images/placeholder.svg";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { formatDateInput }
@@ -8,7 +9,7 @@ import { PencilSquareIcon, XMarkIcon, TrashIcon } from "@heroicons/react/24/outl
 import ConfirmModal from "../ui/ConfirmModal";
 import Loader from "../components/Loader";
 import { uploadFile } from "../uploadFile/api/uploadApi";
-import { getMiembros } from "../../entities/member/api/miembroApi";
+import { useMiembros } from "../../entities/member/model/useMiembros";
 
 import AuthorSelector from "./AuthorSelector";
 
@@ -38,16 +39,14 @@ export default function CMSDetailView({
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  // ── FIX: miembros ahora está definido correctamente ──
-  const [miembros, setMiembros] = useState([]);
+  const { miembros } = useMiembros();
 
-  useEffect(() => {
-    getMiembros()
-      .then((data) => setMiembros(Array.isArray(data) ? data : []))
-      .catch(() => setMiembros([]));
-  }, []);
-
-  useEffect(() => { setForm(item || {}); }, [item]);
+  // Si llega un item nuevo (recarga), el formulario se sincroniza durante el render
+  const [prevItem, setPrevItem] = useState(item);
+  if (item !== prevItem) {
+    setPrevItem(item);
+    setForm(item || {});
+  }
 
   if (loading) return <Loader text={loaderLabel} />;
 
@@ -58,7 +57,7 @@ export default function CMSDetailView({
   const mainImage =
     item.image ||
     item.gallery?.[0] ||
-    "/assets/images/placeholder.jpg";
+    placeholderImg;
 
   const formatDate = (raw) => {
     if (!raw) return "Sin fecha";
@@ -124,31 +123,6 @@ export default function CMSDetailView({
 
     } catch {
       toast.error("Error guardando cambios");
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const handleAddAutor = async (miembro) => {
-    setProcessing(true);
-    const yaExiste = (item.autores || []).some(
-      (a) => a.miembro_id === miembro.user_id
-    );
-    if (yaExiste) { toast.error(`Este miembro ya es ${autoresLabel.toLowerCase()}`); return; }
-    try {
-      const newAutores = [
-        ...(item.autores || []),
-        {
-          miembro_id: miembro.user_id,
-          nombre_externo: "",
-          rol: miembro.role || "Autor",
-        },
-      ];
-      await onUpdate(item.id, { [autoresKey]: newAutores });
-      toast.success(`${miembro.name} agregado`);
-      await refresh();
-    } catch {
-      toast.error("Error agregando");
     } finally {
       setProcessing(false);
     }

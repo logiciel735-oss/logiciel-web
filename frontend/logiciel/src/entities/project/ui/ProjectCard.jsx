@@ -1,3 +1,4 @@
+import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { Link } from "react-router-dom";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
@@ -13,7 +14,7 @@ export default function ProjectCard({
   const image =
     project.image ||
     project.gallery?.[0] ||
-    "/assets/images/placeholder.jpg";
+    placeholderImg;
 
   return (
     <div className="group bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { confirmEmailRequest } from "../features/auth/api/authApi";
 
@@ -6,36 +6,28 @@ const ConfirmEmail = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
-  const [status, setStatus] = useState("loading");
   // loading | success | error
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState(token ? "loading" : "error");
+  const [message, setMessage] = useState(
+    token ? "" : "Token de confirmación no encontrado."
+  );
+
+  // El token es de un solo uso: evita verificarlo dos veces (StrictMode en desarrollo)
+  const requested = useRef(false);
 
   useEffect(() => {
-    if (localStorage.getItem("emailConfirmed") === "true") {
-      setStatus("success");
-      setMessage("Tu correo ya había sido confirmado anteriormente.");
-      return;
-    }
+    if (!token || requested.current) return;
+    requested.current = true;
 
-    const confirmEmail = async () => {
-      if (!token) {
-        setStatus("error");
-        setMessage("Token de confirmación no encontrado.");
-        return;
-      }
-
-      try {
-        const res = await confirmEmailRequest(token);
+    confirmEmailRequest(token)
+      .then((res) => {
         setStatus("success");
         setMessage(res.message || "Correo confirmado correctamente.");
-        localStorage.setItem("emailConfirmed", "true");
-      } catch (err) {
+      })
+      .catch((err) => {
         setStatus("error");
         setMessage(err.message || "Error confirmando el correo.");
-      }
-    };
-
-    confirmEmail();
+      });
   }, [token]);
 
 

@@ -36,6 +36,7 @@ export default function MiembroModal({
             } catch (err) {
 
                 console.error("Error cargando usuarios", err);
+                toast.error("No se pudo cargar la lista de usuarios");
 
             }
         };

@@ -31,7 +31,7 @@ export const cmsCache = {
       if (!Array.isArray(data)) return null;
 
       return data;
-    } catch (e) {
+    } catch {
       return null;
     }
   },

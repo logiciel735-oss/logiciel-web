@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
 import Loader from "../../../shared/components/Loader";
 import MemberProfileCard from "./MemberProfileCard";
 import { Link } from "react-router-dom";
 
 import PublicationCard from "../../publication/ui/PublicationCard";
-import { getMiembros } from "../../member/api/miembroApi";
+import { useMiembros } from "../model/useMiembros";
 
 export default function MemberDetailView({
   member,
@@ -13,18 +12,9 @@ export default function MemberDetailView({
   publicaciones,
   noticias,
   loading,
-  loadingRelated,
-  isAdmin,
-  onEdit,
-  onDeleteClick,
+  loadingRelated,
 }) {
-  const [miembros, setMiembros] = useState([]);
-
-  useEffect(() => {
-    getMiembros()
-      .then((data) => setMiembros(Array.isArray(data) ? data : []))
-      .catch(() => setMiembros([]));
-  }, []);
+  const { miembros } = useMiembros();
 
   if (loading) return <Loader text="Cargando perfil..." />;
 

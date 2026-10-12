@@ -1,9 +1,10 @@
+import { useCallback } from "react";
 import { useHorizontalOverflow } from "./useHorizontalOverflow";
 
-export function useCircularHorizontalScroll(deps = [], step = 300) {
-  const { ref, hasOverflow } = useHorizontalOverflow(deps);
+export function useCircularHorizontalScroll(itemCount = 0, step = 300) {
+  const { ref, hasOverflow } = useHorizontalOverflow(itemCount);
 
-  const scrollRight = () => {
+  const scrollRight = useCallback(() => {
     const el = ref.current;
     if (!el) return;
 
@@ -15,9 +16,9 @@ export function useCircularHorizontalScroll(deps = [], step = 300) {
     } else {
       el.scrollBy({ left: step, behavior: "smooth" });
     }
-  };
+  }, [ref, step]);
 
-  const scrollLeft = () => {
+  const scrollLeft = useCallback(() => {
     const el = ref.current;
     if (!el) return;
 
@@ -31,7 +32,7 @@ export function useCircularHorizontalScroll(deps = [], step = 300) {
     } else {
       el.scrollBy({ left: -step, behavior: "smooth" });
     }
-  };
+  }, [ref, step]);
 
   return {
     ref,

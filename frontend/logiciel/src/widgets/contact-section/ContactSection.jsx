@@ -9,7 +9,6 @@ export default function ContactSection() {
       {/* HERO */}
       <section
         className="relative h-[55vh] bg-cover bg-center flex items-center justify-center text-white text-center"
-        style={{ backgroundImage: "url('/assets/images/contact-bg.jpg')" }}
       >
         <div className="absolute inset-0 bg-[rgba(10,25,47,0.75)]"></div>
 

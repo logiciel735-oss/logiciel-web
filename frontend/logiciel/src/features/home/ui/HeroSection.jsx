@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react"; 
-import logo from "../../../shared/assets/logo/logo-logiciel.svg";
+import { useState, useEffect } from "react"; 
+import logo from "../../../shared/assets/logo/logo-logiciel.png";
 import SanJose from "../../../shared/assets/images/san_jose.png";
 import { Link } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
@@ -8,7 +8,12 @@ import { useHomeSlides } from "../model/useHomeSlides";
 
 const HeroSection = () => {
   const slides = useHomeSlides();
-  const newsScroll = useCircularHorizontalScroll([slides]);
+  const {
+    ref: newsRef,
+    hasOverflow,
+    scrollLeft,
+    scrollRight,
+  } = useCircularHorizontalScroll(slides.length);
   const hasSlides = slides.length > 0;
 
   // Estados para el control del scroll
@@ -19,9 +24,9 @@ const HeroSection = () => {
   const handleManualClick = (direction) => {
     setIsAutoPlaying(false); // Detiene el auto-scroll permanentemente
     if (direction === "left") {
-      newsScroll.scrollLeft();
+      scrollLeft();
     } else {
-      newsScroll.scrollRight();
+      scrollRight();
     }
   };
 
@@ -30,16 +35,16 @@ const HeroSection = () => {
     let interval;
     
     // Solo corre si está en auto-play Y no hay un hover activo
-    if (isAutoPlaying && !isHovering && hasSlides && newsScroll.hasOverflow) {
+    if (isAutoPlaying && !isHovering && hasSlides && hasOverflow) {
       interval = setInterval(() => {
-        newsScroll.scrollRight();
+        scrollRight();
       }, 3000); // Velocidad: 3 segundos para que sea más dinámico
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isAutoPlaying, isHovering, hasSlides, newsScroll]);
+  }, [isAutoPlaying, isHovering, hasSlides, hasOverflow, scrollRight]);
 
   return (
     <section className="relative h-screen min-h-[700px] overflow-hidden">
@@ -72,7 +77,7 @@ const HeroSection = () => {
             onMouseEnter={() => setIsHovering(true)}  // Pausa al entrar
             onMouseLeave={() => setIsHovering(false)} // Reanuda al salir
           >
-            {newsScroll.hasOverflow && (
+            {hasOverflow && (
               <>
                 <button
                   onClick={() => handleManualClick("left")}
@@ -91,7 +96,7 @@ const HeroSection = () => {
             )}
 
             <div
-              ref={newsScroll.ref}
+              ref={newsRef}
               className="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth px-10 py-4"
             >
               {slides.map((item) => (

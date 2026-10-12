@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "../../../shared/assets/logo/logo-logiciel.svg";
+import logo from "../../../shared/assets/logo/logo-logiciel.png";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useNavbar } from "../model/useNavbar";
 
@@ -10,11 +10,8 @@ const Navbar = () => {
     dropdown,
     setDropdown,
     user,
-    miLider,
-    checkedLider,
     handleDropdownToggle,
     handleCloseMenu,
-    handleProfileNavigation,
     handleLogout,
   } = useNavbar();
 

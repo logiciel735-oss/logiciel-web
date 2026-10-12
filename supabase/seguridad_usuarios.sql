@@ -13,8 +13,20 @@
 
 
 -- 1. Lectura de users: propia fila o admin
-drop policy if exists "users_lectura_publica" on public.users;
-drop policy if exists "users_lectura_propia_o_admin" on public.users;
+--    Se eliminan TODAS las políticas de lectura existentes (incluidas las creadas
+--    con otros nombres antes de la migración), porque las políticas se suman:
+--    con que una sea pública, la tabla sigue siendo pública.
+do $$
+declare
+  p record;
+begin
+  for p in
+    select policyname from pg_policies
+    where schemaname = 'public' and tablename = 'users' and cmd in ('SELECT', 'ALL')
+  loop
+    execute format('drop policy %I on public.users', p.policyname);
+  end loop;
+end $$;
 
 create policy "users_lectura_propia_o_admin" on public.users
   for select to authenticated

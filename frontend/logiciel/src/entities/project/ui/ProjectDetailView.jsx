@@ -34,7 +34,8 @@ export default function ProjectDetailView({ project, loading, refresh, isAdmin }
           : project.objetivos)
       : "",
     image:   project.image || "",      
-    gallery: project.gallery || [],   
+    gallery: project.gallery || [],
+    videos:  project.videos  || [],
     autores: (project.integrantes || []).map((i) => ({
       miembro_id:     i.miembro_id     || "",
       nombre_externo: i.nombre_externo || "",
@@ -56,6 +57,7 @@ export default function ProjectDetailView({ project, loading, refresh, isAdmin }
         editTitle="Editar Proyecto"
         autoresKey="integrantes"
         showAutores={true}
+        showVideos={true}
         autoresLabel="Integrantes"
         showDeleteButton={true}
         extraFields={[

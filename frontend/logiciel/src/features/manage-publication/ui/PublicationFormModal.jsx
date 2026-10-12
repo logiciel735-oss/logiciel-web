@@ -1,4 +1,6 @@
 import AuthorSelector from "../../../shared/ui/AuthorSelector";
+import Modal from "../../../shared/ui/Modal";
+import FormField from "../../../shared/ui/FormField";
 
 export default function PublicationFormModal({
   openModal,
@@ -13,72 +15,72 @@ export default function PublicationFormModal({
   if (!openModal) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-3">
-      <div className="bg-white p-6 rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
-
-        <h3 className="font-bold text-xl mb-4">
-          {editing ? "Editar publicación" : "Nueva publicación"}
-        </h3>
-
-        {/* 🔹 INPUTS */}
+    <Modal
+      title={editing ? "Editar publicación" : "Nueva publicación"}
+      onClose={() => setOpenModal(false)}
+      footer={
+        <>
+          <button onClick={() => setOpenModal(false)} className="btn-secondary">
+            Cancelar
+          </button>
+          <button onClick={handleSave} className="btn-primary">
+            Guardar
+          </button>
+        </>
+      }
+    >
+      <FormField label="Título">
         <input
-          className="w-full border p-2 mb-2"
-          placeholder="Título"
+          className="input-base"
+          placeholder="Título de la publicación"
           value={form.titulo || ""}
           onChange={(e) =>
             setForm({ ...form, titulo: e.target.value })
           }
         />
+      </FormField>
 
-
-
+      <FormField
+        label="Año"
+        error={isYearInvalid ? "El año debe estar entre 1970 y 2030." : null}
+      >
         <input
-          className={`w-full border p-2 mb-2 ${isYearInvalid ? "border-red-500" : ""
-            }`}
-          placeholder="Año"
+          className={`input-base sm:max-w-[10rem] ${isYearInvalid ? "border-red-400" : ""}`}
+          placeholder="Ej. 2024"
+          inputMode="numeric"
           value={form.año || ""}
           onChange={handleYearChange}
         />
+      </FormField>
+
+      <FormField label="Enlace de la revista">
         <input
-          className="w-full border p-2 mb-2"
-          placeholder="Link revista"
+          className="input-base"
+          placeholder="https://..."
           value={form.id_revista || ""}
           onChange={(e) =>
             setForm({ ...form, id_revista: e.target.value })
           }
         />
+      </FormField>
 
+      <FormField label="Enlace al PDF">
         <input
-          className="w-full border p-2 mb-4"
-          placeholder="Link PDF"
+          className="input-base"
+          placeholder="https://..."
           value={form.enlace_pdf || ""}
           onChange={(e) =>
             setForm({ ...form, enlace_pdf: e.target.value })
           }
         />
+      </FormField>
 
-
-        <AuthorSelector
-          autores={form.autores}
-          setAutores={(autores) =>
-            setForm({ ...form, autores })
-          }
-        />
-
-
-        <div className="flex justify-end gap-3 mt-6">
-          <button onClick={() => setOpenModal(false)}>
-            Cancelar
-          </button>
-
-          <button
-            onClick={handleSave}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Guardar
-          </button>
-        </div>
-      </div>
-    </div>
+      <AuthorSelector
+        autores={form.autores}
+        setAutores={(autores) =>
+          setForm({ ...form, autores })
+        }
+      />
+    </Modal>
   );
 }

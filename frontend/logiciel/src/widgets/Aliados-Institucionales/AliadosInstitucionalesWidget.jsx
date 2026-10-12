@@ -1,3 +1,5 @@
+import Modal from "../../shared/ui/Modal";
+import FormField from "../../shared/ui/FormField";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -9,6 +11,8 @@ import ImageUploader from "../../shared/uploadFile/ui/ImageUploader";
 import { useCircularHorizontalScroll } from "../../shared/hooks/design/useCircularHorizontalScroll";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import Loader from "../../shared/components/Loader";
+import SectionHeader from "../../shared/ui/SectionHeader";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import {
   createAliadoInstitucional,
   updateAliadoInstitucional,
@@ -59,21 +63,23 @@ export default function AliadosInstitucionalesWidget() {
 
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="border-t border-slate-200 bg-white py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Aliados</h2>
-          {isAdmin && (
+        <SectionHeader
+          eyebrow="Cooperación"
+          title="Aliados institucionales"
+          description="Universidades, empresas e instituciones con las que colaboramos."
+          action={isAdmin && (
             <button
               onClick={() => { setEditData({ nombre: "", logo_url: "" }); setOpenModal(true); }}
-              className="bg-teal-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+              className="btn-primary"
             >
-              + Nueva Universidad
+              <PlusIcon className="h-5 w-5" />
+              Nuevo aliado
             </button>
           )}
-        </div>
+        />
 
         {/* SLIDER */}
         <div className="relative">
@@ -97,8 +103,8 @@ export default function AliadosInstitucionalesWidget() {
                 <Loader text="Cargando aliados..." />
               </div>
             ) : aliadosInstitucionales?.length === 0 ? (
-              <div className="w-full text-center text-gray-500 py-10">
-                No hay aliados institucionales
+              <div className="w-full rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">
+                No hay aliados institucionales registrados.
               </div>
             ) : (
               aliadosInstitucionales.map((uni) => (
@@ -152,70 +158,59 @@ export default function AliadosInstitucionalesWidget() {
 }
 
 const AliadosModal = ({ data, onChange, onSave, onClose }) => (
-  <div className="fixed inset-0 bg-black/50 flex items-start sm:items-center justify-center z-50 p-4 overflow-y-auto">
-    <div className="bg-white rounded-2xl w-full max-w-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <h3 className="text-xl font-bold mb-4">
-        {data?.id ? "Editar Aliado" : "Nuevo Aliado"}
-      </h3>
-
-      <div className="space-y-4">
-        {[
-          { key: "nombre", label: "Nombre", placeholder: "Nombre" },
-          {
-            key: "tipo",
-            label: "Tipo",
-            placeholder: "Ej. Universidad",
-            help: "Especifica el tipo de organización: Universidad, Empresa, Institución Pública, ONG, Centro de Investigación, etc.",
-          },
-          { key: "pais", label: "País", placeholder: "País" },
-          { key: "sitio_web", label: "Sitio web", placeholder: "Sitio web" },
-        ].map(({ key, label, placeholder, help }) => (
-          <div key={key}>
-            <label className="text-sm font-medium text-gray-600 mb-1 block">{label}</label>
-            <input
-              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-teal-400"
-              placeholder={placeholder}
-              value={data?.[key] || ""}
-              onChange={(e) => onChange(key, e.target.value)}
-            />
-            {help && <p className="text-xs text-gray-500 mt-1">{help}</p>}
-          </div>
-        ))}
-
-        <div>
-          <label className="text-sm font-medium text-gray-600 mb-1 block">Descripción</label>
-          <textarea
-            className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-teal-400"
-            placeholder="Descripción"
-            rows={3}
-            value={data?.descripcion || ""}
-            onChange={(e) => onChange("descripcion", e.target.value)}
+  <Modal
+    title={data?.id ? "Editar aliado" : "Nuevo aliado"}
+    onClose={onClose}
+      footer={
+        <>
+          <button onClick={onClose} className="btn-secondary">
+            Cancelar
+          </button>
+          <button onClick={onSave} className="btn-primary">
+            Guardar
+          </button>
+        </>
+      }
+  >
+    <div className="grid gap-5 sm:grid-cols-2">
+      {[
+        { key: "nombre", label: "Nombre", placeholder: "Nombre de la organización", full: true },
+        {
+          key: "tipo",
+          label: "Tipo",
+          placeholder: "Ej. Universidad",
+          help: "Especifica el tipo de organización: Universidad, Empresa, Institución Pública, ONG, Centro de Investigación, etc.",
+          full: true,
+        },
+        { key: "pais", label: "País", placeholder: "País" },
+        { key: "sitio_web", label: "Sitio web", placeholder: "https://..." },
+      ].map(({ key, label, placeholder, help, full }) => (
+        <FormField key={key} label={label} hint={help} className={full ? "sm:col-span-2" : ""}>
+          <input
+            className="input-base"
+            placeholder={placeholder}
+            value={data?.[key] || ""}
+            onChange={(e) => onChange(key, e.target.value)}
           />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-600 mb-1 block">Logo</label>
-          <ImageUploader
-            value={data?.logo_url}
-            onChange={(url) => onChange("logo_url", url)}
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-3 mt-6">
-        <button
-          onClick={onClose}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={onSave}
-          className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition shadow"
-        >
-          Guardar
-        </button>
-      </div>
+        </FormField>
+      ))}
     </div>
-  </div>
+
+    <FormField label="Descripción">
+      <textarea
+        className="input-base"
+        rows={3}
+        value={data?.descripcion || ""}
+        onChange={(e) => onChange("descripcion", e.target.value)}
+      />
+    </FormField>
+
+    <FormField label="Logo">
+      <ImageUploader
+        value={data?.logo_url}
+        onChange={(url) => onChange("logo_url", url)}
+        contain
+      />
+    </FormField>
+  </Modal>
 );

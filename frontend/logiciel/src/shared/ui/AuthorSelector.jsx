@@ -1,17 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { getMiembros } from "../../entities/member/api/miembroApi";
+import { XMarkIcon, MagnifyingGlassIcon, UserPlusIcon } from "@heroicons/react/24/outline";
+import { useMiembros } from "../../entities/member/model/useMiembros";
 
 export default function AuthorSelector({ autores = [], setAutores, label = "Autores" }) {
-  const [miembros, setMiembros]   = useState([]);
+  const { miembros } = useMiembros();
   const [searchQ, setSearchQ]     = useState("");
   const [nombreExt, setNombreExt] = useState("");
   const [rolExt, setRolExt]       = useState("Autor");
-
-  useEffect(() => {
-    getMiembros().then(setMiembros).catch(() => {});
-  }, []);
 
   const handleAddInterno = (miembro) => {
     const yaExiste = autores.some((a) => a.miembro_id === miembro.user_id);
@@ -41,7 +37,7 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
     );
   };
 
-  // ✅ busca por name Y por role, case insensitive, mínimo 1 caracter
+  // Busca por nombre y por rol (sin distinguir mayúsculas)
   const miembrosFiltrados = searchQ.length > 0
     ? miembros.filter((m) => {
         const q = searchQ.toLowerCase();
@@ -53,10 +49,10 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
     : [];
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm font-semibold text-gray-700">{label}</p>
+    <div className="space-y-3">
+      {label && <p className="text-sm font-medium text-slate-700">{label}</p>}
 
-      {/* chips */}
+      {/* SELECCIONADOS */}
       {autores.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {autores.map((a, i) => {
@@ -67,22 +63,21 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
             return (
               <div
                 key={a.miembro_id || a.nombre_externo || i}
-                className="flex items-center gap-2 bg-teal-50 border border-teal-200 rounded-full px-3 py-1"
+                className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2 shadow-sm"
               >
-                {!esExterno && (
-                  <div className="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
-                    {displayName?.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <span className="text-teal-700 text-sm font-medium">{displayName}</span>
-                {esExterno && <span className="text-xs text-gray-400 italic">externo</span>}
-                {a.rol && <span className="text-xs text-gray-400">· {a.rol}</span>}
+                <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${esExterno ? "bg-slate-100 text-slate-500" : "bg-brand-teal text-white"}`}>
+                  {displayName?.charAt(0).toUpperCase()}
+                </span>
+                <span className="text-sm font-medium text-brand-navy">{displayName}</span>
+                {esExterno && <span className="text-xs italic text-slate-400">externo</span>}
+                {a.rol && <span className="text-xs text-slate-400">· {a.rol}</span>}
                 <button
                   type="button"
                   onClick={() => handleRemove(a.miembro_id, a.nombre_externo)}
-                  className="text-red-400 hover:text-red-600 ml-1"
+                  className="rounded-full p-0.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                  aria-label="Quitar"
                 >
-                  <XMarkIcon className="w-3 h-3" />
+                  <XMarkIcon className="h-3.5 w-3.5" />
                 </button>
               </div>
             );
@@ -90,63 +85,66 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
         </div>
       )}
 
-      {/* buscador */}
+      {/* BUSCAR MIEMBRO */}
       <div className="relative">
+        <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
-          className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
-          placeholder="Buscar miembro registrado..."
+          className="input-base pl-9 text-sm"
+          placeholder="Buscar miembro del grupo..."
           value={searchQ}
           onChange={(e) => setSearchQ(e.target.value)}
         />
-        {/* ✅ muestra "sin resultados" si hay búsqueda pero no coincide */}
         {searchQ.length > 0 && miembrosFiltrados.length === 0 && (
-          <div className="absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 px-4 py-3 text-sm text-gray-400">
+          <div className="absolute z-20 mt-1 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-400 shadow-lg">
             No se encontró ningún miembro
           </div>
         )}
         {miembrosFiltrados.length > 0 && (
-          <div className="absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+          <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg">
             {miembrosFiltrados.map((m) => (
               <button
                 key={m.user_id}
                 type="button"
                 onClick={() => handleAddInterno(m)}
-                className="w-full text-left px-4 py-2 hover:bg-teal-50 flex items-center gap-3 transition"
+                className="flex w-full items-center gap-3 px-4 py-2 text-left transition hover:bg-brand-teal-light"
               >
-                <div className="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-navy text-xs font-semibold text-white">
                   {m.name?.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p className="font-semibold text-sm">{m.name}</p>
-                  <p className="text-xs text-gray-400">{m.role}</p>
-                </div>
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold text-brand-navy">{m.name}</span>
+                  <span className="block text-xs capitalize text-slate-500">{m.role}</span>
+                </span>
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* externo */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 space-y-2">
-        <p className="text-xs font-semibold text-gray-500"> Autor externo</p>
-        <input
-          className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
-          placeholder="Nombre completo"
-          value={nombreExt}
-          onChange={(e) => setNombreExt(e.target.value)}
-        />
-        <input
-          className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
-          placeholder="Rol (ej: Investigador, Colaborador...)"
-          value={rolExt}
-          onChange={(e) => setRolExt(e.target.value)}
-        />
+      {/* AUTOR EXTERNO */}
+      <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Autor externo</p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input
+            className="input-base text-sm"
+            placeholder="Nombre completo"
+            value={nombreExt}
+            onChange={(e) => setNombreExt(e.target.value)}
+          />
+          <input
+            className="input-base text-sm"
+            placeholder="Rol (ej. Investigador, Colaborador)"
+            value={rolExt}
+            onChange={(e) => setRolExt(e.target.value)}
+          />
+        </div>
         <button
           type="button"
           onClick={handleAddExterno}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold py-2 rounded-lg transition"
+          className="btn-secondary w-full py-2 text-sm"
         >
-          + Agregar externo
+          <UserPlusIcon className="h-4 w-4" />
+          Agregar externo
         </button>
       </div>
     </div>

@@ -16,6 +16,7 @@ const FIELDS = [
   "image",
   "gallery",
   "integrantes",
+  "videos",
 ];
 
 const normalizeIntegrantes = (data) =>

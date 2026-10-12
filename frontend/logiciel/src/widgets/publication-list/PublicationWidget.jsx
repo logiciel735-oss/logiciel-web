@@ -6,6 +6,8 @@ import PublicationFormModal from "../../features/manage-publication/ui/Publicati
 import Loader from "../../shared/components/Loader";
 
 import ConfirmModal from "../../shared/ui/ConfirmModal";
+import PageHeader from "../../shared/ui/PageHeader";
+import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function PublicationList() {
   const { isAdmin } = useAuth();
@@ -21,7 +23,7 @@ export default function PublicationList() {
 
   const manage = useManagePublication(refresh);
   return (
-    <div className="w-full min-h-screen flex flex-col">
+    <div className="flex min-h-screen w-full flex-col">
       {manage.processing && (
         <Loader
           text="Procesando publicación..."
@@ -31,15 +33,12 @@ export default function PublicationList() {
           size={90}
         />
       )}
-      {/* HERO */}
-      <section className="h-[45vh] bg-[rgba(10,25,47,0.75)] flex items-center justify-center text-white text-center">
-        <div>
-          <h2 className="text-3xl font-bold">Publicaciones Científicas</h2>
-          <p className="max-w-xl mx-auto text-base sm:text-lg">
-            Resultados científicos publicados por el grupo.
-          </p>
-
-          {isAdmin && (
+      {/* ENCABEZADO */}
+      <PageHeader
+        eyebrow="Producción científica"
+        title="Publicaciones científicas"
+        description="Resultados de investigación publicados por los miembros del grupo."
+        action={isAdmin && (
             <button
               onClick={() => {
                 manage.setEditing(null);
@@ -53,27 +52,30 @@ export default function PublicationList() {
                 });
                 manage.setOpenModal(true);
               }}
-              className="mt-6 bg-teal-300 text-[#0a192f] px-5 py-2 rounded font-semibold"
+              className="btn-primary"
             >
-              + Nueva publicación
+              <PlusIcon className="h-5 w-5" />
+              Nueva publicación
             </button>
           )}
+      />
+
+      {/* BUSCADOR */}
+      <section className="mx-auto -mt-7 w-full max-w-3xl px-4 relative z-10">
+        <div className="relative">
+          <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Buscar por título, autores, revista o año..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="input-base h-14 rounded-xl pl-12 text-base shadow-lg"
+          />
         </div>
       </section>
 
-      {/* BUSCADOR */}
-      <section className="max-w-4xl mx-auto mt-8 px-4">
-        <input
-          type="text"
-          placeholder="Buscar por título, autores, revista o año..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full border p-3 rounded-lg shadow"
-        />
-      </section>
-
       {/* LISTADO */}
-      <section className="max-w-6xl mx-auto py-12 px-4 relative">
+      <section className="relative mx-auto w-full max-w-7xl px-4 py-12 sm:px-6">
         {loading && <Loader text="Cargando publicaciones..." />}
 
         {!loading && (
@@ -91,7 +93,7 @@ export default function PublicationList() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 text-gray-500">
+            <div className="rounded-xl border border-dashed border-slate-300 py-16 text-center text-slate-500">
               {searchTerm
                 ? `No hay publicaciones de "${searchTerm}"`
                 : "Aún no hay publicaciones registradas"}

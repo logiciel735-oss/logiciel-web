@@ -1,36 +1,23 @@
-import React from "react";
+import { RoleBadge, UserAvatar } from "./UsersTable";
 
 const UsersMobileCards = ({ users, onEdit, onPromote, onDelete }) => {
   return (
-    <div className="md:hidden">
+    <ul className="divide-y divide-slate-100 md:hidden">
       {users.map((user) => (
-        <div
-          key={user.uid}
-          className="p-4 border-b border-gray-200 space-y-2"
-        >
-
-          <div className="flex justify-between">
-            <span className="font-bold text-[#0a192f]">Nombre:</span>
-            <span>{user.name}</span>
+        <li key={user.id} className="space-y-3 p-4">
+          <div className="flex items-center gap-3">
+            <UserAvatar user={user} size="h-10 w-10" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-brand-navy">{user.name}</p>
+              <p className="truncate text-sm text-slate-500">{user.email}</p>
+            </div>
+            <RoleBadge role={user.role} />
           </div>
 
-          <div className="flex justify-between">
-            <span className="font-bold text-[#0a192f]">Correo:</span>
-            <span className="truncate ml-4">{user.email}</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="font-bold text-[#0a192f]">Rol:</span>
-            <span className="capitalize px-2 py-0.5 bg-gray-100 rounded text-sm">
-              {user.role}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2 pt-3 justify-center">
-
+          <div className="flex gap-2">
             <button
               onClick={() => onEdit(user)}
-              className="flex-1 bg-blue-600 text-white py-2 rounded text-sm"
+              className="flex-1 rounded-lg border border-slate-200 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-teal hover:text-brand-teal"
             >
               Editar
             </button>
@@ -38,7 +25,7 @@ const UsersMobileCards = ({ users, onEdit, onPromote, onDelete }) => {
             {user.role !== "admin" && (
               <button
                 onClick={() => onPromote(user.id)}
-                className="flex-1 bg-green-600 text-white py-2 rounded text-sm"
+                className="flex-1 rounded-lg border border-slate-200 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-navy hover:text-brand-navy"
               >
                 Promover
               </button>
@@ -46,15 +33,14 @@ const UsersMobileCards = ({ users, onEdit, onPromote, onDelete }) => {
 
             <button
               onClick={() => onDelete(user.id)}
-              className="flex-1 bg-red-600 text-white py-2 rounded text-sm"
+              className="flex-1 rounded-lg border border-red-200 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
             >
               Eliminar
             </button>
-
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };
 

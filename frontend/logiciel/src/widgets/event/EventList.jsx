@@ -8,6 +8,8 @@ import EventCard from "../../entities/event/ui/EventCard";
 import Loader from "../../shared/components/Loader";
 import ConfirmModal from "../../shared/ui/ConfirmModal";
 import CMSFormModal from "../../features/manage-news/ui/CMSFormModel";
+import SectionHeader from "../../shared/ui/SectionHeader";
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 export default function EventList() {
   const { user } = useAuth();
@@ -40,32 +42,27 @@ export default function EventList() {
 
   return (
     <>
-      {/* HERO */}
-      <section className="relative h-[45vh] bg-[rgba(10,25,47,0.75)] flex items-center justify-center text-white text-center px-4">
-        <div>
-          <h2 className="text-3xl font-bold">Eventos</h2>
-          <p className="max-w-xl mx-auto text-base sm:text-lg">
-            Actividades académicas y eventos del grupo.
-          </p>
-          {isAdmin && (
+      {/* EVENTOS */}
+      <section className="relative mx-auto max-w-7xl border-t border-slate-200 px-4 py-14 sm:px-6">
+        <SectionHeader
+          eyebrow="Eventos"
+          title="Actividades académicas"
+          action={isAdmin && (
             <button
               onClick={() => { manage.setForm({}); manage.setOpenModal(true); }}
-              className="mt-6 bg-teal-300 text-[#0a192f] px-5 py-2 rounded font-semibold"
+              className="btn-primary"
             >
-              + Nuevo Evento
+              <PlusIcon className="h-5 w-5" />
+              Nuevo evento
             </button>
           )}
-        </div>
-      </section>
-
-      {/* GRID */}
-      <section className="relative max-w-7xl mx-auto px-6 py-14">
+        />
         {loading ? (
           <div className="flex justify-center items-center py-16 col-span-full">
             <Loader text="Cargando eventos..." />
           </div>
         ) : eventos.length === 0 ? (
-          <p className="text-center text-gray-400">No hay eventos aún.</p>
+          <p className="rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">No hay eventos aún.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {eventos.map((item) => (

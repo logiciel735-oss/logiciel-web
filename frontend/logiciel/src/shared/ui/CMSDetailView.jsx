@@ -2,12 +2,22 @@ import placeholderImg from "../assets/images/placeholder.svg";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { formatDateInput }
-  from "../utils/formatDateInput";
-import { PencilSquareIcon, XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { formatDateInput } from "../utils/formatDateInput";
+import {
+  PencilSquareIcon,
+  XMarkIcon,
+  TrashIcon,
+  ArrowLeftIcon,
+  PhotoIcon,
+  PlayCircleIcon,
+} from "@heroicons/react/24/outline";
 
 import ConfirmModal from "../ui/ConfirmModal";
 import Loader from "../components/Loader";
+import Modal from "./Modal";
+import FormField from "./FormField";
+import VideoGallery from "./VideoGallery";
+import VideoLinksInput from "./VideoLinksInput";
 import { uploadFile } from "../uploadFile/api/uploadApi";
 import { useMiembros } from "../../entities/member/model/useMiembros";
 
@@ -32,6 +42,7 @@ export default function CMSDetailView({
   showDeleteButton = false,
   onDeleteClick = null,
   autoresKey = "autores",
+  showVideos = false, // videos de YouTube / Google Drive
 }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(item || {});
@@ -41,17 +52,15 @@ export default function CMSDetailView({
 
   const { miembros } = useMiembros();
 
-  // Si llega un item nuevo (recarga), el formulario se sincroniza durante el render
-  const [prevItem, setPrevItem] = useState(item);
-  if (item !== prevItem) {
-    setPrevItem(item);
-    setForm(item || {});
-  }
-
-  if (loading) return <Loader text={loaderLabel} />;
+  if (loading) return <div className="relative min-h-[60vh]"><Loader text={loaderLabel} /></div>;
 
   if (!item) return (
-    <div className="py-20 text-center text-gray-500">{notFoundLabel}</div>
+    <div className="mx-auto max-w-xl px-4 py-24 text-center">
+      <p className="text-lg font-semibold text-brand-navy">{notFoundLabel}</p>
+      <Link to={backPath} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-teal hover:text-brand-teal-dark">
+        <ArrowLeftIcon className="h-4 w-4" /> {backLabel}
+      </Link>
+    </div>
   );
 
   const mainImage =
@@ -102,6 +111,20 @@ export default function CMSDetailView({
     }
   };
 
+  /* ── agregar / quitar videos ── */
+  const handleVideosChange = async (videos) => {
+    try {
+      setProcessing(true);
+      await onUpdate(item.id, { videos });
+      toast.success("Videos actualizados");
+      await refresh();
+    } catch {
+      toast.error("Error actualizando los videos");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   /* ── guardar edición ── */
   const handleSave = async () => {
     const validationError = validate?.(form);
@@ -146,7 +169,6 @@ export default function CMSDetailView({
     }
   };
 
-  // ── FIX: ahora miembros siempre es un array válido ──
   const autoresConDatos = (item.autores || [])
     .filter((a) => {
       const tieneInterno = a.miembro_id && a.miembro_id !== "";
@@ -161,154 +183,205 @@ export default function CMSDetailView({
         : (found?.name || null);
       return { ...a, name, user_id: a.miembro_id, esExterno };
     });
+
+  const datos = (extraFields || []).filter(({ value }) => value);
+  const videos = Array.isArray(item.videos) ? item.videos : [];
+
   return (
     <>
-      {/* HERO */}
-      <section
-        className="relative h-[55vh] bg-cover bg-center flex flex-col items-center justify-center text-white"
-        style={{ backgroundImage: `url(${mainImage})` }}
-      >
-        <div className="absolute inset-0 bg-[rgba(10,25,47,0.75)]" />
-        <h1 className="relative z-10 text-4xl font-bold text-center px-6">
-          {item.title}
-        </h1>
+      {/* ENCABEZADO */}
+      <section className="relative overflow-hidden text-white">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${mainImage})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-navy/80 to-brand-navy/95" />
 
-        {isAdmin && (
-          <div className="relative z-10 mt-6 flex gap-3">
-            <button
-              onClick={() => { setForm(item); setEditing(true); }}
-              className="flex items-center gap-2 bg-yellow-400 px-5 py-2 rounded-lg font-bold text-black hover:bg-yellow-500 transition shadow"
-            >
-              <PencilSquareIcon className="w-5 h-5" />
-              Editar
-            </button>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+          <Link
+            to={backPath}
+            className="inline-flex items-center gap-1 text-sm font-medium text-teal-200 transition hover:text-white"
+          >
+            <ArrowLeftIcon className="h-4 w-4" /> {backLabel}
+          </Link>
 
-            {showDeleteButton && onDeleteClick && (
+          <h1 className="mt-4 max-w-4xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            {item.title}
+          </h1>
+          <div className="mt-5 h-1 w-14 rounded-full bg-brand-teal" />
+
+          {isAdmin && (
+            <div className="mt-8 flex flex-wrap gap-3">
               <button
-                onClick={onDeleteClick}
-                className="flex items-center gap-2 bg-red-600 px-5 py-2 rounded-lg font-bold text-white hover:bg-red-700 transition shadow"
+                onClick={() => { setForm(item); setEditing(true); }}
+                className="btn-primary"
               >
-                <TrashIcon className="w-5 h-5" />
-                Eliminar
+                <PencilSquareIcon className="h-5 w-5" />
+                Editar
               </button>
-            )}
-          </div>
-        )}
+
+              {showDeleteButton && onDeleteClick && (
+                <button
+                  onClick={onDeleteClick}
+                  className="inline-flex items-center gap-2 rounded-lg border border-red-300/60 px-5 py-2.5 font-semibold text-red-100 transition hover:bg-red-600 hover:text-white"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                  Eliminar
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* CONTENT */}
-      <div className="max-w-7xl mx-auto px-6 py-14 grid lg:grid-cols-3 gap-10">
+      {/* CONTENIDO */}
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-3">
 
-        {/* TEXTO */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* COLUMNA PRINCIPAL */}
+        <div className="space-y-10 lg:col-span-2">
 
           {item.summary && (
-            <p className="text-gray-700 text-lg leading-relaxed">
+            <p className="text-lg leading-relaxed text-slate-700">
               {item.summary}
             </p>
           )}
 
           {item.content && (
-            <div>
-              <h3 className="font-bold text-lg mb-2">Contenido</h3>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+            <section>
+              <h2 className="text-xl font-semibold text-brand-navy">Contenido</h2>
+              <p className="mt-3 whitespace-pre-line leading-relaxed text-slate-700">
                 {item.content}
               </p>
-            </div>
+            </section>
           )}
 
           {item.description && (
-            <div>
-              <h3 className="font-bold text-lg mb-2">Descripción</h3>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+            <section>
+              <h2 className="text-xl font-semibold text-brand-navy">Descripción</h2>
+              <p className="mt-3 whitespace-pre-line leading-relaxed text-slate-700">
                 {item.description}
               </p>
-            </div>
+            </section>
           )}
 
-          {extraFields?.map(({ label, value }) =>
-            value ? (
-              <p key={label} className="text-gray-500 text-sm">
-                <strong>{label}:</strong>{" "}
-                {label.toLowerCase().includes("fecha")
-                  ? formatDate(value)
-                  : value}
-              </p>
-            ) : null
+          {/* ── VIDEOS ── */}
+          {showVideos && (videos.length > 0 || isAdmin) && (
+            <section>
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-brand-navy">
+                <PlayCircleIcon className="h-6 w-6 text-brand-teal" />
+                Videos
+              </h2>
+
+              {videos.length > 0 && (
+                <div className="mt-4">
+                  <VideoGallery videos={videos} />
+                </div>
+              )}
+
+              {isAdmin && (
+                <div className="mt-5 rounded-xl border border-slate-200 bg-white p-5">
+                  <p className="mb-3 text-sm font-semibold text-brand-navy">Gestionar videos</p>
+                  <VideoLinksInput
+                    value={videos}
+                    onChange={handleVideosChange}
+                    disabled={processing}
+                  />
+                </div>
+              )}
+            </section>
           )}
 
           {/* ── AUTORES / INTEGRANTES ── */}
           {showAutores && autoresConDatos.length > 0 && (
-            <div>
-              <h3 className="font-bold text-lg mb-3">{autoresLabel}</h3>
-              <div className="flex flex-wrap gap-3">
+            <section>
+              <h2 className="text-xl font-semibold text-brand-navy">{autoresLabel}</h2>
+              <div className="mt-4 flex flex-wrap gap-2">
                 {autoresConDatos.map((a, i) => (
                   <div
                     key={a.miembro_id || a.nombre_externo || i}
-                    className="flex items-center gap-2 bg-teal-50 border border-teal-200 rounded-full px-4 py-2"
+                    className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1.5 pl-1.5 pr-3 shadow-sm"
                   >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-teal-light text-xs font-semibold text-brand-teal-dark">
+                      {(a.name || "?").charAt(0).toUpperCase()}
+                    </span>
                     {!a.esExterno ? (
                       a.name ? (
                         <Link
                           to={`/members/${a.user_id}`}
-                          className="text-teal-700 font-semibold hover:underline text-sm"
+                          className="text-sm font-semibold text-brand-navy hover:text-brand-teal"
                         >
                           {a.name}
                         </Link>
                       ) : (
-                        <span className="inline-block h-3 w-20 bg-teal-200 animate-pulse rounded-full" />
+                        <span className="inline-block h-3 w-20 animate-pulse rounded-full bg-slate-200" />
                       )
                     ) : (
-                      <span className="text-gray-700 font-semibold text-sm">
+                      <span className="text-sm font-semibold text-slate-700">
                         {a.name}
                       </span>
                     )}
 
                     {a.rol && (
-                      <span className="text-xs text-gray-500">· {a.rol}</span>
+                      <span className="text-xs text-slate-500">· {a.rol}</span>
                     )}
 
                     {isAdmin && (
                       <button
                         onClick={() => handleRemoveAutor(a.miembro_id, a.nombre_externo)}
-                        className="text-red-400 hover:text-red-600 ml-1"
+                        className="ml-1 rounded-full p-0.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                        aria-label="Quitar"
                       >
-                        <XMarkIcon className="w-3 h-3" />
+                        <XMarkIcon className="h-3.5 w-3.5" />
                       </button>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
-          {/* ── BUSCADOR + EXTERNO (solo admin) ── */}
+          {/* ── AGREGAR AUTORES (solo admin) ── */}
           {showAutores && isAdmin && (
-            <div className="space-y-3">
-              <h3 className="font-bold text-lg">
+            <section className="rounded-xl border border-slate-200 bg-white p-5">
+              <h2 className="text-sm font-semibold text-brand-navy">
                 Agregar {autoresLabel.toLowerCase()}
-              </h3>
-              <AuthorSelector
-                autores={item.autores || []}
-                label=""
-                setAutores={async (newAutores) => {
-                  await onUpdate(item.id, { [autoresKey]: newAutores });
-                  await refresh();
-                }}
-              />
-            </div>
+              </h2>
+              <div className="mt-3">
+                <AuthorSelector
+                  autores={item.autores || []}
+                  label=""
+                  setAutores={async (newAutores) => {
+                    await onUpdate(item.id, { [autoresKey]: newAutores });
+                    await refresh();
+                  }}
+                />
+              </div>
+            </section>
           )}
-
-          <Link to={backPath} className="text-teal-600 hover:underline block mt-6">
-            ← {backLabel}
-          </Link>
         </div>
 
-        {/* GALERÍA */}
-        <div className="space-y-4">
+        {/* COLUMNA LATERAL */}
+        <aside className="space-y-6">
+          {datos.length > 0 && (
+            <div className="card p-5">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Información</h2>
+              <dl className="mt-4 space-y-3">
+                {datos.map(({ label, value }) => (
+                  <div key={label}>
+                    <dt className="text-xs font-medium text-slate-500">{label}</dt>
+                    <dd className="mt-0.5 font-medium text-brand-navy first-letter:uppercase">
+                      {label.toLowerCase().includes("fecha") ? formatDate(value) : value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+
           {isAdmin && (
-            <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
-              <p className="text-sm font-semibold text-teal-700 mb-2">
+            <div className="rounded-xl border border-dashed border-brand-teal/50 bg-brand-teal-light/60 p-4">
+              <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-brand-teal-dark">
+                <PhotoIcon className="h-5 w-5" />
                 Agregar imagen a la galería
               </p>
               <input
@@ -316,10 +389,10 @@ export default function CMSDetailView({
                 accept="image/*"
                 onChange={handleAddImage}
                 disabled={uploading}
-                className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-teal-600 file:text-white hover:file:bg-teal-700 cursor-pointer disabled:opacity-50"
+                className="block w-full cursor-pointer text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-teal file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-brand-teal-dark disabled:opacity-50"
               />
               {uploading && (
-                <p className="text-xs text-teal-600 mt-2 animate-pulse">
+                <p className="mt-2 animate-pulse text-xs text-brand-teal">
                   Subiendo imagen...
                 </p>
               )}
@@ -327,73 +400,65 @@ export default function CMSDetailView({
           )}
 
           {item.image && (
-            <div className="relative">
-              <span className="absolute top-2 left-2 bg-teal-600 text-white text-xs px-2 py-1 rounded z-10">
+            <div className="relative overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+              <span className="absolute left-2 top-2 z-10 rounded-full bg-brand-teal px-2.5 py-0.5 text-xs font-semibold text-white">
                 Principal
               </span>
               <img
                 src={item.image}
-                className="rounded-xl w-full object-cover"
-                alt="imagen-principal"
+                className="w-full object-cover"
+                alt="Imagen principal"
               />
             </div>
           )}
 
           {item.gallery?.map((img, i) => (
-            <div key={i} className="relative group">
+            <div key={i} className="group relative overflow-hidden rounded-xl border border-slate-200 shadow-sm">
               {isAdmin && (
                 <button
                   onClick={() => setImgToDelete(img)}
-                  className="absolute top-2 right-2 z-10 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow opacity-0 group-hover:opacity-100 transition"
+                  className="absolute right-2 top-2 z-10 rounded-full bg-red-600 p-1 text-white opacity-0 shadow transition hover:bg-red-700 group-hover:opacity-100"
+                  aria-label="Eliminar imagen"
                 >
-                  <XMarkIcon className="w-4 h-4" />
+                  <XMarkIcon className="h-4 w-4" />
                 </button>
               )}
               <img
                 src={img}
-                className="rounded-xl w-full object-cover"
-                alt={`imagen-${i}`}
+                className="w-full object-cover"
+                alt={`Imagen ${i + 1} de la galería`}
               />
             </div>
           ))}
-        </div>
+        </aside>
       </div>
 
-      {/* EDIT MODAL */}
+      {/* EDITAR */}
       {editing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold mb-4 text-gray-800">
-              {editTitle}
-            </h3>
-
-            <EditForm
-              form={form}
-              setField={setField}
-              showAutores={showAutores}
-              autoresLabel={autoresLabel}
-            />
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setEditing(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition"
-              >
+        <Modal
+          title={editTitle}
+          onClose={() => setEditing(false)}
+          footer={
+            <>
+              <button onClick={() => setEditing(false)} className="btn-secondary">
                 Cancelar
               </button>
-              <button
-                onClick={handleSave}
-                disabled={processing}
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition shadow disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button onClick={handleSave} disabled={processing} className="btn-primary">
                 Guardar cambios
               </button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        >
+          <EditForm
+            form={form}
+            setField={setField}
+            showAutores={showAutores}
+            autoresLabel={autoresLabel}
+          />
+        </Modal>
       )}
 
-      {/* CONFIRM DELETE IMAGEN */}
+      {/* CONFIRMAR ELIMINAR IMAGEN */}
       <ConfirmModal
         open={!!imgToDelete}
         title="Eliminar imagen"
@@ -408,92 +473,80 @@ export default function CMSDetailView({
           text="Procesando..."
           fullscreen={true}
           bg="bg-black/40 backdrop-blur-sm"
-          color="#14B8A6"
-          size={90}
         />
       )}
     </>
   );
 }
 
-function Field({ label, children }) {
-  return (
-    <div>
-      <label className="text-sm font-medium text-gray-600 mb-1 block">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
 function EditForm({ form, setField, showAutores = false, autoresLabel = "Autores" }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
 
-      <Field label="Título">
+      <FormField label="Título">
         <input className="input-base" value={form.title || ""} onChange={(e) => setField("title", e.target.value)} />
-      </Field>
+      </FormField>
 
-      <Field label="Resumen">
+      <FormField label="Resumen">
         <textarea rows={2} className="input-base" value={form.summary || ""} onChange={(e) => setField("summary", e.target.value)} />
-      </Field>
+      </FormField>
 
       {form.content !== undefined && (
-        <Field label="Contenido">
-          <textarea rows={4} className="input-base" value={form.content || ""} onChange={(e) => setField("content", e.target.value)} />
-        </Field>
+        <FormField label="Contenido">
+          <textarea rows={5} className="input-base" value={form.content || ""} onChange={(e) => setField("content", e.target.value)} />
+        </FormField>
       )}
 
       {form.description !== undefined && (
-        <Field label="Descripción">
-          <textarea rows={4} className="input-base" value={form.description || ""} onChange={(e) => setField("description", e.target.value)} />
-        </Field>
+        <FormField label="Descripción">
+          <textarea rows={5} className="input-base" value={form.description || ""} onChange={(e) => setField("description", e.target.value)} />
+        </FormField>
       )}
 
-      <Field label="Fecha inicio">
-        <input
-          type="date"
-          className="input-base"
-          value={formatDateInput(form.date)}
-          onChange={(e) => setField("date", e.target.value)}
-        />
-      </Field>
-
-      {form.dateEnd !== undefined && (
-        <Field label="Fecha fin">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormField label="Fecha inicio">
           <input
             type="date"
             className="input-base"
-            value={formatDateInput(form.dateEnd)}
-            onChange={(e) => setField("dateEnd", e.target.value)}
+            value={formatDateInput(form.date)}
+            onChange={(e) => setField("date", e.target.value)}
           />
-        </Field>
-      )}
+        </FormField>
+
+        {form.dateEnd !== undefined && (
+          <FormField label="Fecha fin">
+            <input
+              type="date"
+              className="input-base"
+              value={formatDateInput(form.dateEnd)}
+              onChange={(e) => setField("dateEnd", e.target.value)}
+            />
+          </FormField>
+        )}
+      </div>
 
       {form.location !== undefined && (
-        <Field label="Ubicación">
+        <FormField label="Ubicación">
           <input className="input-base" value={form.location || ""} onChange={(e) => setField("location", e.target.value)} />
-        </Field>
+        </FormField>
       )}
 
-      <Field label="Imagen principal (URL)">
-
-        {form.image && (
-          <img src={form.image} className="mt-2 rounded-lg w-full h-40 object-cover" alt="preview" />
-        )}
-      </Field>
+      {form.image && (
+        <FormField label="Imagen principal">
+          <img src={form.image} className="h-40 w-full rounded-lg object-cover" alt="Vista previa" />
+        </FormField>
+      )}
 
       {showAutores && (
-        <Field label={autoresLabel}>
+        <FormField label={autoresLabel}>
           <AuthorSelector
             autores={form.autores || []}
             label=""
             setAutores={(newAutores) => setField("autores", newAutores)}
           />
-        </Field>
+        </FormField>
       )}
-      
+
     </div>
   );
 }

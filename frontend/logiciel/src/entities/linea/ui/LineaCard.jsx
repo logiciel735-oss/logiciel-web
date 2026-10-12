@@ -1,4 +1,5 @@
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { UserIcon } from "@heroicons/react/24/outline";
+import AdminActions from "../../../shared/ui/AdminActions";
 
 export default function LineaCard({
   linea,
@@ -7,49 +8,41 @@ export default function LineaCard({
   onDelete,
 }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow flex flex-col h-full">
-
+    <article className="card group flex h-full flex-col overflow-hidden">
       {linea.imagen_url && (
-        <img
-          src={linea.imagen_url}
-          alt={linea.nombre}
-          className="w-full h-48 object-cover rounded-lg mb-4"
-        />
-      )}
-
-      <h3 className="text-xl font-semibold mb-2">
-        {linea.nombre}
-      </h3>
-
-      <p className="text-gray-600 mb-2">
-        {linea.descripcion}
-      </p>
-
-      {linea.coordinador && (
-        <p className="text-sm text-gray-500">
-          Coordinador: {linea.coordinador}
-        </p>
-      )}
-
-      {isAdmin && (
-        <div className="mt-auto pt-4 flex gap-3">
-          <button
-            onClick={() => onEdit(linea)}
-            className="text-yellow-600 hover:text-yellow-700"
-          >
-            <PencilSquareIcon className="w-5 h-5" />
-            Editar
-          </button>
-
-          <button
-            onClick={() => onDelete(linea)}
-            className="text-red-600 hover:text-red-700"
-          >
-            <TrashIcon className="w-5 h-5" />
-            Eliminar
-          </button>
+        <div className="h-48 overflow-hidden bg-slate-100">
+          <img
+            src={linea.imagen_url}
+            alt={linea.nombre}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
         </div>
       )}
-    </div>
+
+      <div className={`flex flex-1 flex-col p-6 ${linea.imagen_url ? "" : "border-t-4 border-brand-teal"}`}>
+        <h3 className="text-xl font-semibold text-brand-navy">
+          {linea.nombre}
+        </h3>
+
+        <p className="mt-3 leading-relaxed text-slate-600">
+          {linea.descripcion}
+        </p>
+
+        {linea.coordinador && (
+          <p className="mt-4 flex items-center gap-2 text-sm text-slate-500">
+            <UserIcon className="h-4 w-4 text-brand-teal" />
+            Coordinador: <span className="font-medium text-slate-700">{linea.coordinador}</span>
+          </p>
+        )}
+
+        {isAdmin && (
+          <AdminActions
+            className="mt-auto pt-5"
+            onEdit={() => onEdit(linea)}
+            onDelete={() => onDelete(linea)}
+          />
+        )}
+      </div>
+    </article>
   );
 }

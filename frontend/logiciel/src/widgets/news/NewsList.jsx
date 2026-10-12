@@ -9,6 +9,9 @@ import Loader from "../../shared/components/Loader";
 import ConfirmModal from "../../shared/ui/ConfirmModal";
 import CMSFormModal from "../../features/manage-news/ui/CMSFormModel";
 import toast from "react-hot-toast";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import PageHeader from "../../shared/ui/PageHeader";
+import SectionHeader from "../../shared/ui/SectionHeader";
 
 export default function NewsList() {
   const { user } = useAuth();
@@ -42,32 +45,34 @@ export default function NewsList() {
 
   return (
     <>
-      {/* HERO */}
-      <section className="relative h-[45vh] bg-[rgba(10,25,47,0.75)] flex items-center justify-center text-white text-center px-4">
-        <div>
-          <h2 className="text-3xl font-bold">Noticias</h2>
-          <p className="max-w-xl mx-auto text-base sm:text-lg">
-            Información y novedades del grupo de investigación.
-          </p>
-          {isAdmin && (
+      {/* ENCABEZADO */}
+      <PageHeader
+        eyebrow="Actualidad"
+        title="Noticias y eventos"
+        description="Información, novedades y actividades académicas del grupo de investigación."
+      />
+
+      {/* NOTICIAS */}
+      <section className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <SectionHeader
+          eyebrow="Noticias"
+          title="Últimas noticias"
+          action={isAdmin && (
             <button
               onClick={() => { manage.setForm({}); manage.setOpenModal(true); }}
-              className="mt-6 bg-teal-300 text-[#0a192f] px-5 py-2 rounded font-semibold"
+              className="btn-primary"
             >
-              + Nueva Noticia
+              <PlusIcon className="h-5 w-5" />
+              Nueva noticia
             </button>
           )}
-        </div>
-      </section>
-
-      {/* GRID */}
-      <section className="relative max-w-7xl mx-auto px-6 py-14">
+        />
         {loading ? (
           <div className="flex justify-center items-center py-16">
             <Loader text="Cargando noticias..." />
           </div>
         ) : noticias.length === 0 ? (
-          <p className="text-center text-gray-400">No hay noticias aún.</p>
+          <p className="rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">No hay noticias aún.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {noticias.map((item) => (
@@ -93,7 +98,7 @@ export default function NewsList() {
           onClose={() => manage.setOpenModal(false)}
           uploading={uploading}
           onImageUpload={handleImageUpload}
-          fields={["title", "summary", "content", "date"]}
+          fields={["title", "summary", "content", "date", "videos"]}
         />
       )}
 

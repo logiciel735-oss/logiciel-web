@@ -31,6 +31,7 @@ export function useManageProject(refreshActivos, refreshFinalizados) {
         estado: form.estado,
         image: form.image || "",
         gallery: form.gallery || [],
+        videos: form.videos || [],
       };
 
       await createProject(data);

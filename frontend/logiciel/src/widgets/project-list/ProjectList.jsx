@@ -11,6 +11,9 @@ import ProjectEditModal from "../../features/manage-project/ui/ProjectEditModal"
 import { deleteProject, updateProject } from "../../features/manage-project/api/adminProjectApi";
 import ConfirmModal from "../../shared/ui/ConfirmModal";
 import Loader from "../../shared/components/Loader";
+import PageHeader from "../../shared/ui/PageHeader";
+import SectionHeader from "../../shared/ui/SectionHeader";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { validateDateRange } from "../../shared/lib/validators";
 import { formatDateInput } from "../../shared/utils/formatDateInput";
 
@@ -68,6 +71,7 @@ export default function ProjectList() {
       integrantes:     editData.integrantes,
       image:           editData.image   || "",
       gallery:         editData.gallery || [],
+      videos:          editData.videos  || [],
     };
     await updateProject(editData.id, data);
     toast.success("Proyecto actualizado");
@@ -92,28 +96,25 @@ export default function ProjectList() {
 
   return (
     <>
-      {/* HERO */}
-      <section
-        className="relative h-[45vh] sm:h-[60vh] bg-cover bg-center flex items-center justify-center text-white px-4"
-      >
-        <div className="absolute inset-0 bg-[rgba(10,25,47,0.75)]"></div>
-        <div className="relative z-10 text-center flex flex-col items-center gap-4">
-          <h1 className="text-2xl sm:text-4xl font-bold">
-            Proyectos de Investigación
-          </h1>
-          {isAdmin && (
-            <button
-              onClick={() => manage.setOpenNew(true)}
-              className="mt-6 bg-teal-300 text-[#0a192f] px-5 py-2 rounded font-semibold"
-            >
-              + Nuevo Proyecto
-            </button>
-          )}
-        </div>
-      </section>
+      {/* ENCABEZADO */}
+      <PageHeader
+        eyebrow="Investigación"
+        title="Proyectos de investigación"
+        description="Iniciativas desarrolladas por los investigadores y semilleros del grupo."
+        action={isAdmin && (
+          <button
+            onClick={() => manage.setOpenNew(true)}
+            className="btn-primary"
+          >
+            <PlusIcon className="h-5 w-5" />
+            Nuevo proyecto
+          </button>
+        )}
+      />
 
       <Section
-        title="Proyectos Activos"
+        eyebrow="En curso"
+        title="Proyectos activos"
         projects={activos}
         loading={loadingProjects || loadingMiembros}
         emptyText="No hay proyectos activos por el momento."
@@ -124,7 +125,8 @@ export default function ProjectList() {
       />
 
       <Section
-        title="Proyectos Finalizados"
+        eyebrow="Concluidos"
+        title="Proyectos finalizados"
         projects={finalizados}
         loading={loadingProjects || loadingMiembros}
         emptyText="No hay proyectos finalizados por el momento."
@@ -165,16 +167,14 @@ export default function ProjectList() {
   );
 }
 
-function Section({ title, projects, loading, isAdmin, onEdit, onDelete, gray, normalizeAutores, emptyText }) {
+function Section({ eyebrow, title, projects, loading, isAdmin, onEdit, onDelete, gray, normalizeAutores, emptyText }) {
   return (
-    <section className={`relative py-12 px-4 ${gray ? "bg-gray-100" : "bg-white"}`}>
-      <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-center text-[#0a192f]">
-        {title}
-      </h2>
-      <div className="relative max-w-7xl mx-auto min-h-[200px]">
+    <section className={`relative py-14 ${gray ? "border-t border-slate-200 bg-white" : ""}`}>
+      <div className="relative mx-auto min-h-[200px] max-w-7xl px-4 sm:px-6">
+        <SectionHeader eyebrow={eyebrow} title={title} />
         {loading && <Loader text="Cargando proyectos..." />}
         {!loading && projects.length === 0 && (
-          <p className="text-center text-gray-500 py-16">{emptyText}</p>
+          <p className="rounded-xl border border-dashed border-slate-300 py-16 text-center text-slate-500">{emptyText}</p>
         )}
         {!loading && projects.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

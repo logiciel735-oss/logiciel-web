@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-50 font-sans text-slate-700 antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* Botón principal (acento teal) */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-teal px-5 py-2.5
+      font-semibold text-white shadow-sm transition-all duration-200
+      hover:bg-brand-teal-dark hover:shadow-md
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  /* Botón secundario (contorno) */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5
+      font-semibold text-slate-700 transition-all duration-200
+      hover:border-brand-teal hover:text-brand-teal
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2;
+  }
+
+  /* Tarjeta base */
+  .card {
+    @apply rounded-xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:shadow-md;
+  }
+
+  /* Campos de formulario */
+  .input-base {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400
+      transition focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/40;
+  }
+
+  /* Etiqueta de sección ("eyebrow") */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal;
+  }
+}
 
 /* Oculta el scrollbar pero mantiene el scroll */
 .hide-scrollbar {
@@ -11,8 +59,4 @@
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;                /* Chrome, Safari */
-}
-
-.input-base {
-  @apply w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-teal-400;
 }

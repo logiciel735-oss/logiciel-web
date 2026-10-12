@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getPublicUsers } from "../../../features/adminUsers/api/adminUsersApi";
 import { getMiembros } from "../api/miembroApi";
 import toast from "react-hot-toast";
+import Modal from "../../../shared/ui/Modal";
+import FormField from "../../../shared/ui/FormField";
 
 export default function MiembroModal({
     data,
@@ -80,99 +82,86 @@ export default function MiembroModal({
         onSave();
     };
 
+    const ROLES = [
+        ["director", "Director"],
+        ["coordinador", "Coordinador"],
+        ["investigador", "Investigador"],
+        ["docente", "Docente"],
+        ["estudiante", "Estudiante"],
+        ["administrativo", "Administrativo"],
+    ];
+
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-            <div className="bg-white rounded-xl shadow-xl p-6 w-[650px] max-h-[80vh] overflow-y-auto">
-                {!isEditing && (
-                    <>
-                        <h3 className="text-lg font-semibold mb-3">
-                            Seleccionar usuario
-                        </h3>
-
-                        <div className="flex gap-4 overflow-x-auto pb-4 mb-6">
-
-                            {users.map((user) => (
-
-                                <button
-                                    key={user.id}
-                                    onClick={() => handleSelectUser(user)}
-                                    className={`min-w-[120px] p-4 border rounded-xl flex flex-col items-center hover:shadow transition
-          ${selectedUser?.id === user.id ? "border-teal-600" : ""}
-          `}
-                                >
-
-                                    {user.avatar ? (
-                                        <img
-                                            src={user.avatar}
-                                            alt={user.name}
-                                            className="w-16 h-16 rounded-full object-cover mb-2"
-                                        />
-                                    ) : (
-                                        <div className="w-16 h-16 rounded-full bg-teal-600 text-white flex items-center justify-center text-xl font-bold mb-2">
-                                            {user.name?.charAt(0).toUpperCase()}
-                                        </div>
-                                    )}
-
-                                    <span className="text-sm text-center">
-                                        {user.name}
-                                    </span>
-
-                                </button>
-
-                            ))}
-
-                        </div>
-                    </>
-                )}
-
-                {/* ROLE */}
-
-                <div className="mb-4">
-
-                    <label className="block text-sm mb-1">
-                        Rol
-                    </label>
-
-                    <select
-                        value={data?.role || ""}
-                        onChange={(e) => onChange("role", e.target.value)}
-                        className="w-full border rounded-lg p-2"
-                    >
-                        <option value="">Seleccionar rol</option>
-
-                        <option value="director">Director</option>
-                        <option value="coordinador">Coordinador</option>
-                        <option value="investigador">Investigador</option>
-                        <option value="docente">Docente</option>
-                        <option value="estudiante">Estudiante</option>
-                        <option value="administrativo">Administrativo</option>
-
-                    </select>
-
-                </div>
-
-                {/* ACTIONS */}
-
-                <div className="flex justify-end gap-3 mt-6">
-
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 border rounded-lg"
-                    >
+        <Modal
+            title={isEditing ? "Editar miembro" : "Nuevo miembro"}
+            description={isEditing ? undefined : "Selecciona un usuario registrado y asígnale un rol en el grupo."}
+            onClose={onClose}
+            size="xl"
+            footer={
+                <>
+                    <button onClick={onClose} className="btn-secondary">
                         Cancelar
                     </button>
-
-                    <button
-                        onClick={handleSave}
-                        className="px-4 py-2 bg-teal-600 text-white rounded-lg"
-                    >
+                    <button onClick={handleSave} className="btn-primary">
                         Guardar
                     </button>
+                </>
+            }
+        >
+            {!isEditing && (
+                <FormField label="Usuario">
+                    {users.length === 0 ? (
+                        <p className="rounded-lg border border-dashed border-slate-300 py-6 text-center text-sm text-slate-500">
+                            No hay usuarios disponibles para agregar.
+                        </p>
+                    ) : (
+                        <div className="grid max-h-72 grid-cols-2 gap-3 overflow-y-auto p-1 sm:grid-cols-4">
+                            {users.map((user) => {
+                                const selected = selectedUser?.id === user.id;
+                                return (
+                                    <button
+                                        key={user.id}
+                                        type="button"
+                                        onClick={() => handleSelectUser(user)}
+                                        className={`flex flex-col items-center rounded-xl border p-3 text-center transition ${selected
+                                            ? "border-brand-teal bg-brand-teal-light ring-2 ring-brand-teal/40"
+                                            : "border-slate-200 hover:border-brand-teal/50 hover:bg-slate-50"
+                                            }`}
+                                    >
+                                        {user.avatar ? (
+                                            <img
+                                                src={user.avatar}
+                                                alt={user.name}
+                                                className="mb-2 h-14 w-14 rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-brand-navy text-lg font-semibold text-white">
+                                                {user.name?.charAt(0).toUpperCase()}
+                                            </div>
+                                        )}
+                                        <span className="line-clamp-2 text-xs font-medium text-slate-700">
+                                            {user.name}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </FormField>
+            )}
 
-                </div>
-
-            </div>
-        </div>
+            <FormField label="Rol en el grupo">
+                <select
+                    value={data?.role || ""}
+                    onChange={(e) => onChange("role", e.target.value)}
+                    className="input-base"
+                >
+                    <option value="">Seleccionar rol</option>
+                    {ROLES.map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                    ))}
+                </select>
+            </FormField>
+        </Modal>
     );
 }

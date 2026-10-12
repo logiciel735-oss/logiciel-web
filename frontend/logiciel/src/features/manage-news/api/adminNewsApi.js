@@ -13,6 +13,7 @@ const FIELDS = [
   "gallery",
   "fecha_creacion",
   "autores",
+  "videos",
 ];
 
 const normalizeAutores = (data) =>

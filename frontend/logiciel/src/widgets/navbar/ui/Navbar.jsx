@@ -1,7 +1,26 @@
-import { Link } from "react-router-dom";
-import logo from "../../../shared/assets/logo/logo-logiciel.png";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { Link, NavLink } from "react-router-dom";
+import { ChevronDownIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import Logo from "../../../shared/ui/Logo";
 import { useNavbar } from "../model/useNavbar";
+
+const NAV_ITEMS = [
+  { to: "/", label: "Inicio", end: true },
+  { to: "/about", label: "Nosotros" },
+  { to: "/projects", label: "Proyectos" },
+  { to: "/publications", label: "Publicaciones" },
+  { to: "/news", label: "Noticias" },
+  { to: "/contact", label: "Contacto" },
+];
+
+const navLinkClass = ({ isActive }) =>
+  `relative block rounded-md px-3 py-2 text-sm font-medium transition-colors
+   md:after:absolute md:after:inset-x-3 md:after:-bottom-[1px] md:after:h-0.5 md:after:rounded-full md:after:transition-all
+   ${isActive
+     ? "text-white bg-white/10 md:bg-transparent md:after:bg-brand-teal"
+     : "text-slate-300 hover:text-white hover:bg-white/5 md:hover:bg-transparent md:after:bg-transparent"}`;
+
+const dropdownItem =
+  "block w-full text-left rounded-md px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-brand-navy transition-colors";
 
 const Navbar = () => {
   const {
@@ -16,98 +35,60 @@ const Navbar = () => {
   } = useNavbar();
 
   return (
-    <header className="bg-[#0a192f] text-white py-4 px-6 sticky top-0 z-50">
-      <nav className="max-w-6xl mx-auto flex justify-between items-center">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-brand-navy text-white shadow-lg shadow-black/10">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
 
         {/* LOGO */}
-        <div className="flex items-center gap-3">
-          <Link
-            to="/"
-            onClick={() => {
-              window.scrollTo({ top: 0, behavior: "smooth" });
-              handleCloseMenu();
-            }}
-          >
-            <img
-              src={logo}
-              alt="Logo LOGICIEL"
-              className="w-32 cursor-pointer"
-            />
-          </Link>
-        </div>
+        <Link
+          to="/"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            handleCloseMenu();
+          }}
+          className="rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal"
+        >
+          <Logo variant="light" />
+        </Link>
 
         {/* BOTÓN HAMBURGUESA (MOBILE) */}
         <button
-          className="md:hidden flex flex-col gap-1"
+          className="rounded-md p-2 text-slate-200 hover:bg-white/10 md:hidden"
           onClick={() => setOpen(!open)}
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
         >
-          <span className="w-6 h-[3px] bg-white"></span>
-          <span className="w-6 h-[3px] bg-white"></span>
-          <span className="w-6 h-[3px] bg-white"></span>
+          {open ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
         </button>
 
         {/* MENÚ PRINCIPAL */}
         <ul
           className={`
-            flex-col md:flex-row
-            items-start md:items-center
-            gap-6
-            ${open ? "flex" : "hidden"}
-            md:flex
-            absolute md:static
-            top-full left-0 right-0
-            bg-[#0a192f] md:bg-transparent
-            px-6 py-4 md:p-0
-            max-h-[80vh] md:max-h-none
-            overflow-y-auto md:overflow-visible
-            scrollbar-thin md:scrollbar-none
+            ${open ? "flex" : "hidden"} md:flex
+            absolute md:static top-full left-0 right-0
+            flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-1
+            border-b border-white/10 md:border-0
+            bg-brand-navy md:bg-transparent
+            px-4 py-4 md:p-0
+            max-h-[80vh] md:max-h-none overflow-y-auto md:overflow-visible
+            shadow-xl md:shadow-none
           `}
         >
-          <li>
-            <Link to="/" onClick={handleCloseMenu} className="hover:text-[#64ffda]">
-              Inicio
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/about" onClick={handleCloseMenu} className="hover:text-[#64ffda]">
-              Nosotros
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/projects" onClick={handleCloseMenu} className="hover:text-[#64ffda]">
-              Proyectos
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/publications" onClick={handleCloseMenu} className="hover:text-[#64ffda]">
-              Publicaciones
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/news" onClick={handleCloseMenu} className="hover:text-[#64ffda]">
-              Noticias
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/contact" onClick={handleCloseMenu} className="hover:text-[#64ffda]">
-              Contacto
-            </Link>
-          </li>
+          {NAV_ITEMS.map(({ to, label, end }) => (
+            <li key={to}>
+              <NavLink to={to} end={end} onClick={handleCloseMenu} className={navLinkClass}>
+                {label}
+              </NavLink>
+            </li>
+          ))}
 
           {/* NO LOGUEADO */}
           {!user && (
-            <li>
+            <li className="mt-2 md:ml-3 md:mt-0">
               <Link
                 to="/login"
                 onClick={handleCloseMenu}
-                className="hover:text-[#64ffda]"
+                className="btn-primary w-full px-4 py-2 text-sm md:w-auto"
               >
-                Iniciar Sesión
+                Iniciar sesión
               </Link>
             </li>
           )}
@@ -115,7 +96,7 @@ const Navbar = () => {
           {/* LOGUEADO */}
           {user && (
             <li
-              className="relative flex items-center h-full"
+              className="relative mt-2 md:ml-3 md:mt-0"
               onMouseEnter={() =>
                 window.innerWidth >= 768 && setDropdown(true)
               }
@@ -125,19 +106,21 @@ const Navbar = () => {
             >
               <button
                 onClick={handleDropdownToggle}
-                className="hover:text-[#64ffda] font-semibold flex items-center gap-1 py-1"
+                className="flex w-full items-center gap-2 rounded-full border border-white/15 bg-white/5 py-1 pl-1 pr-3 text-sm font-medium transition hover:border-brand-teal/60 hover:bg-white/10 md:w-auto"
               >
-                {user?.name || "Mi Perfil"}
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-teal font-display text-sm font-semibold text-white">
+                  {(user?.name || "U").charAt(0).toUpperCase()}
+                </span>
+                <span className="max-w-[10rem] truncate">{user?.name || "Mi Perfil"}</span>
                 <ChevronDownIcon
-                  className={`w-4 h-4 transition-transform ${dropdown ? "rotate-180" : ""
-                    }`}
+                  className={`ml-auto h-4 w-4 text-slate-300 transition-transform ${dropdown ? "rotate-180" : ""}`}
                 />
               </button>
 
               {/* DROPDOWN */}
               <div
                 className={`
-                  relative md:absolute md:right-0 top-full pt-2 w-full md:w-48
+                  relative md:absolute md:right-0 top-full pt-2 w-full md:w-60
                   ${dropdown
                     ? "block opacity-100"
                     : "hidden md:block md:opacity-0 md:pointer-events-none"
@@ -150,107 +133,65 @@ const Navbar = () => {
               >
                 <ul
                   className={`
-                    bg-[#112240] border border-[#233554]
-                    rounded-md p-2 w-48 shadow-lg
+                    rounded-xl border border-slate-200 bg-white p-2 shadow-xl
                     transition-all duration-200
                     ${dropdown
-                      ? "opacity-100 translate-y-1 block"
-                      : "opacity-0 pointer-events-none translate-y-3"
+                      ? "opacity-100 translate-y-0 block"
+                      : "opacity-0 pointer-events-none translate-y-2"
                     }
                   `}
                 >
+                  <li className="mb-1 border-b border-slate-100 px-3 pb-2 pt-1">
+                    <p className="truncate text-sm font-semibold text-brand-navy">{user?.name}</p>
+                    <p className="truncate text-xs text-slate-500">{user?.email}</p>
+                    {user.role === "admin" && (
+                      <span className="mt-1 inline-block rounded-full bg-brand-teal-light px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-teal-dark">
+                        Administrador
+                      </span>
+                    )}
+                  </li>
+
                   <li>
-                    <Link
-                      to={`/members/${user.id}`}   // 👈 ESTA ES LA CLAVE
-                      onClick={handleCloseMenu}
-                      className="block px-3 py-2 hover:bg-[#233554] rounded"
-                    >
+                    <Link to={`/members/${user.id}`} onClick={handleCloseMenu} className={dropdownItem}>
                       Mi perfil
                     </Link>
                   </li>
 
                   <li>
-                    <Link
-                      to="/profile"
-                      onClick={handleCloseMenu}
-                      className="block px-3 py-2 hover:bg-[#233554] rounded"
-                    >
-                      Editar Perfil
+                    <Link to="/profile" onClick={handleCloseMenu} className={dropdownItem}>
+                      Editar perfil
                     </Link>
                   </li>
 
-                  {user.role === "user" ? (
-                    <>
-                      <li>
-                        <Link
-                          to={`/members/${user.id}`}   // 👈 ESTA ES LA CLAVE
-                          onClick={handleCloseMenu}
-                          className="block px-3 py-2 hover:bg-[#233554] rounded"
-                        >
-                          Mi perfil
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to="/publications"
-                          state={{ filterByUser: user?.name }}
-                          onClick={handleCloseMenu}
-                          className="block px-3 py-2 hover:bg-[#233554] rounded"
-                        >
-                          Publicaciones científicas
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link
-                          to="/my-proyects"
-                          onClick={handleCloseMenu}
-                          className="block px-3 py-2 hover:bg-[#233554] rounded"
-                        >
-                          Mis Proyectos
-                        </Link>
-                      </li>
-                    </>
-                  ) : (
-                    <>
-
-                      <li>
-                        <Link
-                          to="/admin/users"
-                          onClick={handleCloseMenu}
-                          className="block px-3 py-2 hover:bg-[#233554] rounded"
-                        >
-                          Gestionar Usuarios
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link
-                          to="/publications"
-                          state={{ filterByUser: user?.name }}
-                          onClick={handleCloseMenu}
-                          className="block px-3 py-2 hover:bg-[#233554] rounded"
-                        >
-                          Publicaciones científicas
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link
-                          to="/my-proyects"
-                          onClick={handleCloseMenu}
-                          className="block px-3 py-2 hover:bg-[#233554] rounded"
-                        >
-                          Mis Proyectos
-                        </Link>
-                      </li>
-                    </>
+                  {user.role !== "user" && (
+                    <li>
+                      <Link to="/admin/users" onClick={handleCloseMenu} className={dropdownItem}>
+                        Gestionar usuarios
+                      </Link>
+                    </li>
                   )}
 
                   <li>
+                    <Link
+                      to="/publications"
+                      state={{ filterByUser: user?.name }}
+                      onClick={handleCloseMenu}
+                      className={dropdownItem}
+                    >
+                      Publicaciones científicas
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link to="/my-proyects" onClick={handleCloseMenu} className={dropdownItem}>
+                      Mis proyectos
+                    </Link>
+                  </li>
+
+                  <li className="mt-1 border-t border-slate-100 pt-1">
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-3 py-2 hover:bg-[#233554] rounded"
+                      className="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                     >
                       Cerrar sesión
                     </button>
@@ -265,4 +206,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;

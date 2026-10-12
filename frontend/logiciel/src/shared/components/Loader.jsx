@@ -1,49 +1,33 @@
 export default function Loader({
   text = "Cargando...",
-  bg = "bg-gray-100/70",
-  color = "#9CA3AF", 
-  size = 64,
+  bg = "bg-slate-50/70",
+  color = "#119DA4",
+  size = 48,
   fullscreen = false,
 }) {
+  // Texto claro solo sobre fondos oscuros
+  const darkBg = /black|navy/.test(bg);
+
   return (
     <div
       className={`
         ${
           fullscreen
-            ? "fixed top-0 left-0 w-screen h-screen z-50"
-            : "absolute top-0 left-0 w-full h-full z-10"
+            ? "fixed inset-0 z-[70]"
+            : "absolute inset-0 z-10"
         }
         flex flex-col items-center justify-center
         ${bg}
       `}
+      role="status"
     >
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill={color}
-        xmlns="http://www.w3.org/2000/svg"
-        aria-label="Cargando"
-      >
-        <circle cx="12" cy="3" r="1">
-          <animate
-            attributeName="r"
-            dur="0.6s"
-            values="1;2;1"
-            repeatCount="indefinite"
-          />
-        </circle>
+      <span
+        className="animate-spin rounded-full border-4 border-slate-200"
+        style={{ width: size, height: size, borderTopColor: color }}
+        aria-hidden="true"
+      />
 
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          dur="6s"
-          values="360 12 12;0 12 12"
-          repeatCount="indefinite"
-        />
-      </svg>
-
-      <p className="mt-4 text-gray-400 tracking-widest text-xs uppercase">
+      <p className={`mt-4 text-xs font-medium uppercase tracking-widest ${darkBg ? "text-white" : "text-slate-500"}`}>
         {text}
       </p>
     </div>

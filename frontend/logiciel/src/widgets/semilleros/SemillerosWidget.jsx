@@ -1,3 +1,7 @@
+import Modal from "../../shared/ui/Modal";
+import FormField from "../../shared/ui/FormField";
+import SectionHeader from "../../shared/ui/SectionHeader";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -72,15 +76,14 @@ export default function SemillerosWidget() {
 
 
   return (
-    <section className="relative py-16 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="relative border-t border-slate-200 bg-white py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
 
-        <div className="flex justify-between items-center mb-10">
-          <h2 className="text-3xl font-bold">
-            Semilleros de Investigación
-          </h2>
-
-          {isAdmin && (
+        <SectionHeader
+          eyebrow="Formación"
+          title="Semilleros de investigación"
+          description="Espacios donde estudiantes se forman como investigadores."
+          action={isAdmin && (
             <button
               onClick={() => {
                 setEditData({
@@ -91,12 +94,13 @@ export default function SemillerosWidget() {
                 });
                 setOpenModal(true);
               }}
-              className="bg-teal-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+              className="btn-primary"
             >
-              + Nuevo Semillero
+              <PlusIcon className="h-5 w-5" />
+              Nuevo semillero
             </button>
           )}
-        </div>
+        />
 
         <div className="grid md:grid-cols-3 gap-8">
 
@@ -105,8 +109,8 @@ export default function SemillerosWidget() {
               <Loader text="Cargando semilleros..." />
             </div>
           ) : semilleros.length === 0 ? (
-            <p className="col-span-full text-center text-gray-500">
-              No hay semilleros disponibles
+            <p className="col-span-full rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">
+              No hay semilleros registrados.
             </p>
           ) : (
             semilleros.map((semillero) => (
@@ -161,71 +165,53 @@ const SemilleroModal = ({ data, onChange, onSave, onClose }) => {
   const linkError = getLinkError(data?.link);
 
   return (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div className="bg-white rounded-xl w-full max-w-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-
-      <h3 className="text-xl font-bold mb-4">
-        {data?.id ? "Editar Semillero" : "Nuevo Semillero"}
-      </h3>
-
-      <div className="space-y-4">
-
+    <Modal
+      title={data?.id ? "Editar semillero" : "Nuevo semillero"}
+      onClose={onClose}
+      footer={
+        <>
+          <button onClick={onClose} className="btn-secondary">
+            Cancelar
+          </button>
+          <button onClick={onSave} disabled={!!linkError} className="btn-primary">
+            Guardar
+          </button>
+        </>
+      }
+    >
+      <FormField label="Nombre">
         <input
-          className="w-full border rounded-lg p-2"
-          placeholder="Nombre"
+          className="input-base"
           value={data?.nombre || ""}
           onChange={(e) => onChange("nombre", e.target.value)}
         />
+      </FormField>
 
+      <FormField label="Slogan">
         <input
-          className="w-full border rounded-lg p-2"
-          placeholder="Slogan"
+          className="input-base"
           value={data?.slogan || ""}
           onChange={(e) => onChange("slogan", e.target.value)}
         />
+      </FormField>
 
-        <div>
-          <input
-            type="url"
-            className={`w-full border rounded-lg p-2 ${linkError ? "border-red-500" : ""}`}
-            placeholder="Link del semillero (https://...)"
-            value={data?.link || ""}
-            onChange={(e) => onChange("link", e.target.value)}
-          />
-          {linkError && (
-            <p className="text-sm text-red-600 mt-1">{linkError}</p>
-          )}
-        </div>
+      <FormField label="Enlace del semillero" hint="Opcional. Debe empezar por http:// o https://" error={linkError}>
+        <input
+          type="url"
+          className={`input-base ${linkError ? "border-red-400" : ""}`}
+          placeholder="https://..."
+          value={data?.link || ""}
+          onChange={(e) => onChange("link", e.target.value)}
+        />
+      </FormField>
 
+      <FormField label="Logo o imagen">
         <ImageUploader
           value={data?.imagen_url}
           onChange={(url) => onChange("imagen_url", url)}
+          contain
         />
-
-      </div>
-
-      <div className="flex justify-end gap-3 mt-6">
-
-        <button
-          onClick={onClose}
-          className="px-4 py-2 border rounded-lg"
-        >
-          Cancelar
-        </button>
-
-        <button
-          onClick={onSave}
-          disabled={!!linkError}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Guardar
-        </button>
-
-      </div>
-
-    </div>
-  </div>
+      </FormField>
+    </Modal>
   );
 };
-
-

@@ -1,9 +1,7 @@
+import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { Link } from "react-router-dom";
-import {
-  PencilSquareIcon,
-  TrashIcon,
-  CalendarDaysIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowRightIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
+import AdminActions from "../../../shared/ui/AdminActions";
 
 export default function NewsCard({
   item,
@@ -21,71 +19,47 @@ export default function NewsCard({
     : "";
 
   return (
-    <article
-      className="
-        bg-gray-100
-        rounded-lg
-        shadow-md
-        overflow-hidden
-        transition-all
-        duration-300
-        hover:shadow-xl
-        hover:-translate-y-1
-      "
-    >
-      {/* IMAGEN */}
-      <img
-        src={item.image}
-        className="w-full h-52 object-cover"
-        alt={item.title}
-      />
+    <article className="card group flex flex-col overflow-hidden hover:-translate-y-1">
+      <div className="h-48 overflow-hidden bg-slate-100">
+        <img
+          src={item.image || placeholderImg}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          alt={item.title}
+        />
+      </div>
 
-      <div className="p-6 text-left">
+      <div className="flex flex-1 flex-col p-5">
+        {formattedDate && (
+          <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500">
+            <CalendarDaysIcon className="h-4 w-4 text-brand-teal" />
+            {formattedDate}
+          </p>
+        )}
 
-        {/* FECHA */}
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-          <CalendarDaysIcon className="w-4 h-4" />
-          <span>{formattedDate}</span>
-        </div>
-
-        {/* TITULO */}
-        <h3 className="text-xl font-semibold line-clamp-2">
+        <h3 className="mt-2 line-clamp-2 text-lg font-semibold leading-snug text-brand-navy">
           {item.title}
         </h3>
 
-        {/* RESUMEN */}
-        <p className="text-gray-600 mt-2 line-clamp-3">
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600">
           {item.summary}
         </p>
 
-        {/* LINK */}
-        <Link
-          to={`/news/${item.id}`}
-          className="text-blue-600 block mt-4 hover:underline"
-        >
-          Leer más
-        </Link>
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
+          <Link
+            to={`/news/${item.id}`}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-teal transition hover:text-brand-teal-dark"
+          >
+            Leer más
+            <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
 
-        {/* ADMIN */}
-        {isAdmin && (
-          <div className="mt-3 flex gap-3">
-            <button
-              onClick={() => onEdit(item, "noticia")}
-              className="flex items-center gap-1 text-yellow-600 hover:text-yellow-700 transition"
-            >
-              <PencilSquareIcon className="w-5 h-5" />
-              Editar
-            </button>
-
-            <button
-              onClick={() => onDelete(item, "noticia")}
-              className="flex items-center gap-1 text-red-600 hover:text-red-700 transition"
-            >
-              <TrashIcon className="w-5 h-5" />
-              Eliminar
-            </button>
-          </div>
-        )}
+          {isAdmin && (
+            <AdminActions
+              onEdit={() => onEdit(item, "noticia")}
+              onDelete={() => onDelete(item, "noticia")}
+            />
+          )}
+        </div>
       </div>
     </article>
   );

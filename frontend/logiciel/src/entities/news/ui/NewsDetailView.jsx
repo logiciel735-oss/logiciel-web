@@ -16,7 +16,8 @@ export default function NewsDetailView({ item, loading, refresh, isAdmin }) {
       extraFields={[
         { label: "Fecha", value: item?.date },
       ]}
-      showAutores={true}          // ✅ activa sección autores
+      showAutores={true}
+      showVideos={true}
       toApiPayload={(form) => ({
         titulo: form.title,
         resumen: form.summary,

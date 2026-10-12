@@ -1,3 +1,7 @@
+import Modal from "../../shared/ui/Modal";
+import FormField from "../../shared/ui/FormField";
+import SectionHeader from "../../shared/ui/SectionHeader";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -61,16 +65,14 @@ export default function LineasWidget() {
 
 
   return (
-    <section className="relative py-16 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="relative border-t border-slate-200 py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-10">
-          <h2 className="text-3xl font-bold">
-            Líneas de Investigación
-          </h2>
-
-          {isAdmin && (
+        <SectionHeader
+          eyebrow="Investigación"
+          title="Líneas de investigación"
+          description="Áreas temáticas en las que el grupo desarrolla su trabajo."
+          action={isAdmin && (
             <button
               onClick={() => {
                 setEditData({
@@ -81,12 +83,13 @@ export default function LineasWidget() {
                 });
                 setOpenModal(true);
               }}
-              className="bg-teal-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+              className="btn-primary"
             >
-              + Nueva Línea
+              <PlusIcon className="h-5 w-5" />
+              Nueva línea
             </button>
           )}
-        </div>
+        />
 
         {/* GRID */}
         <div className="grid md:grid-cols-2 gap-8">
@@ -96,8 +99,8 @@ export default function LineasWidget() {
               <Loader text="Cargando líneas..." />
             </div>
           ) : lineas.length === 0 ? (
-            <p className="col-span-full text-center text-gray-500">
-              No hay líneas disponibles
+            <p className="col-span-full rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">
+              No hay líneas de investigación registradas.
             </p>
           ) : (
             lineas.map((linea) => (
@@ -153,86 +156,50 @@ export default function LineasWidget() {
 /* ================= MODAL ================= */
 
 const LineaModal = ({ data, onChange, onSave, onClose }) => (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div className="bg-white rounded-xl w-full max-w-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+  <Modal
+    title={data?.id ? "Editar línea de investigación" : "Nueva línea de investigación"}
+    onClose={onClose}
+      footer={
+        <>
+          <button onClick={onClose} className="btn-secondary">
+            Cancelar
+          </button>
+          <button onClick={onSave} className="btn-primary">
+            Guardar
+          </button>
+        </>
+      }
+  >
+    <FormField label="Nombre">
+      <input
+        className="input-base"
+        value={data?.nombre || ""}
+        onChange={(e) => onChange("nombre", e.target.value)}
+      />
+    </FormField>
 
-      <h3 className="text-xl font-bold mb-4">
-        {data?.id ? "Editar Línea" : "Nueva Línea"}
-      </h3>
+    <FormField label="Descripción">
+      <textarea
+        rows={4}
+        className="input-base"
+        value={data?.descripcion || ""}
+        onChange={(e) => onChange("descripcion", e.target.value)}
+      />
+    </FormField>
 
-      <div className="space-y-4">
+    <FormField label="Coordinador">
+      <input
+        className="input-base"
+        value={data?.coordinador || ""}
+        onChange={(e) => onChange("coordinador", e.target.value)}
+      />
+    </FormField>
 
-        <div>
-          <label className="block mb-1 font-semibold">
-            Nombre
-          </label>
-          <input
-            className="w-full border rounded-lg p-2"
-            value={data?.nombre || ""}
-            onChange={(e) =>
-              onChange("nombre", e.target.value)
-            }
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-semibold">
-            Descripción
-          </label>
-          <textarea
-            rows={4}
-            className="w-full border rounded-lg p-2"
-            value={data?.descripcion || ""}
-            onChange={(e) =>
-              onChange("descripcion", e.target.value)
-            }
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-semibold">
-            Coordinador
-          </label>
-          <input
-            className="w-full border rounded-lg p-2"
-            value={data?.coordinador || ""}
-            onChange={(e) =>
-              onChange("coordinador", e.target.value)
-            }
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-semibold">
-            Imagen
-          </label>
-
-          <ImageUploader
-            value={data?.imagen_url}
-            onChange={(url) => onChange("imagen_url", url)}
-          />
-
-        </div>
-
-      </div>
-
-      <div className="flex justify-end gap-3 mt-6">
-
-        <button
-          onClick={onClose}
-          className="px-4 py-2 rounded-lg border"
-        >
-          Cancelar
-        </button>
-
-        <button
-          onClick={onSave}
-          className="px-6 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700"
-        >
-          Guardar
-        </button>
-
-      </div>
-    </div>
-  </div>
+    <FormField label="Imagen">
+      <ImageUploader
+        value={data?.imagen_url}
+        onChange={(url) => onChange("imagen_url", url)}
+      />
+    </FormField>
+  </Modal>
 );
-

@@ -1,3 +1,5 @@
+import SectionHeader from "../../shared/ui/SectionHeader";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { ChevronLeftIcon, ChevronRightIcon, UserGroupIcon } from "@heroicons/react/24/outline";
@@ -77,7 +79,7 @@ export default function MiembrosWidget() {
           <p className="text-red-600 font-semibold mb-4">{error}</p>
           <button
             onClick={refresh}
-            className="bg-teal-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+            className="btn-primary"
           >
             Reintentar
           </button>
@@ -140,27 +142,25 @@ export default function MiembrosWidget() {
   };
 
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="border-t border-slate-200 py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Miembros</h2>
-          {!loading && !error && (
-            <p className="text-slate-500 text-sm mt-1">
-              <span className="text-teal-600 font-bold">{miembros.length}</span>{" "}
-              {miembros.length === 1 ? "miembro" : "miembros"} en el grupo
-            </p>
-          )}
-          {isAdmin && (
+        <SectionHeader
+          eyebrow="Equipo"
+          title="Miembros del grupo"
+          description={!loading && !error
+            ? `${miembros.length} ${miembros.length === 1 ? "miembro" : "miembros"} en el grupo`
+            : undefined}
+          action={isAdmin && (
             <button
               onClick={openNew}
-              className="bg-teal-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+              className="btn-primary"
             >
-              + Nuevo Miembro
+              <PlusIcon className="h-5 w-5" />
+              Nuevo miembro
             </button>
           )}
-        </div>
+        />
 
         {renderContent()}
       </div>

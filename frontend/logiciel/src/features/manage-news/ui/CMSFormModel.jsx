@@ -1,5 +1,9 @@
 import { useState } from "react";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import Loader from "../../../shared/components/Loader";
+import Modal from "../../../shared/ui/Modal";
+import FormField from "../../../shared/ui/FormField";
+import VideoLinksInput from "../../../shared/ui/VideoLinksInput";
 
 const LABELS = {
   title: "Título",
@@ -9,6 +13,16 @@ const LABELS = {
   date: "Fecha inicio",
   dateEnd: "Fecha fin",
   location: "Ubicación",
+  videos: "Videos",
+};
+
+// Fecha (string ISO, Date o Timestamp) → "YYYY-MM-DD" para <input type="date">
+const toDateInput = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value.split("T")[0];
+  if (value instanceof Date) return value.toISOString().split("T")[0];
+  if (value?.toDate) return value.toDate().toISOString().split("T")[0];
+  return "";
 };
 
 export default function CMSFormModal({
@@ -27,7 +41,6 @@ export default function CMSFormModal({
   const set = (k, v) =>
     setForm((prev) => ({ ...prev, [k]: v }));
 
-
   const handleSave = async () => {
     try {
       setProcessing(true);
@@ -39,6 +52,8 @@ export default function CMSFormModal({
     }
   };
 
+  const busy = processing || uploading;
+
   return (
     <>
       {processing && (
@@ -46,139 +61,96 @@ export default function CMSFormModal({
           text="Procesando..."
           fullscreen={true}
           bg="bg-black/40 backdrop-blur-sm"
-          color="#14B8A6"
-          size={90}
         />
       )}
 
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <Modal
+        title={title}
+        onClose={processing ? undefined : onClose}
+        footer={
+          <>
+            <button onClick={onClose} disabled={processing} className="btn-secondary">
+              Cancelar
+            </button>
+            <button onClick={handleSave} disabled={busy} className="btn-primary">
+              {processing ? "Guardando..." : "Guardar"}
+            </button>
+          </>
+        }
+      >
+        {/* IMAGEN PRINCIPAL */}
+        <FormField label="Imagen principal" hint="JPG o PNG. Se mostrará en la tarjeta y en el encabezado.">
+          <div className="overflow-hidden rounded-lg border border-dashed border-slate-300 bg-slate-50">
+            {form.image ? (
+              <img src={form.image} alt="Vista previa" className="h-44 w-full object-cover" />
+            ) : (
+              <div className="flex h-32 flex-col items-center justify-center text-slate-400">
+                <PhotoIcon className="h-8 w-8" />
+                <span className="mt-1 text-xs">Sin imagen</span>
+              </div>
+            )}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={onImageUpload}
+            disabled={busy}
+            className="mt-2 block w-full cursor-pointer text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-teal file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-brand-teal-dark disabled:opacity-50"
+          />
+          {uploading && (
+            <p className="mt-1 animate-pulse text-xs text-brand-teal">Subiendo imagen...</p>
+          )}
+        </FormField>
 
-        <div className="bg-white rounded-2xl w-full max-w-xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+        {/* CAMPOS */}
+        <div className="grid gap-5 sm:grid-cols-2">
+          {fields.map((key) => {
+            if (key === "videos") return null;
 
-          <h3 className="text-xl font-bold mb-4 text-gray-800">
-            {title}
-          </h3>
+            const fullWidth = !["date", "dateEnd"].includes(key);
 
-          <div className="space-y-4">
-
-            {/* Imagen principal */}
-            <div>
-              <label className="text-sm font-medium text-gray-600 mb-1 block">
-                Imagen principal
-              </label>
-
-              {form.image && (
-                <img
-                  src={form.image}
-                  alt="preview"
-                  className="w-full h-40 object-cover rounded-lg mb-2"
-                />
-              )}
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onImageUpload}
-                disabled={uploading || processing}
-                className="block w-full text-sm text-gray-600
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-lg file:border-0
-                  file:bg-teal-600 file:text-white
-                  hover:file:bg-teal-700
-                  cursor-pointer disabled:opacity-50"
-              />
-
-              {uploading && (
-                <p className="text-xs text-teal-600 mt-1 animate-pulse">
-                  Subiendo...
-                </p>
-              )}
-            </div>
-
-            {/* Campos dinámicos */}
-            {fields.map((key) => (
-              <div key={key}>
-
-                <label className="text-sm font-medium text-gray-600 mb-1 block">
-                  {LABELS[key]}
-                </label>
-
+            return (
+              <FormField key={key} label={LABELS[key]} className={fullWidth ? "sm:col-span-2" : ""}>
                 {["date", "dateEnd"].includes(key) ? (
-
                   <input
                     type="date"
                     disabled={processing}
-                    className="w-full border border-gray-300 rounded-lg p-2
-                      focus:outline-none focus:ring-2 focus:ring-teal-400
-                      disabled:opacity-50"
-                    value={
-                      form[key]
-                        ? typeof form[key] === "string"
-                          ? form[key].split("T")[0]
-                          : form[key] instanceof Date
-                            ? form[key].toISOString().split("T")[0]
-                            : form[key]?.toDate
-                              ? form[key].toDate().toISOString().split("T")[0]
-                              : ""
-                        : ""
-                    }
+                    className="input-base"
+                    value={toDateInput(form[key])}
                     onChange={(e) => set(key, e.target.value)}
                   />
-
                 ) : ["content", "description", "summary"].includes(key) ? (
-
                   <textarea
-                    rows={key === "summary" ? 2 : 4}
+                    rows={key === "summary" ? 2 : 5}
                     disabled={processing}
-                    className="w-full border border-gray-300 rounded-lg p-2
-                      focus:outline-none focus:ring-2 focus:ring-teal-400
-                      disabled:opacity-50"
+                    className="input-base"
                     value={form[key] || ""}
                     onChange={(e) => set(key, e.target.value)}
                   />
-
                 ) : (
-
                   <input
                     disabled={processing}
-                    className="w-full border border-gray-300 rounded-lg p-2
-                      focus:outline-none focus:ring-2 focus:ring-teal-400
-                      disabled:opacity-50"
+                    className="input-base"
                     value={form[key] || ""}
                     onChange={(e) => set(key, e.target.value)}
                   />
-
                 )}
-
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-end gap-3 mt-6">
-
-            <button
-              onClick={onClose}
-              disabled={processing}
-              className="px-4 py-2 border border-gray-300 rounded-lg
-                text-gray-600 hover:bg-gray-100 transition
-                disabled:opacity-50"
-            >
-              Cancelar
-            </button>
-
-            <button
-              onClick={handleSave}
-              disabled={processing}
-              className="px-6 py-2 bg-green-600 hover:bg-green-700
-                text-white font-semibold rounded-lg transition shadow
-                disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {processing ? "Guardando..." : "Guardar"}
-            </button>
-
-          </div>
+              </FormField>
+            );
+          })}
         </div>
-      </div>
+
+        {/* VIDEOS (YouTube / Google Drive) */}
+        {fields.includes("videos") && (
+          <FormField label={LABELS.videos}>
+            <VideoLinksInput
+              value={form.videos || []}
+              onChange={(videos) => set("videos", videos)}
+              disabled={processing}
+            />
+          </FormField>
+        )}
+      </Modal>
     </>
   );
 }

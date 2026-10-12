@@ -28,6 +28,8 @@ export function mapNewsFromApi(item) {
           rol: a.rol || "Autor",
         }))
       : [],
+
+    videos: Array.isArray(item.videos) ? item.videos : [],
   };
 }
 export function mapNewsToApi(form, gallery) {
@@ -43,5 +45,6 @@ export function mapNewsToApi(form, gallery) {
       nombre_externo: a.nombre_externo || "",   
       rol:            a.rol            || "Autor",
     })),
+    videos: form.videos || [],
   };
 }

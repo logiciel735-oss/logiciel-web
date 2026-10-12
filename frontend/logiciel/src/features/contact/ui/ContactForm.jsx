@@ -1,3 +1,7 @@
+import { CheckCircleIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
+
+const label = "mb-1.5 block text-sm font-medium text-slate-700";
+
 export default function ContactForm({
   form,
   loading,
@@ -9,77 +13,86 @@ export default function ContactForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex-1 bg-[#f9f9f9] rounded-xl p-8 shadow-md"
+      className="card h-full p-8"
     >
-      <h3 className="text-[#0a192f] text-2xl font-bold mb-6">
+      <h2 className="text-xl font-semibold text-brand-navy">
         Envíanos un mensaje
-      </h3>
+      </h2>
+      <p className="mt-1 text-sm text-slate-500">
+        Te responderemos lo antes posible.
+      </p>
 
       {feedback && (
-        <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+        <div className="mt-5 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+          <CheckCircleIcon className="h-5 w-5 shrink-0" />
           {feedback}
         </div>
       )}
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+        <div className="mt-5 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <ExclamationCircleIcon className="h-5 w-5 shrink-0" />
           {error}
         </div>
       )}
 
-      <fieldset disabled={loading} className="disabled:opacity-70">
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Nombre completo</label>
-        <input
-          type="text"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-md"
-        />
-      </div>
+      <fieldset disabled={loading} className="mt-6 grid gap-5 disabled:opacity-70 sm:grid-cols-2">
+        <div>
+          <label className={label} htmlFor="contact-name">Nombre completo</label>
+          <input
+            id="contact-name"
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            className="input-base py-2.5"
+          />
+        </div>
 
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Correo electrónico</label>
-        <input
-          type="email"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-md"
-        />
-      </div>
+        <div>
+          <label className={label} htmlFor="contact-email">Correo electrónico</label>
+          <input
+            id="contact-email"
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            className="input-base py-2.5"
+          />
+        </div>
 
-      <div className="mb-4">
-        <label className="block text-gray-700 mb-2">Asunto</label>
-        <input
-          type="text"
-          name="subject"
-          value={form.subject}
-          onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-md"
-        />
-      </div>
+        <div className="sm:col-span-2">
+          <label className={label} htmlFor="contact-subject">Asunto</label>
+          <input
+            id="contact-subject"
+            type="text"
+            name="subject"
+            value={form.subject}
+            onChange={handleChange}
+            className="input-base py-2.5"
+          />
+        </div>
 
-      <div className="mb-6">
-        <label className="block text-gray-700 mb-2">Mensaje</label>
-        <textarea
-          rows="5"
-          name="message"
-          value={form.message}
-          onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-md"
-        />
-      </div>
+        <div className="sm:col-span-2">
+          <label className={label} htmlFor="contact-message">Mensaje</label>
+          <textarea
+            id="contact-message"
+            rows="5"
+            name="message"
+            value={form.message}
+            onChange={handleChange}
+            className="input-base py-2.5"
+          />
+        </div>
       </fieldset>
 
       <button
         type="submit"
         disabled={loading}
-        className="bg-[#64ffda] text-[#0a192f] font-bold py-3 px-5 rounded-md hover:bg-[#48c9b0] transition disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+        className="btn-primary mt-6 w-full py-3 sm:w-auto"
       >
         {loading && (
-          <span className="h-5 w-5 border-2 border-[#0a192f] border-t-transparent rounded-full animate-spin" />
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
         )}
         {loading ? "Enviando..." : "Enviar mensaje"}
       </button>

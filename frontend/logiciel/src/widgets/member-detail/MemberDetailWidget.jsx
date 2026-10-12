@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { useAuth } from "../../features/auth/model/useAuth";
@@ -21,7 +21,7 @@ export default function MemberDetailWidget() {
   const {
     member, activos, finalizados, publicaciones,
     noticias,       
-    loading, loadingRelated, error, refresh,
+    loading, loadingRelated, error, notFound, refresh,
   } = useMiembroDetail(uid);
 
   const [openEdit, setOpenEdit]               = useState(false);
@@ -35,7 +35,7 @@ export default function MemberDetailWidget() {
 
   const handleSave = async () => {
     try {
-      await updateMiembro(member.id, editData);
+      await updateMiembro(member.miembro_id, editData);
       await refresh();
       setOpenEdit(false);
       toast.success("Miembro actualizado correctamente");
@@ -47,9 +47,9 @@ export default function MemberDetailWidget() {
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await deleteMiembro(member.id);
+      await deleteMiembro(member.miembro_id);
       toast.success("Miembro eliminado correctamente");
-      navigate("/members");
+      navigate("/about");
     } catch {
       toast.error("Error al eliminar el miembro");
     } finally {
@@ -58,8 +58,32 @@ export default function MemberDetailWidget() {
     }
   };
 
+  if (notFound) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6 gap-4">
+      <h2 className="text-2xl font-bold text-[#0a192f]">Miembro no encontrado</h2>
+      <p className="text-gray-600 max-w-md">
+        Este perfil no corresponde a ningún miembro registrado del grupo LOGICIEL.
+      </p>
+      <Link
+        to="/about"
+        className="bg-teal-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+      >
+        Ver miembros del grupo
+      </Link>
+    </div>
+  );
+
   if (error) return (
-    <p className="text-center py-20 text-red-600 font-semibold">{error}</p>
+    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6 gap-4">
+      <h2 className="text-2xl font-bold text-red-600">No se pudo cargar el perfil</h2>
+      <p className="text-gray-600 max-w-md">{error}</p>
+      <button
+        onClick={refresh}
+        className="bg-teal-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-teal-700 transition"
+      >
+        Reintentar
+      </button>
+    </div>
   );
 
   return (

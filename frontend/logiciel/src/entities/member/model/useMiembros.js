@@ -1,9 +1,19 @@
+import { useState } from "react";
 import { useCMSData } from "../../../shared/lib/useCMSData";
 import { getMiembros } from "../api/miembroApi";
 
 export const useMiembros = () => {
+  const [error, setError] = useState(null);
+
   const fetcher = async () => {
-    return await getMiembros();
+    try {
+      const data = await getMiembros();
+      setError(null);
+      return data;
+    } catch (err) {
+      setError("No se pudieron cargar los miembros.");
+      throw err;
+    }
   };
 
   const {
@@ -15,6 +25,7 @@ export const useMiembros = () => {
   return {
     miembros: miembros || [],
     loading,
+    error,
     refresh,
   };
 };

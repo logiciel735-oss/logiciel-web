@@ -1,7 +1,8 @@
 import { supabase } from "../../../shared/config/supabase";
 import { uploadFile } from "../../../shared/uploadFile/api/uploadApi";
 
-const PROFILE_FIELDS = ["name", "cvlac_url", "descripcion", "universidad", "numero"];
+// name no se envía: la base de datos lo compone con nombres + apellidos
+const PROFILE_FIELDS = ["nombres", "apellidos", "cvlac_url", "descripcion", "universidad", "numero"];
 
 // Perfil del usuario autenticado (auth.users + public.users)
 export const getMyProfile = async () => {
@@ -19,6 +20,8 @@ export const getMyProfile = async () => {
 
   return {
     name: authUser.user_metadata?.name || authUser.email.split("@")[0],
+    nombres: authUser.user_metadata?.nombres || "",
+    apellidos: authUser.user_metadata?.apellidos || "",
     role: "user",
     ...profile,
     id: authUser.id,

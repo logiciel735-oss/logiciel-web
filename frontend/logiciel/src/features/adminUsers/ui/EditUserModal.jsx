@@ -7,7 +7,8 @@ import { RoleBadge } from "./UsersTable";
 const EditUserModal = ({ user, onClose, onSave }) => {
 
   const [form, setForm] = useState(() => ({
-    name: user?.name || "",
+    nombres: user?.nombres || user?.name || "",
+    apellidos: user?.apellidos || "",
     email: user?.email || "",
     role: user?.role || "",
   }));
@@ -35,15 +36,27 @@ const EditUserModal = ({ user, onClose, onSave }) => {
         </>
       }
     >
-      <FormField label="Nombre">
-        <input
-          className="input-base"
-          value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
-      </FormField>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField label="Nombres">
+          <input
+            className="input-base"
+            value={form.nombres}
+            onChange={(e) =>
+              setForm({ ...form, nombres: e.target.value })
+            }
+          />
+        </FormField>
+
+        <FormField label="Apellidos">
+          <input
+            className="input-base"
+            value={form.apellidos}
+            onChange={(e) =>
+              setForm({ ...form, apellidos: e.target.value })
+            }
+          />
+        </FormField>
+      </div>
 
       <FormField label="Correo">
         <input

@@ -28,6 +28,7 @@ const ProfileForm = ({
     ? "Debe ser un enlace válido de CVLAC"
     : null;
   const descriptionTooLong = descriptionLength > MAX_DESCRIPTION_CHARS;
+  const fullName = `${form.nombres} ${form.apellidos}`.trim();
 
   return (
     <div>
@@ -53,7 +54,7 @@ const ProfileForm = ({
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="avatar" className="h-full w-full object-cover" />
                 ) : (
-                  form.name.charAt(0).toUpperCase()
+                  fullName.charAt(0).toUpperCase()
                 )}
               </div>
               <span className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-brand-teal text-white shadow transition group-hover:bg-brand-teal-dark">
@@ -69,7 +70,7 @@ const ProfileForm = ({
 
             <p className="mt-3 text-xs text-slate-500">Haz clic en la foto para cambiarla</p>
 
-            <p className="mt-5 font-semibold text-brand-navy">{form.name || "Sin nombre"}</p>
+            <p className="mt-5 font-semibold text-brand-navy">{fullName || "Sin nombre"}</p>
             {user?.role && (
               <span className="mt-2 inline-block rounded-full bg-brand-teal-light px-3 py-1 text-xs font-semibold capitalize text-brand-teal-dark">
                 {user.role}
@@ -80,24 +81,35 @@ const ProfileForm = ({
           {/* CAMPOS */}
           <div className="space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
-              <FormField label="Nombre completo">
+              <FormField label="Nombres" required error={!form.nombres.trim() ? "Escribe tus nombres" : null}>
                 <input
                   type="text"
+                  autoComplete="given-name"
                   className="input-base"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  value={form.nombres}
+                  onChange={(e) => setForm({ ...form, nombres: e.target.value })}
                 />
               </FormField>
 
-              <FormField label="Correo electrónico">
+              <FormField label="Apellidos" required error={!form.apellidos.trim() ? "Escribe tus apellidos" : null}>
                 <input
-                  type="email"
+                  type="text"
+                  autoComplete="family-name"
                   className="input-base"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  value={form.apellidos}
+                  onChange={(e) => setForm({ ...form, apellidos: e.target.value })}
                 />
               </FormField>
             </div>
+
+            <FormField label="Correo electrónico">
+              <input
+                type="email"
+                className="input-base"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </FormField>
 
             <FormField label="Universidad">
               <input

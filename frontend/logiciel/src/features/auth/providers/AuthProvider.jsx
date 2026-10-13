@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }) => {
     await loadUser();
   };
 
-  const register = async (name, email, password) => {
-    const result = await registerRequest(name, email, password);
+  const register = async (nombres, apellidos, email, password) => {
+    const result = await registerRequest(nombres, apellidos, email, password);
     if (!result.needsConfirmation) await loadUser();
     return result;
   };

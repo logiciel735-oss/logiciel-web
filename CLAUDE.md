@@ -54,6 +54,9 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
 - RLS de `users`: cada usuario lee solo su fila y los admins todas (`supabase/seguridad_usuarios.sql`).
   El perfil público de un miembro se obtiene con la RPC `perfil_publico(uid)` (`getPublicUser`), que solo
   devuelve campos publicables. No volver a abrir `users` a lectura pública.
+- Nombre del usuario: columnas `nombres` y `apellidos` (registro, perfil, edición admin). La columna `name`
+  la compone el trigger `componer_nombre` (`supabase/nombres_apellidos.sql`): no escribir `name` desde el frontend;
+  leerla sí, es la que usa toda la UI.
 - El rol solo se cambia con el botón **Promover** de la gestión de usuarios; `EditUserModal` lo muestra en solo lectura.
 
 ### Archivos y videos

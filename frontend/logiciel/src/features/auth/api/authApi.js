@@ -41,12 +41,20 @@ export const loginRequest = async (email, password) => {
   return data;
 };
 
-export const registerRequest = async (name, email, password) => {
+export const registerRequest = async (nombres, apellidos, email, password) => {
+  const cleanNombres = nombres.trim();
+  const cleanApellidos = apellidos.trim();
+
   const { data, error } = await supabase.auth.signUp({
     email: email.toLowerCase().trim(),
     password,
     options: {
-      data: { name },
+      // El trigger handle_new_user los guarda en public.users
+      data: {
+        nombres: cleanNombres,
+        apellidos: cleanApellidos,
+        name: `${cleanNombres} ${cleanApellidos}`.trim(),
+      },
       emailRedirectTo: `${window.location.origin}/confirm-email`,
     },
   });

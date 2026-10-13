@@ -90,7 +90,8 @@ Ejecutar en **SQL Editor**, en este orden:
 2. [`supabase/recuperacion_password.sql`](supabase/recuperacion_password.sql) — función `email_registrado`.
 3. [`supabase/videos.sql`](supabase/videos.sql) — columna `videos` en noticias y proyectos (solo enlaces de YouTube o Google Drive).
 4. [`supabase/seguridad_usuarios.sql`](supabase/seguridad_usuarios.sql) — la tabla `users` deja de ser pública; los perfiles de miembros se leen con `perfil_publico()`.
-5. Primer administrador:
+5. [`supabase/nombres_apellidos.sql`](supabase/nombres_apellidos.sql) — columnas `nombres` y `apellidos` en `users`; `name` se compone solo.
+6. Primer administrador (después de registrarse en la web):
    ```sql
    update public.users set role = 'admin' where email = 'correo@ejemplo.com';
    ```
@@ -171,6 +172,7 @@ logiciel-web/
 │   ├── recuperacion_password.sql
 │   ├── videos.sql
 │   ├── seguridad_usuarios.sql
+│   ├── nombres_apellidos.sql
 │   ├── functions/notificar-contacto/
 │   └── templates/             # plantillas de correo en español
 ├── requirements.txt

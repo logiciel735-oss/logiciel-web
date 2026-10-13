@@ -42,16 +42,29 @@ export default function RegisterForm({
       }
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        <AuthField label="Nombre completo" htmlFor="reg-name">
-          <input
-            id="reg-name"
-            type="text"
-            autoComplete="name"
-            placeholder="Tu nombre y apellidos"
-            className="input-base py-2.5"
-            onChange={handleChange("name")}
-          />
-        </AuthField>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <AuthField label="Nombres" htmlFor="reg-nombres">
+            <input
+              id="reg-nombres"
+              type="text"
+              autoComplete="given-name"
+              placeholder="Ej.: María José"
+              className="input-base py-2.5"
+              onChange={handleChange("nombres")}
+            />
+          </AuthField>
+
+          <AuthField label="Apellidos" htmlFor="reg-apellidos">
+            <input
+              id="reg-apellidos"
+              type="text"
+              autoComplete="family-name"
+              placeholder="Ej.: Muñoz Pérez"
+              className="input-base py-2.5"
+              onChange={handleChange("apellidos")}
+            />
+          </AuthField>
+        </div>
 
         <AuthField label="Correo electrónico" htmlFor="reg-email">
           <input

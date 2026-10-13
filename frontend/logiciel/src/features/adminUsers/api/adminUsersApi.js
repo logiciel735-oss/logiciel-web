@@ -11,8 +11,9 @@ import {
 const COL_USERS = "users";
 const COL_MIEMBROS = "miembros";
 
-// role no se cambia aquí (solo con promoteUserToAdmin)
-const USER_FIELDS = ["name", "email", "avatar", "universidad", "descripcion", "cvlac_url", "numero"];
+// role no se cambia aquí (solo con promoteUserToAdmin).
+// name no se envía: la base de datos lo compone con nombres + apellidos
+const USER_FIELDS = ["nombres", "apellidos", "email", "avatar", "universidad", "descripcion", "cvlac_url", "numero"];
 const MIEMBRO_FIELDS = ["user_id", "name", "role", "image"];
 
 // ── Lectura (solo admin: RLS restringe users a la fila propia o admin) ──

@@ -24,7 +24,8 @@ const hasChanged = (current, original) => {
 export const useProfile = () => {
 
   const [form, setForm] = useState({
-    name: "",
+    nombres: "",
+    apellidos: "",
     email: "",
     cvlac_url: "",
     descripcion: "",
@@ -43,7 +44,8 @@ export const useProfile = () => {
 
   const applyProfile = (data) => {
     const profileData = {
-      name: data.name || "",
+      nombres: data.nombres || "",
+      apellidos: data.apellidos || "",
       email: data.email || "",
       cvlac_url: data.cvlac_url || "",
       descripcion: data.descripcion || "",
@@ -112,7 +114,11 @@ export const useProfile = () => {
   const descriptionIsValid =
     descriptionLength <= MAX_DESCRIPTION_CHARS;
 
-  const formIsValid = cvlacIsValid && descriptionIsValid;
+  // Nombres y apellidos son obligatorios
+  const namesAreValid =
+    form.nombres.trim().length > 0 && form.apellidos.trim().length > 0;
+
+  const formIsValid = cvlacIsValid && descriptionIsValid && namesAreValid;
 
   // ======================
   // DETECTAR CAMBIOS
@@ -123,7 +129,8 @@ export const useProfile = () => {
     if (!originalProfile) return false;
 
     const fields = [
-      "name",
+      "nombres",
+      "apellidos",
       "email",
       "cvlac_url",
       "descripcion",
@@ -191,7 +198,8 @@ export const useProfile = () => {
       const formData = new FormData();
 
       const fields = [
-        "name",
+        "nombres",
+        "apellidos",
         "email",
         "cvlac_url",
         "descripcion",

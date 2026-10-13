@@ -13,7 +13,8 @@ export function useRegisterForm() {
   const [registeredEmail, setRegisteredEmail] = useState(null);
 
   const [form, setForm] = useState({
-    name: "",
+    nombres: "",
+    apellidos: "",
     email: "",
     password: "",
     confirm: "",
@@ -31,6 +32,11 @@ export function useRegisterForm() {
 
     if (loading) return;
 
+    if (!form.nombres.trim() || !form.apellidos.trim()) {
+      toast.error("Escribe tus nombres y apellidos");
+      return;
+    }
+
     if (form.password !== form.confirm) {
       toast.error("Las contraseñas no coinciden");
       return;
@@ -38,7 +44,7 @@ export function useRegisterForm() {
 
     try {
       setLoading(true);
-      const { needsConfirmation } = await register(form.name, form.email, form.password);
+      const { needsConfirmation } = await register(form.nombres, form.apellidos, form.email, form.password);
 
       if (needsConfirmation) {
         setRegisteredEmail(form.email.toLowerCase().trim());

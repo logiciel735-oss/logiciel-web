@@ -24,10 +24,11 @@ import {
   updateSemillero,
   deleteSemillero,
 } from "../../entities/semillero/api/semilleroApi";
+import { puedeEditarContenido } from "../../features/auth/model/permissions";
 
 export default function SemillerosWidget() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = puedeEditarContenido(user);
 
   const { semilleros, loading, refresh } = useSemilleros();
 

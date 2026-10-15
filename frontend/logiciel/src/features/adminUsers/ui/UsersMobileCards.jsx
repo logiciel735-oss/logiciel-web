@@ -1,6 +1,6 @@
-import { RoleBadge, UserAvatar } from "./UsersTable";
+import { RoleBadge, RoleSelect, UserAvatar } from "./UsersTable";
 
-const UsersMobileCards = ({ users, onEdit, onPromote, onDelete }) => {
+const UsersMobileCards = ({ users, currentUserId, onEdit, onChangeRole, onDelete }) => {
   return (
     <ul className="divide-y divide-slate-100 md:hidden">
       {users.map((user) => (
@@ -22,14 +22,12 @@ const UsersMobileCards = ({ users, onEdit, onPromote, onDelete }) => {
               Editar
             </button>
 
-            {user.role !== "admin" && (
-              <button
-                onClick={() => onPromote(user.id)}
-                className="flex-1 rounded-lg border border-slate-200 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-navy hover:text-brand-navy"
-              >
-                Promover
-              </button>
-            )}
+            <RoleSelect
+              user={user}
+              currentUserId={currentUserId}
+              onChangeRole={onChangeRole}
+              className="flex-1 py-2 text-sm"
+            />
 
             <button
               onClick={() => onDelete(user.id)}

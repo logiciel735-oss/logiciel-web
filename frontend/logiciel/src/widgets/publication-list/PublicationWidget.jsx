@@ -10,7 +10,7 @@ import PageHeader from "../../shared/ui/PageHeader";
 import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function PublicationList() {
-  const { isAdmin } = useAuth();
+  const { canEditContent: isAdmin } = useAuth();
 
   const {
     publicacionesFiltradas,

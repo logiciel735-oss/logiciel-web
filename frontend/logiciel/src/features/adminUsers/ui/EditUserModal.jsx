@@ -70,9 +70,7 @@ const EditUserModal = ({ user, onClose, onSave }) => {
 
       <FormField
         label="Rol"
-        hint={form.role === "admin"
-          ? "Los administradores no se pueden degradar desde aquí."
-          : "Para dar permisos de administrador usa el botón “Promover” de la lista."}
+        hint="Para cambiar el rol usa el selector de la columna “Acciones” de la lista."
       >
         <div>
           <RoleBadge role={form.role} />

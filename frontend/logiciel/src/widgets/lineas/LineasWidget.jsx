@@ -17,10 +17,11 @@ import {
   updateLinea,
   deleteLinea,
 } from "../../entities/linea/api/lineaApi";
+import { puedeEditarContenido } from "../../features/auth/model/permissions";
 
 export default function LineasWidget() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = puedeEditarContenido(user);
 
   const { lineas, loading, refresh } = useLineas();
 

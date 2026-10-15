@@ -17,10 +17,11 @@ import {
   updateMiembro,
   deleteMiembro,
 } from "../../features/adminUsers/api/adminUsersApi";
+import { puedeEditarContenido } from "../../features/auth/model/permissions";
 
 export default function MiembrosWidget() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = puedeEditarContenido(user);
 
   const { miembros, loading, error, refresh } = useMiembros();
 

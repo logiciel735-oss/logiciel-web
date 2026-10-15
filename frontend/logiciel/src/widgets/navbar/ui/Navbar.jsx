@@ -2,6 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 import { ChevronDownIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Logo from "../../../shared/ui/Logo";
 import { useNavbar } from "../model/useNavbar";
+import { ROLES, ROLE_LABELS, esAdmin } from "../../../features/auth/model/permissions";
 
 const NAV_ITEMS = [
   { to: "/", label: "Inicio", end: true },
@@ -144,9 +145,9 @@ const Navbar = () => {
                   <li className="mb-1 border-b border-slate-100 px-3 pb-2 pt-1">
                     <p className="truncate text-sm font-semibold text-brand-navy">{user?.name}</p>
                     <p className="truncate text-xs text-slate-500">{user?.email}</p>
-                    {user.role === "admin" && (
+                    {user.role && user.role !== ROLES.USER && (
                       <span className="mt-1 inline-block rounded-full bg-brand-teal-light px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-teal-dark">
-                        Administrador
+                        {ROLE_LABELS[user.role] || user.role}
                       </span>
                     )}
                   </li>
@@ -163,12 +164,19 @@ const Navbar = () => {
                     </Link>
                   </li>
 
-                  {user.role !== "user" && (
-                    <li>
-                      <Link to="/admin/users" onClick={handleCloseMenu} className={dropdownItem}>
-                        Gestionar usuarios
-                      </Link>
-                    </li>
+                  {esAdmin(user) && (
+                    <>
+                      <li>
+                        <Link to="/admin/users" onClick={handleCloseMenu} className={dropdownItem}>
+                          Gestionar usuarios
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/admin/auditoria" onClick={handleCloseMenu} className={dropdownItem}>
+                          Auditoría
+                        </Link>
+                      </li>
+                    </>
                   )}
 
                   <li>

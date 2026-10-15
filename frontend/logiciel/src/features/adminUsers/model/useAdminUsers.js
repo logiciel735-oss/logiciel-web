@@ -6,7 +6,9 @@ import {
   updateUserById,
   deleteUserById,
   promoteUserToAdmin,
+  setUserRole,
 } from "../api/adminUsersApi";
+import { ROLE_LABELS } from "../../auth/model/permissions";
 
 export const useAdminUsers = () => {
 
@@ -69,12 +71,26 @@ export const useAdminUsers = () => {
     }
   };
 
+  const changeRole = async (uid, role) => {
+    try {
+      await setUserRole(uid, role);
+      toast.success(`Rol cambiado a ${ROLE_LABELS[role] || role}`);
+      loadUsers();
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.message?.includes("propio rol")
+        ? "No puedes cambiar tu propio rol"
+        : "Error cambiando el rol");
+    }
+  };
+
   return {
     users,
     loading,
     updateUser,
     deleteUser,
     promoteUser,
+    changeRole,
     reloadUsers: loadUsers,
   };
 };

@@ -49,15 +49,26 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
 ### Autenticación y roles
 - Supabase Auth con confirmación de correo obligatoria. Los enlaces de los correos usan `token_hash`
   (`/confirm-email?token=…`, `/reset-password?token=…`) y se validan con `verifyOtp`.
-- El rol vive en `public.users.role` (`admin` / `user`). Funciones SQL: `is_admin()`, `admin_delete_user`,
-  `email_registrado`; trigger `proteger_rol` impide que un usuario se cambie el rol a sí mismo.
-- RLS de `users`: cada usuario lee solo su fila y los admins todas (`supabase/seguridad_usuarios.sql`).
+- Roles en `public.users.role`: `user`, `editor`, `admin` (`supabase/roles_auditoria.sql`).
+  - `editor` y `admin` crean/editan/eliminan contenido y miembros (RLS con `puede_editar()`).
+  - Solo `admin` elimina usuarios (`admin_delete_user`), cambia roles y ve la auditoría (`is_admin()`).
+  - Trigger `proteger_rol`: solo un admin cambia roles y nunca el suyo propio.
+- En el frontend los permisos salen de `features/auth/model/permissions.js` (`puedeEditarContenido`, `esAdmin`,
+  `ROLES`, `ROLE_LABELS`). En los widgets la variable se sigue llamando `isAdmin` pero significa
+  "puede editar contenido"; el contexto expone `isAdmin` (solo admin) y `canEditContent`.
+  No volver a comparar `role === "admin"` a mano.
+- Auditoría: tabla `auditoria` llenada por el trigger `registrar_auditoria` en las tablas de contenido,
+  `miembros` y `users` (en UPDATE guarda solo los campos que cambiaron). Solo lectura para admin; la UI
+  está en `features/audit` y la ruta `/admin/auditoria`. Al crear una tabla de contenido nueva, añadirle
+  la política `puede_editar()` y el trigger `auditoria`.
+- RLS de `users`: cada usuario lee su fila; editores y admins leen todas (`supabase/roles_auditoria.sql`).
   El perfil público de un miembro se obtiene con la RPC `perfil_publico(uid)` (`getPublicUser`), que solo
   devuelve campos publicables. No volver a abrir `users` a lectura pública.
 - Nombre del usuario: columnas `nombres` y `apellidos` (registro, perfil, edición admin). La columna `name`
   la compone el trigger `componer_nombre` (`supabase/nombres_apellidos.sql`): no escribir `name` desde el frontend;
   leerla sí, es la que usa toda la UI.
-- El rol solo se cambia con el botón **Promover** de la gestión de usuarios; `EditUserModal` lo muestra en solo lectura.
+- El rol solo se cambia con el selector de rol (`RoleSelect`) de la gestión de usuarios, con confirmación;
+  `EditUserModal` lo muestra en solo lectura.
 
 ### Archivos y videos
 - Imágenes: subida directa a Cloudinary (`/image/upload`, preset *unsigned*) vía `shared/uploadFile`.

@@ -18,10 +18,11 @@ import {
   updateAliadoInstitucional,
   deleteAliadoInstitucional,
 } from "../../entities/universidad/api/aliadosInstitucionales";
+import { puedeEditarContenido } from "../../features/auth/model/permissions";
 
 export default function AliadosInstitucionalesWidget() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = puedeEditarContenido(user);
 
   const { aliadosInstitucionales, loading, refresh } = useAliadoInstitucionales();
 

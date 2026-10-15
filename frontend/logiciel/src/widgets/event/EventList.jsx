@@ -10,10 +10,11 @@ import ConfirmModal from "../../shared/ui/ConfirmModal";
 import CMSFormModal from "../../features/manage-news/ui/CMSFormModel";
 import SectionHeader from "../../shared/ui/SectionHeader";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { puedeEditarContenido } from "../../features/auth/model/permissions";
 
 export default function EventList() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = puedeEditarContenido(user);
 
   const { eventos, loading, refresh } = useEvents();
   const manage = useManageEvents(refresh);

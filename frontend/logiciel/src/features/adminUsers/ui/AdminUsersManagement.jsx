@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 import { useAdminUsers } from "../model/useAdminUsers";
+import { useAuth } from "../../auth/model/useAuth";
+import { ROLE_LABELS } from "../../auth/model/permissions";
 
 import Loader from "../../../shared/components/Loader";
 import ConfirmModal from "../../../shared/ui/ConfirmModal";
@@ -17,11 +19,14 @@ const AdminUsersManagement = () => {
     loading,
     updateUser,
     deleteUser,
-    promoteUser,
+    changeRole,
   } = useAdminUsers();
+
+  const { user: currentUser } = useAuth();
 
   const [editingUser, setEditingUser] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [roleChange, setRoleChange] = useState(null); // { user, role }
 
   if (loading) {
     return (
@@ -47,15 +52,17 @@ const AdminUsersManagement = () => {
           <>
             <UsersTable
               users={users}
+              currentUserId={currentUser?.id}
               onEdit={setEditingUser}
-              onPromote={promoteUser}
+              onChangeRole={(user, role) => setRoleChange({ user, role })}
               onDelete={setUserToDelete}
             />
 
             <UsersMobileCards
               users={users}
+              currentUserId={currentUser?.id}
               onEdit={setEditingUser}
-              onPromote={promoteUser}
+              onChangeRole={(user, role) => setRoleChange({ user, role })}
               onDelete={setUserToDelete}
             />
           </>
@@ -73,6 +80,22 @@ const AdminUsersManagement = () => {
           setUserToDelete(null);
         }}
         onCancel={() => setUserToDelete(null)}
+      />
+
+      <ConfirmModal
+        open={!!roleChange}
+        title="Cambiar rol"
+        message={roleChange
+          ? `¿Cambiar el rol de ${roleChange.user.name || roleChange.user.email} a ${ROLE_LABELS[roleChange.role]}?`
+          : ""}
+        confirmText="Cambiar rol"
+        type="warning"
+        cancelText="Cancelar"
+        onConfirm={async () => {
+          await changeRole(roleChange.user.id, roleChange.role);
+          setRoleChange(null);
+        }}
+        onCancel={() => setRoleChange(null)}
       />
 
       <EditUserModal

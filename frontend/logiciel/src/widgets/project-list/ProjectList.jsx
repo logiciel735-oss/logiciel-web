@@ -16,11 +16,12 @@ import SectionHeader from "../../shared/ui/SectionHeader";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { validateDateRange } from "../../shared/lib/validators";
 import { formatDateInput } from "../../shared/utils/formatDateInput";
+import { puedeEditarContenido } from "../../features/auth/model/permissions";
 
 export default function ProjectList() {
 
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = puedeEditarContenido(user);
 
   const { miembros, loading: loadingMiembros } = useMiembros();
 

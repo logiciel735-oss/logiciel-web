@@ -7,6 +7,7 @@ import {
   logoutRequest,
 } from "../api/authApi";
 import { getMyProfile } from "../api/profileApi";
+import { esAdmin, puedeEditarContenido } from "../model/permissions";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -62,7 +63,8 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user, login, register, logout, loading, isAuthenticated: !!user,
-        isAdmin: user?.role === "admin",
+        isAdmin: esAdmin(user),
+        canEditContent: puedeEditarContenido(user),
       }}
     >
       {children}

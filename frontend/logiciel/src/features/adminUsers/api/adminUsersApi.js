@@ -51,10 +51,11 @@ export const updateUserById = async (uid, data) => {
   return updateDoc(COL_USERS, uid, clean, USER_FIELDS);
 };
 
-export const promoteUserToAdmin = async (uid) => {
+// Cambia el rol (user | editor | admin). Solo admin; un admin no puede cambiar el suyo (trigger proteger_rol)
+export const setUserRole = async (uid, role) => {
   const { data, error } = await supabase
     .from(COL_USERS)
-    .update({ role: "admin" })
+    .update({ role })
     .eq("id", uid)
     .select("id, role")
     .single();
@@ -62,6 +63,8 @@ export const promoteUserToAdmin = async (uid) => {
   if (error) throw error;
   return data;
 };
+
+export const promoteUserToAdmin = (uid) => setUserRole(uid, "admin");
 
 // Borra la cuenta de Supabase Auth y su perfil (función SQL admin_delete_user)
 export const deleteUserById = async (uid) => {

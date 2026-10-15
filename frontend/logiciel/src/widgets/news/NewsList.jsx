@@ -12,10 +12,11 @@ import toast from "react-hot-toast";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import PageHeader from "../../shared/ui/PageHeader";
 import SectionHeader from "../../shared/ui/SectionHeader";
+import { puedeEditarContenido } from "../../features/auth/model/permissions";
 
 export default function NewsList() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = puedeEditarContenido(user);
 
   const { noticias, loading, refresh } = useNews();
   const manage = useManageNews(refresh);

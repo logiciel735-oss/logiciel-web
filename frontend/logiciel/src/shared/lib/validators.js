@@ -29,3 +29,12 @@ export const validateDateRange = (start, end) => {
 
   return null;
 };
+
+/**
+ * Perfil de LinkedIn: https://…linkedin.com/in/usuario (o /pub/…).
+ * Mismo patrón que el CHECK users_linkedin_valido de la base de datos.
+ */
+export const LINKEDIN_REGEX =
+  /^https:\/\/([a-z]{2,3}\.)?linkedin\.com\/(in\/[^\s/?#]+\/?|pub\/[^\s?#]+)([?#]\S*)?$/i;
+
+export const isValidLinkedIn = (value) => !value || LINKEDIN_REGEX.test(value.trim());

@@ -2,7 +2,10 @@ import { supabase } from "../../../shared/config/supabase";
 import { uploadFile } from "../../../shared/uploadFile/api/uploadApi";
 
 // name no se envía: la base de datos lo compone con nombres + apellidos
-const PROFILE_FIELDS = ["nombres", "apellidos", "cvlac_url", "descripcion", "universidad", "numero"];
+const PROFILE_FIELDS = ["nombres", "apellidos", "cvlac_url", "linkedin_url", "descripcion", "universidad", "numero"];
+
+// Enlaces opcionales: vacío se guarda como NULL (el CHECK de LinkedIn no acepta "")
+const URL_FIELDS = ["cvlac_url", "linkedin_url"];
 
 // Perfil del usuario autenticado (auth.users + public.users)
 export const getMyProfile = async () => {
@@ -37,13 +40,17 @@ export const updateMyProfile = async (formData) => {
   const updates = {};
 
   for (const [key, value] of formData.entries()) {
-    if (PROFILE_FIELDS.includes(key)) updates[key] = value;
+    if (!PROFILE_FIELDS.includes(key)) continue;
+    updates[key] = URL_FIELDS.includes(key) && !value ? null : value;
   }
 
   const avatar = formData.get("avatar");
   if (avatar instanceof File) {
     const { url } = await uploadFile(avatar, "avatars");
     updates.avatar = url;
+  } else if (formData.get("remove_avatar") === "1") {
+    // Quitar la foto: vuelve la predeterminada (inicial del nombre)
+    updates.avatar = null;
   }
 
   // El correo vive en Supabase Auth: se envía un email de confirmación al nuevo correo

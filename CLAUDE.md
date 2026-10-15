@@ -61,6 +61,12 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
   `miembros` y `users` (en UPDATE guarda solo los campos que cambiaron). Solo lectura para admin; la UI
   está en `features/audit` y la ruta `/admin/auditoria`. Al crear una tabla de contenido nueva, añadirle
   la política `puede_editar()` y el trigger `auditoria`.
+- `miembros.user_id` no tiene FK: el trigger `borrar_miembro_de_usuario` (`supabase/miembros_usuarios.sql`) borra la
+  ficha al eliminar el usuario. Tras borrar usuarios, invalidar la caché `miembros` (`cmsCache.invalidate`).
+- La ficha de `miembros` copia `name` e `image` del usuario; el trigger `sincronizar_miembro`
+  (`supabase/perfil_linkedin.sql`) la mantiene al día cuando cambian nombre o foto (incluido quitar la foto).
+- `users.linkedin_url`: opcional, validado con `isValidLinkedIn` (`shared/lib/validators.js`) y el CHECK
+  `users_linkedin_valido`; los enlaces opcionales vacíos se guardan como NULL.
 - RLS de `users`: cada usuario lee su fila; editores y admins leen todas (`supabase/roles_auditoria.sql`).
   El perfil público de un miembro se obtiene con la RPC `perfil_publico(uid)` (`getPublicUser`), que solo
   devuelve campos publicables. No volver a abrir `users` a lectura pública.

@@ -92,7 +92,9 @@ Ejecutar en **SQL Editor**, en este orden:
 4. [`supabase/seguridad_usuarios.sql`](supabase/seguridad_usuarios.sql) — la tabla `users` deja de ser pública; los perfiles de miembros se leen con `perfil_publico()`.
 5. [`supabase/nombres_apellidos.sql`](supabase/nombres_apellidos.sql) — columnas `nombres` y `apellidos` en `users`; `name` se compone solo.
 6. [`supabase/roles_auditoria.sql`](supabase/roles_auditoria.sql) — rol `editor` (gestiona contenido y miembros) y tabla `auditoria` con el registro de cambios.
-7. Primer administrador (después de registrarse en la web):
+7. [`supabase/miembros_usuarios.sql`](supabase/miembros_usuarios.sql) — al eliminar un usuario se elimina también su ficha de miembro.
+8. [`supabase/perfil_linkedin.sql`](supabase/perfil_linkedin.sql) — enlace de LinkedIn en el perfil y ficha de miembro sincronizada con el nombre y la foto del usuario.
+9. Primer administrador (después de registrarse en la web):
    ```sql
    update public.users set role = 'admin' where email = 'correo@ejemplo.com';
    ```
@@ -175,6 +177,8 @@ logiciel-web/
 │   ├── seguridad_usuarios.sql
 │   ├── nombres_apellidos.sql
 │   ├── roles_auditoria.sql
+│   ├── miembros_usuarios.sql
+│   ├── perfil_linkedin.sql
 │   ├── functions/notificar-contacto/
 │   └── templates/             # plantillas de correo en español
 ├── requirements.txt

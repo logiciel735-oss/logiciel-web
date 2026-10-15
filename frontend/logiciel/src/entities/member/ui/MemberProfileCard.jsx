@@ -9,6 +9,8 @@ import {
   NewspaperIcon,
 } from "@heroicons/react/24/outline";
 import RelatedItem from "./RelatedItem";
+import LinkedInIcon from "../../../shared/ui/LinkedInIcon";
+import { isValidLinkedIn } from "../../../shared/lib/validators";
 
 const InfoRow = ({ icon, label, children }) => {
   const Icon = icon;
@@ -39,7 +41,8 @@ export default function MemberProfileCard({
   };
 
   const tieneAcademico = member.universidad || member.carrera;
-  const tieneContacto = member.email || member.cvlac_url;
+  const linkedin = member.linkedin_url && isValidLinkedIn(member.linkedin_url) ? member.linkedin_url : null;
+  const tieneContacto = member.email || member.cvlac_url || linkedin;
 
   return (
     <div className="space-y-8">
@@ -98,6 +101,19 @@ export default function MemberProfileCard({
                   {copiado ? "Copiado" : "Copiar enlace"}
                 </button>
               </div>
+            </InfoRow>
+          )}
+
+          {linkedin && (
+            <InfoRow icon={LinkedInIcon} label="LinkedIn">
+              <a
+                href={linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-medium text-[#0A66C2] hover:underline"
+              >
+                Ver perfil en LinkedIn
+              </a>
             </InfoRow>
           )}
 

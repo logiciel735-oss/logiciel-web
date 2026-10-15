@@ -1,7 +1,9 @@
-import { CameraIcon } from "@heroicons/react/24/outline";
+import { CameraIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Loader from "../../../shared/components/Loader";
 import PageHeader from "../../../shared/ui/PageHeader";
 import FormField from "../../../shared/ui/FormField";
+import LinkedInIcon from "../../../shared/ui/LinkedInIcon";
+import { ROLE_LABELS } from "../model/permissions";
 
 const CVLAC_REGEX = /^https:\/\/scienti\.minciencias\.gov\.co\/cvlac\/.+/;
 
@@ -15,6 +17,8 @@ const ProfileForm = ({
   formIsValid,
   hasChanges,
   handleAvatarChange,
+  removeAvatar,
+  linkedinIsValid,
   saveProfile,
   descriptionLength,
   MAX_DESCRIPTION_CHARS,
@@ -70,10 +74,21 @@ const ProfileForm = ({
 
             <p className="mt-3 text-xs text-slate-500">Haz clic en la foto para cambiarla</p>
 
+            {avatarPreview && (
+              <button
+                type="button"
+                onClick={removeAvatar}
+                className="mt-2 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+              >
+                <TrashIcon className="h-3.5 w-3.5" />
+                Quitar foto
+              </button>
+            )}
+
             <p className="mt-5 font-semibold text-brand-navy">{fullName || "Sin nombre"}</p>
             {user?.role && (
               <span className="mt-2 inline-block rounded-full bg-brand-teal-light px-3 py-1 text-xs font-semibold capitalize text-brand-teal-dark">
-                {user.role}
+                {ROLE_LABELS[user.role] || user.role}
               </span>
             )}
           </div>
@@ -131,6 +146,23 @@ const ProfileForm = ({
                 value={form.cvlac_url}
                 onChange={(e) => setForm({ ...form, cvlac_url: e.target.value })}
               />
+            </FormField>
+
+            <FormField
+              label="Perfil de LinkedIn"
+              hint="Ej.: https://www.linkedin.com/in/tu-usuario"
+              error={!linkedinIsValid ? "Debe ser un enlace de perfil de LinkedIn (https://www.linkedin.com/in/…)" : null}
+            >
+              <div className="relative">
+                <LinkedInIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#0A66C2]" />
+                <input
+                  type="url"
+                  className={`input-base pl-9 ${!linkedinIsValid ? "border-red-400 focus:border-red-500 focus:ring-red-200" : ""}`}
+                  placeholder="https://www.linkedin.com/in/tu-usuario"
+                  value={form.linkedin_url}
+                  onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })}
+                />
+              </div>
             </FormField>
 
             <FormField label="Descripción">

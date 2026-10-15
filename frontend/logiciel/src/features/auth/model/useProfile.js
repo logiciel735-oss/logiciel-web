@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getMyProfile, updateMyProfile } from "../api/profileApi";
 import toast from "react-hot-toast";
 import { validateImageFile } from "../../../shared/uploadFile/api/uploadApi";
+import { isValidLinkedIn } from "../../../shared/lib/validators";
 
 const MAX_DESCRIPTION_CHARS = 600;
 
@@ -28,9 +29,11 @@ export const useProfile = () => {
     apellidos: "",
     email: "",
     cvlac_url: "",
+    linkedin_url: "",
     descripcion: "",
     universidad: "",
     avatar: null,
+    removeAvatar: false,
   });
 
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -48,6 +51,7 @@ export const useProfile = () => {
       apellidos: data.apellidos || "",
       email: data.email || "",
       cvlac_url: data.cvlac_url || "",
+      linkedin_url: data.linkedin_url || "",
       descripcion: data.descripcion || "",
       universidad: data.universidad || "",
     };
@@ -55,13 +59,12 @@ export const useProfile = () => {
     setForm({
       ...profileData,
       avatar: null,
+      removeAvatar: false,
     });
 
-    setOriginalProfile(profileData);
+    setOriginalProfile({ ...profileData, hadAvatar: !!data.avatar });
 
-    if (data.avatar) {
-      setAvatarPreview(data.avatar);
-    }
+    setAvatarPreview(data.avatar || null);
   };
 
   // Recarga tras guardar
@@ -118,7 +121,9 @@ export const useProfile = () => {
   const namesAreValid =
     form.nombres.trim().length > 0 && form.apellidos.trim().length > 0;
 
-  const formIsValid = cvlacIsValid && descriptionIsValid && namesAreValid;
+  const linkedinIsValid = isValidLinkedIn(form.linkedin_url);
+
+  const formIsValid = cvlacIsValid && linkedinIsValid && descriptionIsValid && namesAreValid;
 
   // ======================
   // DETECTAR CAMBIOS
@@ -133,6 +138,7 @@ export const useProfile = () => {
       "apellidos",
       "email",
       "cvlac_url",
+      "linkedin_url",
       "descripcion",
       "universidad"
     ];
@@ -141,7 +147,9 @@ export const useProfile = () => {
       hasChanged(form[field], originalProfile[field])
     );
 
-    const avatarChanged = form.avatar instanceof File;
+    const avatarChanged =
+      form.avatar instanceof File ||
+      (form.removeAvatar && originalProfile.hadAvatar);
 
     return textChanged || avatarChanged;
 
@@ -163,11 +171,23 @@ export const useProfile = () => {
 
     setForm(prev => ({
       ...prev,
-      avatar: file
+      avatar: file,
+      removeAvatar: false
     }));
 
     setAvatarPreview(URL.createObjectURL(file));
 
+  };
+
+  // Quita la foto (se aplica al guardar): vuelve la inicial del nombre
+  const removeAvatar = () => {
+    setForm(prev => ({
+      ...prev,
+      avatar: null,
+      removeAvatar: true
+    }));
+
+    setAvatarPreview(null);
   };
 
   // ======================
@@ -202,6 +222,7 @@ export const useProfile = () => {
         "apellidos",
         "email",
         "cvlac_url",
+        "linkedin_url",
         "descripcion",
         "universidad"
       ];
@@ -221,6 +242,8 @@ export const useProfile = () => {
 
       if (form.avatar instanceof File) {
         formData.append("avatar", form.avatar);
+      } else if (form.removeAvatar && originalProfile.hadAvatar) {
+        formData.append("remove_avatar", "1");
       }
 
 
@@ -258,6 +281,8 @@ export const useProfile = () => {
     formIsValid,
     hasChanges,
     handleAvatarChange,
+    removeAvatar,
+    linkedinIsValid,
     saveProfile,
     descriptionLength,
     MAX_DESCRIPTION_CHARS,

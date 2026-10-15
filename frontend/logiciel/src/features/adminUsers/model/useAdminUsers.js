@@ -9,6 +9,7 @@ import {
   setUserRole,
 } from "../api/adminUsersApi";
 import { ROLE_LABELS } from "../../auth/model/permissions";
+import { cmsCache } from "../../../shared/utils/cmsCache";
 
 export const useAdminUsers = () => {
 
@@ -52,6 +53,8 @@ export const useAdminUsers = () => {
   const deleteUser = async (uid) => {
     try {
       await deleteUserById(uid);
+      // Su ficha de miembro se borra en la BD (trigger); que la lista no la muestre desde la caché
+      cmsCache.invalidate("miembros");
       toast.success("Usuario eliminado");
       loadUsers();
     } catch (error) {

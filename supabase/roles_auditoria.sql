@@ -20,7 +20,22 @@ where role is null or role not in ('user', 'editor', 'admin');
 
 alter table public.users alter column role set default 'user';
 
-alter table public.users drop constraint if exists users_role_valido;
+-- Quitar cualquier CHECK anterior sobre role (p. ej. uno que solo permitía 'admin' y 'user'):
+-- los CHECK se suman, así que uno viejo bloquearía el rol 'editor'.
+do $$
+declare
+  c record;
+begin
+  for c in
+    select conname from pg_constraint
+    where conrelid = 'public.users'::regclass
+      and contype = 'c'
+      and pg_get_constraintdef(oid) ilike '%role%'
+  loop
+    execute format('alter table public.users drop constraint %I', c.conname);
+  end loop;
+end $$;
+
 alter table public.users
   add constraint users_role_valido check (role in ('user', 'editor', 'admin'));
 

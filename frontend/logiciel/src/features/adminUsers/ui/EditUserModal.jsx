@@ -2,6 +2,7 @@ import { useState } from "react";
 import Modal from "../../../shared/ui/Modal";
 import FormField from "../../../shared/ui/FormField";
 import { RoleBadge } from "./UsersTable";
+import { validatePersonName } from "../../../shared/lib/validators";
 
 // El padre le pone key={user.id}: al cambiar de usuario se vuelve a montar con sus datos
 const EditUserModal = ({ user, onClose, onSave }) => {
@@ -15,7 +16,12 @@ const EditUserModal = ({ user, onClose, onSave }) => {
 
   if (!user) return null;
 
+  const nombresError = validatePersonName(form.nombres, { label: "Nombres" });
+  const apellidosError = validatePersonName(form.apellidos, { label: "Apellidos", required: false });
+  const invalid = !!(nombresError || apellidosError);
+
   const handleSave = () => {
+    if (invalid) return;
     onSave(user.id, form);
     onClose();
   };
@@ -30,14 +36,14 @@ const EditUserModal = ({ user, onClose, onSave }) => {
           <button onClick={onClose} className="btn-secondary">
             Cancelar
           </button>
-          <button onClick={handleSave} className="btn-primary">
+          <button onClick={handleSave} disabled={invalid} className="btn-primary">
             Guardar cambios
           </button>
         </>
       }
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Nombres">
+        <FormField label="Nombres" error={nombresError}>
           <input
             className="input-base"
             value={form.nombres}
@@ -47,7 +53,7 @@ const EditUserModal = ({ user, onClose, onSave }) => {
           />
         </FormField>
 
-        <FormField label="Apellidos">
+        <FormField label="Apellidos" error={apellidosError}>
           <input
             className="input-base"
             value={form.apellidos}

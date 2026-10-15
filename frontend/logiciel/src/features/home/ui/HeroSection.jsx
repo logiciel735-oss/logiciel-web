@@ -1,52 +1,31 @@
-import { useState, useEffect } from "react";
 import SanJose from "../../../shared/assets/images/san_jose.webp";
 import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { Link } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-import { useCircularHorizontalScroll } from "../../../shared/hooks/design/useCircularHorizontalScroll";
 import { useHomeSlides } from "../model/useHomeSlides";
+import { useAutoCarousel } from "../model/useAutoCarousel";
 import { LogoIcon } from "../../../shared/ui/Logo";
 import { optimizeImage } from "../../../shared/lib/image";
 
+const formatFecha = (value) => {
+  if (!value) return null;
+  const d = new Date(value);
+  return isNaN(d) ? null : d.toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+};
+
 const HeroSection = () => {
   const slides = useHomeSlides();
-  const {
-    ref: newsRef,
-    hasOverflow,
-    scrollLeft,
-    scrollRight,
-  } = useCircularHorizontalScroll(slides.length);
   const hasSlides = slides.length > 0;
-
-  // Estados para el control del scroll
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true); // Controla si el modo auto está activo
-  const [isHovering, setIsHovering] = useState(false);     // Pausa temporal por hover
-
-  // 1. Función para manejo de clicks (Pasa a modo manual definitivo)
-  const handleManualClick = (direction) => {
-    setIsAutoPlaying(false); // Detiene el auto-scroll permanentemente
-    if (direction === "left") {
-      scrollLeft();
-    } else {
-      scrollRight();
-    }
-  };
-
-  // 2. Efecto del Auto-Scroll
-  useEffect(() => {
-    let interval;
-
-    // Solo corre si está en auto-play Y no hay un hover activo
-    if (isAutoPlaying && !isHovering && hasSlides && hasOverflow) {
-      interval = setInterval(() => {
-        scrollRight();
-      }, 3000); // Velocidad: 3 segundos para que sea más dinámico
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isAutoPlaying, isHovering, hasSlides, hasOverflow, scrollRight]);
+  const {
+    trackProps,
+    cardProps,
+    active,
+    paused,
+    goTo,
+    next,
+    prev,
+    interval,
+  } = useAutoCarousel(slides.length);
 
   return (
     <section className="relative overflow-hidden text-white">
@@ -111,57 +90,110 @@ const HeroSection = () => {
 
             <div
               className="relative"
-              onMouseEnter={() => setIsHovering(true)}  // Pausa al entrar
-              onMouseLeave={() => setIsHovering(false)} // Reanuda al salir
+              role="region"
+              aria-roledescription="carrusel"
+              aria-label="Noticias y eventos recientes"
             >
-              {hasOverflow && (
-                <>
-                  <button
-                    onClick={() => handleManualClick("left")}
-                    aria-label="Anterior"
-                    className="absolute -left-2 top-1/2 z-30 -translate-y-1/2 rounded-full bg-white p-2.5 text-brand-navy shadow-lg transition hover:bg-brand-teal hover:text-white sm:-left-4"
-                  >
-                    <ChevronLeftIcon className="h-5 w-5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleManualClick("right")}
-                    aria-label="Siguiente"
-                    className="absolute -right-2 top-1/2 z-30 -translate-y-1/2 rounded-full bg-white p-2.5 text-brand-navy shadow-lg transition hover:bg-brand-teal hover:text-white sm:-right-4"
-                  >
-                    <ChevronRightIcon className="h-5 w-5" />
-                  </button>
-                </>
-              )}
-
               <div
-                ref={newsRef}
-                className="hide-scrollbar flex gap-5 overflow-x-auto scroll-smooth py-2"
+                {...trackProps}
+                className="hide-scrollbar relative flex snap-x snap-mandatory gap-5 overflow-x-auto px-1 py-3"
               >
-                {slides.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={item.__type === "event" ? `/events/${item.id}` : `/news/${item.id}`}
-                    className="group/card w-[270px] flex-shrink-0 overflow-hidden rounded-xl bg-white text-slate-800 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:w-[300px]"
-                  >
-                    <div className="h-36 overflow-hidden">
-                      <img
-                        src={optimizeImage(item.image || item.imagen, 600) || placeholderImg}
-                        alt=""
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-teal">
-                        {item.__type === "event" ? "Evento" : "Noticia"}
-                      </span>
-                      <h3 className="mt-1 line-clamp-2 font-semibold leading-snug text-brand-navy">
-                        {item.title || item.titulo}
-                      </h3>
-                    </div>
-                  </Link>
-                ))}
+                {slides.map((item, index) => {
+                  const isActive = index === active;
+                  const fecha = formatFecha(item.__type === "event" ? item.fecha_inicio : item.fecha_creacion || item.created_at);
+                  return (
+                    <Link
+                      key={`${item.__type}-${item.id}`}
+                      {...cardProps}
+                      to={item.__type === "event" ? `/events/${item.id}` : `/news/${item.id}`}
+                      aria-current={isActive ? "true" : undefined}
+                      className={`group/card relative flex w-[270px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-xl bg-white text-slate-800 shadow-lg transition-all duration-500 sm:w-[300px] ${
+                        isActive
+                          ? "-translate-y-1 shadow-2xl ring-2 ring-brand-teal ring-offset-2 ring-offset-brand-navy"
+                          : "opacity-80 hover:-translate-y-1 hover:opacity-100 hover:shadow-xl"
+                      }`}
+                    >
+                      <div className="h-36 overflow-hidden">
+                        <img
+                          src={optimizeImage(item.image || item.imagen, 600) || placeholderImg}
+                          alt=""
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                        />
+                      </div>
+                      <div className="flex flex-1 flex-col p-4">
+                        <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-wider">
+                          <span className="text-brand-teal">
+                            {item.__type === "event" ? "Evento" : "Noticia"}
+                          </span>
+                          {fecha && <span className="font-medium normal-case tracking-normal text-slate-400">{fecha}</span>}
+                        </div>
+                        <h3 className="mt-1 line-clamp-2 font-semibold leading-snug text-brand-navy">
+                          {item.title || item.titulo}
+                        </h3>
+                        {(item.resumen || item.summary) && (
+                          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-slate-500">
+                            {item.resumen || item.summary}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Tiempo hasta la siguiente noticia */}
+                      {isActive && slides.length > 1 && (
+                        <span className="absolute inset-x-0 bottom-0 h-1 bg-brand-teal/15">
+                          {!paused && (
+                            <span
+                              key={`${active}-${paused}`}
+                              className="carousel-progress block h-full bg-brand-teal"
+                              style={{ animationDuration: `${interval}ms` }}
+                            />
+                          )}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
+
+              {/* Indicadores */}
+              {slides.length > 1 && (
+                <div className="mt-5 flex items-center justify-center gap-3">
+                  <button
+                    onClick={prev}
+                    aria-label="Anterior"
+                    className="rounded-full border border-white/30 p-2 text-white transition hover:border-brand-teal hover:bg-brand-teal"
+                  >
+                    <ChevronLeftIcon className="h-4 w-4" />
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                  {slides.length <= 12 ? (
+                    slides.map((item, index) => (
+                      <button
+                        key={`dot-${item.__type}-${item.id}`}
+                        onClick={() => goTo(index)}
+                        aria-label={`Ir a ${item.__type === "event" ? "el evento" : "la noticia"} ${index + 1}`}
+                        aria-current={index === active ? "true" : undefined}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          index === active ? "w-6 bg-brand-teal" : "w-2 bg-white/40 hover:bg-white/70"
+                        }`}
+                      />
+                    ))
+                  ) : (
+                    <span className="text-sm font-medium text-slate-300">
+                      {active + 1} / {slides.length}
+                    </span>
+                  )}
+                  </div>
+
+                  <button
+                    onClick={next}
+                    aria-label="Siguiente"
+                    className="rounded-full border border-white/30 p-2 text-white transition hover:border-brand-teal hover:bg-brand-teal"
+                  >
+                    <ChevronRightIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

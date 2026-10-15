@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { getMyProfile, updateMyProfile } from "../api/profileApi";
 import toast from "react-hot-toast";
 import { validateImageFile } from "../../../shared/uploadFile/api/uploadApi";
-import { isValidLinkedIn } from "../../../shared/lib/validators";
+import { isValidLinkedIn, validatePersonName } from "../../../shared/lib/validators";
+import { cmsCache } from "../../../shared/utils/cmsCache";
 
 const MAX_DESCRIPTION_CHARS = 600;
 
@@ -117,9 +118,10 @@ export const useProfile = () => {
   const descriptionIsValid =
     descriptionLength <= MAX_DESCRIPTION_CHARS;
 
-  // Nombres y apellidos son obligatorios
-  const namesAreValid =
-    form.nombres.trim().length > 0 && form.apellidos.trim().length > 0;
+  // Nombres y apellidos: obligatorios, solo letras (sin números)
+  const nombresError = validatePersonName(form.nombres, { label: "Nombres" });
+  const apellidosError = validatePersonName(form.apellidos, { label: "Apellidos" });
+  const namesAreValid = !nombresError && !apellidosError;
 
   const linkedinIsValid = isValidLinkedIn(form.linkedin_url);
 
@@ -255,6 +257,9 @@ export const useProfile = () => {
 
       await updateMyProfile(formData);
 
+      // La ficha de miembro se sincroniza en la BD (nombre / foto): que "Miembros" no muestre la versión en caché
+      cmsCache.invalidate("miembros");
+
       toast.success("Perfil actualizado");
 
       await loadProfile();
@@ -283,6 +288,8 @@ export const useProfile = () => {
     handleAvatarChange,
     removeAvatar,
     linkedinIsValid,
+    nombresError,
+    apellidosError,
     saveProfile,
     descriptionLength,
     MAX_DESCRIPTION_CHARS,

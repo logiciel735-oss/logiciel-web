@@ -60,3 +60,16 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;                /* Chrome, Safari */
 }
+
+/* Barra de progreso del carrusel de la portada */
+@keyframes carousel-progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.carousel-progress {
+  transform-origin: left;
+  animation-name: carousel-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}

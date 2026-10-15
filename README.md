@@ -94,7 +94,9 @@ Ejecutar en **SQL Editor**, en este orden:
 6. [`supabase/roles_auditoria.sql`](supabase/roles_auditoria.sql) — rol `editor` (gestiona contenido y miembros) y tabla `auditoria` con el registro de cambios.
 7. [`supabase/miembros_usuarios.sql`](supabase/miembros_usuarios.sql) — al eliminar un usuario se elimina también su ficha de miembro.
 8. [`supabase/perfil_linkedin.sql`](supabase/perfil_linkedin.sql) — enlace de LinkedIn en el perfil y ficha de miembro sincronizada con el nombre y la foto del usuario.
-9. Primer administrador (después de registrarse en la web):
+9. [`supabase/auditoria_solo_equipo.sql`](supabase/auditoria_solo_equipo.sql) — la auditoría registra solo lo que hacen editores y administradores.
+10. [`supabase/nombres_sin_numeros.sql`](supabase/nombres_sin_numeros.sql) — nombres, apellidos, coordinador, contacto y autores externos sin números.
+11. Primer administrador (después de registrarse en la web):
    ```sql
    update public.users set role = 'admin' where email = 'correo@ejemplo.com';
    ```
@@ -179,6 +181,8 @@ logiciel-web/
 │   ├── roles_auditoria.sql
 │   ├── miembros_usuarios.sql
 │   ├── perfil_linkedin.sql
+│   ├── auditoria_solo_equipo.sql
+│   ├── nombres_sin_numeros.sql
 │   ├── functions/notificar-contacto/
 │   └── templates/             # plantillas de correo en español
 ├── requirements.txt

@@ -166,6 +166,7 @@ create policy "auditoria_lectura_admin" on public.auditoria
   for select to authenticated using (public.is_admin());
 
 
+-- Solo acciones de editores y administradores (ver auditoria_solo_equipo.sql)
 create or replace function public.registrar_auditoria()
 returns trigger
 language plpgsql
@@ -182,6 +183,30 @@ declare
   v_email   text;
   v_rol     text;
 begin
+  -- Cambios en cascada provocados por otro trigger: no son una acción directa
+  if pg_trigger_depth() > 1 then
+    return null;
+  end if;
+
+  -- Solo acciones de editores y administradores
+  if v_uid is null then
+    return null;
+  end if;
+
+  select email, role into v_email, v_rol from public.users where id = v_uid;
+
+  if v_rol is null or v_rol not in ('editor', 'admin') then
+    return null;
+  end if;
+
+  -- Usuarios: solo lo que un admin hace sobre OTRAS cuentas (rol, datos, eliminación).
+  -- El registro y la edición del propio perfil no se auditan.
+  if tg_table_name = 'users' then
+    if tg_op = 'INSERT' or (v_fila ->> 'id') = v_uid::text then
+      return null;
+    end if;
+  end if;
+
   if tg_op = 'UPDATE' then
     -- Solo los campos que realmente cambiaron
     select jsonb_object_agg(n.key, v_old -> n.key), jsonb_object_agg(n.key, n.value)
@@ -190,22 +215,19 @@ begin
     where (v_old -> n.key) is distinct from n.value;
 
     if v_despues is null then
-      return null;   -- UPDATE sin cambios reales: no se registra
+      return null;   -- UPDATE sin cambios reales
     end if;
+
   else
     v_antes   := v_old;
     v_despues := v_new;
-  end if;
-
-  if v_uid is not null then
-    select email, role into v_email, v_rol from public.users where id = v_uid;
   end if;
 
   insert into public.auditoria
     (usuario_id, usuario_email, usuario_rol, tabla, accion, registro_id, descripcion, antes, despues)
   values (
     v_uid,
-    coalesce(v_email, case when v_uid is null then 'sistema' end),
+    v_email,
     v_rol,
     tg_table_name,
     tg_op,

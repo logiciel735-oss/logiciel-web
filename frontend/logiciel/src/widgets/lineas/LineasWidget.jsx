@@ -18,6 +18,7 @@ import {
   deleteLinea,
 } from "../../entities/linea/api/lineaApi";
 import { puedeEditarContenido } from "../../features/auth/model/permissions";
+import { validatePersonName } from "../../shared/lib/validators";
 
 export default function LineasWidget() {
   const { user } = useAuth();
@@ -156,7 +157,9 @@ export default function LineasWidget() {
 
 /* ================= MODAL ================= */
 
-const LineaModal = ({ data, onChange, onSave, onClose }) => (
+const LineaModal = ({ data, onChange, onSave, onClose }) => {
+  const coordinadorError = validatePersonName(data?.coordinador, { label: "Coordinador", required: false });
+  return (
   <Modal
     title={data?.id ? "Editar línea de investigación" : "Nueva línea de investigación"}
     onClose={onClose}
@@ -165,7 +168,7 @@ const LineaModal = ({ data, onChange, onSave, onClose }) => (
           <button onClick={onClose} className="btn-secondary">
             Cancelar
           </button>
-          <button onClick={onSave} className="btn-primary">
+          <button onClick={onSave} disabled={!!coordinadorError} className="btn-primary">
             Guardar
           </button>
         </>
@@ -188,7 +191,7 @@ const LineaModal = ({ data, onChange, onSave, onClose }) => (
       />
     </FormField>
 
-    <FormField label="Coordinador">
+    <FormField label="Coordinador" error={coordinadorError}>
       <input
         className="input-base"
         value={data?.coordinador || ""}
@@ -203,4 +206,5 @@ const LineaModal = ({ data, onChange, onSave, onClose }) => (
       />
     </FormField>
   </Modal>
-);
+  );
+};

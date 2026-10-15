@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { sendContactMessage } from "../api/contactApi";
+import { validatePersonName } from "../../../shared/lib/validators";
 
 export function useContactForm() {
   const [form, setForm] = useState({
@@ -16,8 +17,8 @@ export function useContactForm() {
   const validate = () => {
     if (!form.name || !form.email || !form.subject || !form.message)
       return "Todos los campos son obligatorios.";
-    if (form.name.trim().length < 3)
-      return "El nombre debe tener al menos 3 caracteres.";
+    const nameError = validatePersonName(form.name, { label: "Nombre", max: 100 });
+    if (nameError) return nameError;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return "El correo electrónico no es válido.";
     if (form.message.length < 10)

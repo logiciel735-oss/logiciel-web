@@ -119,7 +119,7 @@ export default function AuditLog() {
       <SectionHeader
         eyebrow="Administración"
         title="Auditoría"
-        description="Registro de quién creó, editó o eliminó contenido, miembros y usuarios."
+        description="Lo que crean, editan o eliminan los editores y administradores: contenido, miembros y gestión de usuarios."
         action={
           <button onClick={refresh} className="btn-secondary py-2 text-sm">
             <ArrowPathIcon className="h-4 w-4" />

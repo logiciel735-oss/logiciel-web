@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../../features/auth/model/useAuth";
+import { validatePersonName } from "../../../shared/lib/validators";
 
 export function useRegisterForm() {
   const { register } = useAuth();
@@ -32,8 +33,11 @@ export function useRegisterForm() {
 
     if (loading) return;
 
-    if (!form.nombres.trim() || !form.apellidos.trim()) {
-      toast.error("Escribe tus nombres y apellidos");
+    const nameError =
+      validatePersonName(form.nombres, { label: "Nombres" }) ||
+      validatePersonName(form.apellidos, { label: "Apellidos" });
+    if (nameError) {
+      toast.error(nameError);
       return;
     }
 

@@ -58,7 +58,9 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
   "puede editar contenido"; el contexto expone `isAdmin` (solo admin) y `canEditContent`.
   No volver a comparar `role === "admin"` a mano.
 - Auditoría: tabla `auditoria` llenada por el trigger `registrar_auditoria` en las tablas de contenido,
-  `miembros` y `users` (en UPDATE guarda solo los campos que cambiaron). Solo lectura para admin; la UI
+  `miembros` y `users` (en UPDATE guarda solo los campos que cambiaron). Solo registra acciones directas de
+  editores y admins (`supabase/auditoria_solo_equipo.sql`): nada de usuarios normales, ni el propio perfil,
+  ni cambios en cascada de otros triggers (`pg_trigger_depth() > 1`). Solo lectura para admin; la UI
   está en `features/audit` y la ruta `/admin/auditoria`. Al crear una tabla de contenido nueva, añadirle
   la política `puede_editar()` y el trigger `auditoria`.
 - `miembros.user_id` no tiene FK: el trigger `borrar_miembro_de_usuario` (`supabase/miembros_usuarios.sql`) borra la
@@ -67,6 +69,8 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
   (`supabase/perfil_linkedin.sql`) la mantiene al día cuando cambian nombre o foto (incluido quitar la foto).
 - `users.linkedin_url`: opcional, validado con `isValidLinkedIn` (`shared/lib/validators.js`) y el CHECK
   `users_linkedin_valido`; los enlaces opcionales vacíos se guardan como NULL.
+- Nombres de personas (registro, perfil, edición admin, autores externos, coordinador, contacto): validar con
+  `validatePersonName` (`shared/lib/validators.js`). La BD solo prohíbe dígitos (`supabase/nombres_sin_numeros.sql`).
 - RLS de `users`: cada usuario lee su fila; editores y admins leen todas (`supabase/roles_auditoria.sql`).
   El perfil público de un miembro se obtiene con la RPC `perfil_publico(uid)` (`getPublicUser`), que solo
   devuelve campos publicables. No volver a abrir `users` a lectura pública.

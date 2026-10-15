@@ -19,6 +19,8 @@ const ProfileForm = ({
   handleAvatarChange,
   removeAvatar,
   linkedinIsValid,
+  nombresError,
+  apellidosError,
   saveProfile,
   descriptionLength,
   MAX_DESCRIPTION_CHARS,
@@ -96,7 +98,7 @@ const ProfileForm = ({
           {/* CAMPOS */}
           <div className="space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
-              <FormField label="Nombres" required error={!form.nombres.trim() ? "Escribe tus nombres" : null}>
+              <FormField label="Nombres" required error={nombresError}>
                 <input
                   type="text"
                   autoComplete="given-name"
@@ -106,7 +108,7 @@ const ProfileForm = ({
                 />
               </FormField>
 
-              <FormField label="Apellidos" required error={!form.apellidos.trim() ? "Escribe tus apellidos" : null}>
+              <FormField label="Apellidos" required error={apellidosError}>
                 <input
                   type="text"
                   autoComplete="family-name"

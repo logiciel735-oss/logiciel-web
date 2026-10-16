@@ -1,7 +1,8 @@
-import { BuildingLibraryIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { BuildingLibraryIcon, ArrowTopRightOnSquareIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
-import { optimizeImage } from "../../../shared/lib/image";
+import CardLogoHeader from "../../../shared/ui/CardLogoHeader";
 
+// Misma estructura que SemilleroCard: altura fija sin importar cuánta información tenga.
 export default function AliadosInstitucionalesCard({
   aliado,
   isAdmin,
@@ -9,6 +10,10 @@ export default function AliadosInstitucionalesCard({
   onDelete,
 }) {
   if (!aliado) return null;
+
+  // Aliados antiguos guardados sin nombre: se usa el tipo como título
+  const titulo = aliado.nombre?.trim() || aliado.tipo || "Aliado institucional";
+  const tipo = aliado.nombre?.trim() ? aliado.tipo : "";
 
   const goToSite = () => {
     if (aliado.sitio_web) {
@@ -19,55 +24,56 @@ export default function AliadosInstitucionalesCard({
   return (
     <article
       onClick={goToSite}
-      className={`card group flex h-full w-60 flex-col p-5 ${
-        aliado.sitio_web ? "cursor-pointer hover:-translate-y-1 hover:border-brand-teal/40" : ""
+      className={`group relative flex h-full flex-col items-center overflow-hidden rounded-3xl border border-slate-200 bg-white text-center shadow-sm transition-all duration-300 hover:shadow-lg ${
+        aliado.sitio_web ? "cursor-pointer hover:-translate-y-1" : ""
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        {aliado.tipo ? (
-          <span className="rounded-full bg-brand-teal-light px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-teal-dark">
-            {aliado.tipo}
-          </span>
-        ) : <span />}
-        {aliado.pais && (
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-            {aliado.pais}
-          </span>
-        )}
-      </div>
+      <CardLogoHeader
+        src={aliado.logo_url}
+        alt={titulo}
+        fallbackIcon={BuildingLibraryIcon}
+      />
 
-      {/* LOGO */}
-      <div className="my-5 flex h-24 items-center justify-center">
-        {aliado.logo_url ? (
-          <img
-            src={optimizeImage(aliado.logo_url, 400)}
-            alt={aliado.nombre}
-            className="max-h-full max-w-[85%] object-contain transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <BuildingLibraryIcon className="h-12 w-12 text-slate-300" />
-        )}
-      </div>
+      <div className="flex w-full flex-1 flex-col px-4 pb-4 pt-3">
+        {/* Siempre 2 líneas de alto */}
+        <h3
+          className="line-clamp-2 min-h-[2.5rem] text-base font-semibold leading-5 text-brand-navy transition-colors group-hover:text-brand-teal"
+          title={titulo}
+        >
+          {titulo}
+        </h3>
 
-      <h3 className="line-clamp-2 text-center text-sm font-semibold text-brand-navy transition-colors group-hover:text-brand-teal">
-        {aliado.nombre}
-      </h3>
-
-      {aliado.sitio_web && (
-        <p className="mt-2 flex items-center justify-center gap-1 text-xs text-slate-400">
-          Sitio web <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" />
+        {/* Tipo y país en una sola línea */}
+        <p className="mt-1.5 flex min-h-[1.25rem] items-center justify-center gap-1.5 truncate text-xs text-slate-500">
+          {tipo && (
+            <span className="truncate font-semibold uppercase tracking-wide text-brand-teal-dark">{tipo}</span>
+          )}
+          {tipo && aliado.pais && <span className="text-slate-300">•</span>}
+          {aliado.pais && (
+            <span className="inline-flex shrink-0 items-center gap-0.5">
+              <MapPinIcon className="h-3.5 w-3.5" />
+              {aliado.pais}
+            </span>
+          )}
         </p>
-      )}
 
-      {isAdmin && (
-        <div className="mt-auto pt-5">
+        <div className="mt-auto flex min-h-[2.25rem] items-center justify-center pt-3">
+          {aliado.sitio_web && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-teal-light px-4 py-1.5 text-sm font-semibold text-brand-teal-dark transition group-hover:bg-brand-teal group-hover:text-white">
+              Sitio web
+              <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+            </span>
+          )}
+        </div>
+
+        {isAdmin && (
           <AdminActions
-            className="justify-center border-t border-slate-100 pt-4"
+            className="mt-3 justify-center border-t border-slate-100 pt-3"
             onEdit={() => onEdit(aliado)}
             onDelete={() => onDelete(aliado)}
           />
-        </div>
-      )}
+        )}
+      </div>
     </article>
   );
 }

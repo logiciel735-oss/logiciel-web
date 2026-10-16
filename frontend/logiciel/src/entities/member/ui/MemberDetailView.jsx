@@ -8,6 +8,7 @@ import RelatedItem from "./RelatedItem";
 import PublicationCard from "../../publication/ui/PublicationCard";
 import { useMiembros } from "../model/useMiembros";
 import { optimizeImage } from "../../../shared/lib/image";
+import { getMemberRole } from "../model/memberRoles";
 
 export default function MemberDetailView({
   member,
@@ -82,8 +83,8 @@ export default function MemberDetailView({
             <div>
               <h1 className="text-3xl font-bold tracking-tight">{member.name}</h1>
               {member.role && (
-                <span className="mt-3 inline-block rounded-full bg-brand-teal px-3 py-1 text-sm font-semibold capitalize text-white">
-                  {member.role}
+                <span className={`mt-3 inline-block rounded-full px-3 py-1 text-sm font-semibold capitalize ${getMemberRole(member.role).solid}`}>
+                  {getMemberRole(member.role).label}
                 </span>
               )}
             </div>

@@ -8,8 +8,6 @@ import { useAliadoInstitucionales } from "../../entities/universidad/model/useAl
 import AliadosInstitucionalesCard from "../../entities/universidad/ui/AliadosInstitucionalesCard";
 import ConfirmModal from "../../shared/ui/ConfirmModal";
 import ImageUploader from "../../shared/uploadFile/ui/ImageUploader";
-import { useCircularHorizontalScroll } from "../../shared/hooks/design/useCircularHorizontalScroll";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import Loader from "../../shared/components/Loader";
 import SectionHeader from "../../shared/ui/SectionHeader";
 import { PlusIcon } from "@heroicons/react/24/outline";
@@ -26,38 +24,40 @@ export default function AliadosInstitucionalesWidget() {
 
   const { aliadosInstitucionales, loading, refresh } = useAliadoInstitucionales();
 
-  const { ref, hasOverflow, scrollLeft, scrollRight } =
-    useCircularHorizontalScroll(aliadosInstitucionales?.length);
-
   const [openModal, setOpenModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const handleSave = async () => {
+    if (!editData?.nombre?.trim()) {
+      toast.error("Escribe el nombre del aliado");
+      return;
+    }
+
     try {
       if (editData?.id) {
         await updateAliadoInstitucional(editData.id, editData);
-        toast.success("Universidad actualizada correctamente");
+        toast.success("Aliado actualizado correctamente");
       } else {
         await createAliadoInstitucional(editData);
-        toast.success("Universidad creada correctamente");
+        toast.success("Aliado creado correctamente");
       }
       await refresh();
       setOpenModal(false);
       setEditData(null);
     } catch {
-      toast.error("Error guardando universidad");
+      toast.error("Error guardando aliado");
     }
   };
 
   const handleDelete = async () => {
     try {
       await deleteAliadoInstitucional(confirmDelete.id);
-      toast.success("Universidad eliminada correctamente");
+      toast.success("Aliado eliminado correctamente");
       await refresh();
       setConfirmDelete(null);
     } catch {
-      toast.error("Error eliminando universidad");
+      toast.error("Error eliminando aliado");
     }
   };
 
@@ -82,56 +82,28 @@ export default function AliadosInstitucionalesWidget() {
           )}
         />
 
-        {/* SLIDER */}
-        <div className="relative">
-          {hasOverflow && (
-            <button
-              onClick={scrollLeft}
-              className="absolute -left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md hover:bg-[#64ffda] hover:text-[#0a192f] p-3 rounded-full transition-all border border-white/20"
-            >
-              <ChevronLeftIcon className="w-6 h-6" />
-            </button>
-          )}
-
-          <div
-            ref={ref}
-            className="flex gap-6 overflow-x-auto pb-4 scroll-smooth px-10"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-
-            {loading ? (
-              <div className="w-full flex justify-center py-10">
-                <Loader text="Cargando aliados..." />
-              </div>
-            ) : aliadosInstitucionales?.length === 0 ? (
-              <div className="w-full rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">
-                No hay aliados institucionales registrados.
-              </div>
-            ) : (
-              aliadosInstitucionales.map((uni) => (
-                <div key={uni.id} className="flex-shrink-0">
-                  <AliadosInstitucionalesCard
-                    aliado={uni}
-                    isAdmin={isAdmin}
-                    onEdit={(item) => {
-                      setEditData(item);
-                      setOpenModal(true);
-                    }}
-                    onDelete={(item) => setConfirmDelete(item)}
-                  />
-                </div>
-              ))
-            )}
-
-          </div>
-
-          {hasOverflow && (
-            <button
-              onClick={scrollRight}
-              className="absolute -right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md hover:bg-[#64ffda] hover:text-[#0a192f] p-3 rounded-full transition-all border border-white/20"
-            >
-              <ChevronRightIcon className="w-6 h-6" />
-            </button>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {loading ? (
+            <div className="col-span-full flex justify-center py-10">
+              <Loader text="Cargando aliados..." />
+            </div>
+          ) : !aliadosInstitucionales?.length ? (
+            <p className="col-span-full rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">
+              No hay aliados institucionales registrados.
+            </p>
+          ) : (
+            aliadosInstitucionales.map((uni) => (
+              <AliadosInstitucionalesCard
+                key={uni.id}
+                aliado={uni}
+                isAdmin={isAdmin}
+                onEdit={(item) => {
+                  setEditData(item);
+                  setOpenModal(true);
+                }}
+                onDelete={(item) => setConfirmDelete(item)}
+              />
+            ))
           )}
         </div>
       </div>
@@ -148,7 +120,7 @@ export default function AliadosInstitucionalesWidget() {
       <ConfirmModal
         open={!!confirmDelete}
         title="Eliminar aliado institucional"
-        message={`¿Seguro que deseas eliminar "${confirmDelete?.nombre}"?`}
+        message={`¿Seguro que deseas eliminar "${confirmDelete?.nombre || confirmDelete?.tipo || "este aliado"}"?`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         onConfirm={handleDelete}

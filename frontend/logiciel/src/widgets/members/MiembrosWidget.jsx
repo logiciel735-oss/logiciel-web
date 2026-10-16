@@ -1,6 +1,6 @@
 import SectionHeader from "../../shared/ui/SectionHeader";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { ChevronLeftIcon, ChevronRightIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 
@@ -11,6 +11,9 @@ import MiembroModal from "../../entities/member/ui/MiembroModal";
 import ConfirmModal from "../../shared/ui/ConfirmModal";
 import Loader from "../../shared/components/Loader";
 import { useCircularHorizontalScroll } from "../../shared/hooks/design/useCircularHorizontalScroll";
+import SearchInput from "../../shared/ui/SearchInput";
+import { matchesSearch } from "../../shared/lib/search";
+import { getMemberRole, sortMiembros } from "../../entities/member/model/memberRoles";
 
 import {
   createMiembro,
@@ -25,8 +28,21 @@ export default function MiembrosWidget() {
 
   const { miembros, loading, error, refresh } = useMiembros();
 
+  // Directores primero y estudiantes al final; el buscador es solo para editores y admins
+  const [search, setSearch] = useState("");
+  const visibles = useMemo(() => {
+    const ordenados = sortMiembros(miembros);
+    if (!isAdmin || !search.trim()) return ordenados;
+    return ordenados.filter((m) => matchesSearch(search, [m.name, getMemberRole(m.role).label]));
+  }, [miembros, search, isAdmin]);
+
   const { ref, hasOverflow, scrollLeft, scrollRight } =
-    useCircularHorizontalScroll(miembros.length);
+    useCircularHorizontalScroll(visibles.length);
+
+  const handleSearch = (value) => {
+    setSearch(value);
+    if (ref.current) ref.current.scrollLeft = 0; // mostrar los resultados desde el inicio
+  };
 
   const [openModal, setOpenModal] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -102,23 +118,35 @@ export default function MiembrosWidget() {
       );
     }
 
+    if (visibles.length === 0) {
+      return (
+        <div className="rounded-2xl border border-dashed border-slate-200 py-12 text-center">
+          <p className="font-semibold text-slate-600">Ningún miembro coincide con “{search}”</p>
+          <button onClick={() => handleSearch("")} className="mt-3 text-sm font-semibold text-brand-teal hover:text-brand-teal-dark">
+            Limpiar búsqueda
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="relative">
         {hasOverflow && (
           <button
             onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md hover:bg-[#64ffda] hover:text-[#0a192f] p-3 rounded-full transition-all border border-white/20"
+            aria-label="Anterior"
+            className="absolute left-0 top-1/2 z-30 -translate-y-1/2 rounded-full border border-slate-200 bg-white p-2.5 text-brand-navy shadow-md transition hover:border-brand-teal hover:bg-brand-teal hover:text-white"
           >
-            <ChevronLeftIcon className="w-6 h-6" />
+            <ChevronLeftIcon className="h-5 w-5" />
           </button>
         )}
 
         <div
           ref={ref}
-          className="flex gap-6 overflow-x-auto pb-4 scroll-smooth px-10"
+          className="flex gap-6 overflow-x-auto px-10 py-2 pb-4 scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {miembros.map((miembro) => (
+          {visibles.map((miembro) => (
             <div key={miembro.id} className="flex-shrink-0">
               <MiembroCard
                 miembro={miembro}
@@ -133,9 +161,10 @@ export default function MiembrosWidget() {
         {hasOverflow && (
           <button
             onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-md hover:bg-[#64ffda] hover:text-[#0a192f] p-3 rounded-full transition-all border border-white/20"
+            aria-label="Siguiente"
+            className="absolute right-0 top-1/2 z-30 -translate-y-1/2 rounded-full border border-slate-200 bg-white p-2.5 text-brand-navy shadow-md transition hover:border-brand-teal hover:bg-brand-teal hover:text-white"
           >
-            <ChevronRightIcon className="w-6 h-6" />
+            <ChevronRightIcon className="h-5 w-5" />
           </button>
         )}
       </div>
@@ -162,6 +191,22 @@ export default function MiembrosWidget() {
             </button>
           )}
         />
+
+        {isAdmin && !loading && miembros.length > 0 && (
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <SearchInput
+              value={search}
+              onChange={handleSearch}
+              placeholder="Buscar miembro por nombre o cargo…"
+              className="w-full sm:max-w-sm"
+            />
+            {search.trim() && (
+              <p className="text-sm text-slate-500">
+                {visibles.length} {visibles.length === 1 ? "resultado" : "resultados"}
+              </p>
+            )}
+          </div>
+        )}
 
         {renderContent()}
       </div>

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import AdminActions from "../../../shared/ui/AdminActions";
 import { optimizeImage } from "../../../shared/lib/image";
+import { getMemberRole } from "../model/memberRoles";
 
 export default function MiembroCard({
   miembro,
@@ -17,7 +18,7 @@ export default function MiembroCard({
   return (
     <article
       onClick={openProfile}
-      className="card group flex w-60 cursor-pointer flex-col items-center p-6 text-center hover:-translate-y-1 hover:border-brand-teal/40"
+      className="card group flex h-full w-60 cursor-pointer flex-col items-center p-6 text-center hover:-translate-y-1 hover:border-brand-teal/40"
     >
       {miembro.image ? (
         <img
@@ -31,19 +32,25 @@ export default function MiembroCard({
         </div>
       )}
 
-      <h3 className="mt-4 line-clamp-2 font-semibold leading-snug text-brand-navy transition-colors group-hover:text-brand-teal">
+      {/* Nombre: siempre 2 líneas de alto, así todas las tarjetas miden lo mismo */}
+      <h3
+        className="mt-4 line-clamp-2 min-h-[2.75rem] font-semibold leading-snug text-brand-navy transition-colors group-hover:text-brand-teal"
+        title={miembro.name}
+      >
         {miembro.name}
       </h3>
 
-      {miembro.role && (
-        <span className="mt-2 rounded-full bg-brand-teal-light px-3 py-0.5 text-xs font-semibold capitalize text-brand-teal-dark">
-          {miembro.role}
-        </span>
-      )}
+      <div className="mt-2 flex h-6 items-center">
+        {miembro.role && (
+          <span className={`rounded-full px-3 py-0.5 text-xs font-semibold capitalize ${getMemberRole(miembro.role).badge}`}>
+            {getMemberRole(miembro.role).label}
+          </span>
+        )}
+      </div>
 
       {isAdmin && (
         <AdminActions
-          className="mt-5 border-t border-slate-100 pt-4"
+          className="mt-4 w-full justify-center border-t border-slate-100 pt-4"
           onEdit={() => onEdit(miembro)}
           onDelete={() => onDelete(miembro)}
         />

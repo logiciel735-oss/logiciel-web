@@ -103,7 +103,7 @@ export default function SemillerosWidget() {
           )}
         />
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
           {loading ? (
             <div className="col-span-full flex justify-center py-10">

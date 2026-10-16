@@ -82,6 +82,9 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
 - Nombre del usuario: columnas `nombres` y `apellidos` (registro, perfil, edición admin). La columna `name`
   la compone el trigger `componer_nombre` (`supabase/nombres_apellidos.sql`): no escribir `name` desde el frontend;
   leerla sí, es la que usa toda la UI.
+- Cargos de miembros del grupo (`miembros.role`: director, investigador, docente, estudiante): lista, colores y
+  orden en `entities/member/model/memberRoles.js` (`MEMBER_ROLES`, `getMemberRole`, `sortMiembros`). No repetir
+  la lista en otros componentes.
 - El rol solo se cambia con el selector de rol (`RoleSelect`) de la gestión de usuarios, con confirmación;
   `EditUserModal` lo muestra en solo lectura.
 

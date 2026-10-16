@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Modal from "../../../shared/ui/Modal";
 import FormField from "../../../shared/ui/FormField";
 import { optimizeImage } from "../../../shared/lib/image";
+import { MEMBER_ROLES } from "../model/memberRoles";
 
 export default function MiembroModal({
     data,
@@ -83,14 +84,6 @@ export default function MiembroModal({
         onSave();
     };
 
-    const ROLES = [
-        ["director", "Director"],
-        ["coordinador", "Coordinador"],
-        ["investigador", "Investigador"],
-        ["docente", "Docente"],
-        ["estudiante", "Estudiante"],
-        ["administrativo", "Administrativo"],
-    ];
 
     return (
         <Modal
@@ -158,7 +151,7 @@ export default function MiembroModal({
                     className="input-base"
                 >
                     <option value="">Seleccionar rol</option>
-                    {ROLES.map(([value, label]) => (
+                    {MEMBER_ROLES.map(({ value, label }) => (
                         <option key={value} value={value}>{label}</option>
                     ))}
                 </select>

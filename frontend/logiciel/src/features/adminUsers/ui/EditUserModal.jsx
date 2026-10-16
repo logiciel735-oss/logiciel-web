@@ -2,7 +2,7 @@ import { useState } from "react";
 import Modal from "../../../shared/ui/Modal";
 import FormField from "../../../shared/ui/FormField";
 import { RoleBadge } from "./UsersTable";
-import { validatePersonName } from "../../../shared/lib/validators";
+import { formatPersonName, validatePersonName } from "../../../shared/lib/validators";
 
 // El padre le pone key={user.id}: al cambiar de usuario se vuelve a montar con sus datos
 const EditUserModal = ({ user, onClose, onSave }) => {
@@ -22,7 +22,11 @@ const EditUserModal = ({ user, onClose, onSave }) => {
 
   const handleSave = () => {
     if (invalid) return;
-    onSave(user.id, form);
+    onSave(user.id, {
+      ...form,
+      nombres: formatPersonName(form.nombres),
+      apellidos: formatPersonName(form.apellidos),
+    });
     onClose();
   };
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getMyProfile, updateMyProfile } from "../api/profileApi";
 import toast from "react-hot-toast";
 import { validateImageFile } from "../../../shared/uploadFile/api/uploadApi";
-import { isValidLinkedIn, validatePersonName } from "../../../shared/lib/validators";
+import { formatPersonName, isValidLinkedIn, validatePersonName } from "../../../shared/lib/validators";
 import { cmsCache } from "../../../shared/utils/cmsCache";
 
 const MAX_DESCRIPTION_CHARS = 600;
@@ -233,10 +233,11 @@ export const useProfile = () => {
 
         if (hasChanged(form[field], originalProfile[field])) {
 
-          formData.append(
-            field,
-            normalize(form[field])
-          );
+          const value = field === "nombres" || field === "apellidos"
+            ? formatPersonName(form[field])
+            : normalize(form[field]);
+
+          formData.append(field, value);
 
         }
 

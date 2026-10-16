@@ -71,6 +71,9 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
   `users_linkedin_valido`; los enlaces opcionales vacíos se guardan como NULL.
 - Nombres de personas (registro, perfil, edición admin, autores externos, coordinador, contacto): validar con
   `validatePersonName` (`shared/lib/validators.js`). La BD solo prohíbe dígitos (`supabase/nombres_sin_numeros.sql`).
+  Formato único de nombre propio ("Juan Carlos de la Cruz"): `formatPersonName` al guardar y, en la BD,
+  `formatear_nombre` aplicado por `componer_nombre` (users) y `formatear_nombre_miembro` (miembros)
+  (`supabase/nombres_formato.sql`). Si se cambia la regla, cambiarla en ambos sitios.
 - RLS de `users`: cada usuario lee su fila; editores y admins leen todas (`supabase/roles_auditoria.sql`).
   El perfil público de un miembro se obtiene con la RPC `perfil_publico(uid)` (`getPublicUser`), que solo
   devuelve campos publicables. No volver a abrir `users` a lectura pública.

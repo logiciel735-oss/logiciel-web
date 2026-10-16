@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { XMarkIcon, MagnifyingGlassIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { useMiembros } from "../../entities/member/model/useMiembros";
-import { validatePersonName } from "../lib/validators";
+import { formatPersonName, validatePersonName } from "../lib/validators";
 
 export default function AuthorSelector({ autores = [], setAutores, label = "Autores" }) {
   const { miembros } = useMiembros();
@@ -27,7 +27,7 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
     if (nameError) { toast.error(nameError); return; }
     setAutores([
       ...autores,
-      { miembro_id: "", nombre_externo: nombreExt.trim(), rol: rolExt || "Autor" },
+      { miembro_id: "", nombre_externo: formatPersonName(nombreExt), rol: rolExt || "Autor" },
     ]);
     setNombreExt("");
     setRolExt("Autor");

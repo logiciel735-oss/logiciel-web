@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../../features/auth/model/useAuth";
-import { validatePersonName } from "../../../shared/lib/validators";
+import { formatPersonName, validatePersonName } from "../../../shared/lib/validators";
 
 export function useRegisterForm() {
   const { register } = useAuth();
@@ -48,7 +48,12 @@ export function useRegisterForm() {
 
     try {
       setLoading(true);
-      const { needsConfirmation } = await register(form.nombres, form.apellidos, form.email, form.password);
+      const { needsConfirmation } = await register(
+        formatPersonName(form.nombres),
+        formatPersonName(form.apellidos),
+        form.email,
+        form.password
+      );
 
       if (needsConfirmation) {
         setRegisteredEmail(form.email.toLowerCase().trim());

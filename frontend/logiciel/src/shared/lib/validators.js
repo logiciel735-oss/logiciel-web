@@ -46,6 +46,24 @@ export const isValidLinkedIn = (value) => !value || LINKEDIN_REGEX.test(value.tr
  */
 const PERSON_NAME_REGEX = /^[\p{L}\p{M}][\p{L}\p{M} '’.-]*$/u;
 
+// Partículas que van en minúscula dentro de un nombre ("María de los Ángeles")
+const NAME_PARTICLES = new Set(["de", "del", "la", "las", "los", "y", "e", "da", "das", "do", "dos", "van", "von"]);
+
+// Formato único para nombres de personas: "JUAN carlos DE LA cruz" → "Juan Carlos de la Cruz".
+// Debe coincidir con public.formatear_nombre (supabase/nombres_formato.sql).
+export const formatPersonName = (value) => {
+  const clean = (value || "").trim().replace(/\s+/g, " ").toLocaleLowerCase("es");
+  if (!clean) return "";
+  return clean
+    .split(" ")
+    .map((word, i) =>
+      i > 0 && NAME_PARTICLES.has(word)
+        ? word
+        : word.replace(/(^|[-'’.])(\p{L})/gu, (_, sep, letter) => sep + letter.toLocaleUpperCase("es"))
+    )
+    .join(" ");
+};
+
 export const validatePersonName = (value, { label = "Nombre", required = true, max = 80 } = {}) => {
   const v = (value || "").trim();
   if (!v) return required ? `${label}: este campo es obligatorio.` : null;

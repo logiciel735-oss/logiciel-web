@@ -43,7 +43,9 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
   `fetchCollection`, `fetchDoc`, `insertDoc`, `updateDoc`, `deleteDoc`, `pickFields`.
 - Cada API de administración define una lista blanca `FIELDS` que pasa por `pickFields` (imita los serializers
   de Django). **Si se añade una columna, agregarla a `FIELDS`** o no se guardará. Las fechas `""` se convierten en `null`.
-- `shared/lib/useCMSData.js`: caché en localStorage (con TTL) para listas públicas. **No modificarlo.**
+- `shared/lib/useCMSData.js`: caché en localStorage (TTL 15 min, `shared/utils/cmsCache.js`) para listas públicas.
+  Muestra la copia guardada al instante y **siempre** vuelve a consultar Supabase en segundo plano
+  (los cambios se ven al recargar en cualquier navegador). No volver a omitir esa consulta cuando hay caché.
 - Mappers (`entities/*/model/*Mapper.js`) traducen entre la forma de la BD y la de la UI.
 
 ### Autenticación y roles

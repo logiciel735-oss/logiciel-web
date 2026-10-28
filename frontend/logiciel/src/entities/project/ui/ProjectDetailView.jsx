@@ -84,7 +84,7 @@ export default function ProjectDetailView({ project, loading, refresh, isAdmin }
       <ConfirmModal
         open={confirmDelete}
         title="Eliminar proyecto"
-        message={`¿Eliminar "${project?.titulo}"?`}
+        message={`¿Eliminar "${project?.titulo}"? Esta acción no se puede deshacer.`}
         confirmText={deleting ? "Eliminando..." : "Eliminar"}
         cancelText="Cancelar"
         onConfirm={handleDelete}

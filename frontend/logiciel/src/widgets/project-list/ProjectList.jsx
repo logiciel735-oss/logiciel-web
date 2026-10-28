@@ -158,7 +158,7 @@ export default function ProjectList() {
       <ConfirmModal
         open={!!confirmDelete}
         title="Eliminar proyecto"
-        message={`¿Eliminar "${confirmDelete?.titulo}"?`}
+        message={`¿Eliminar "${confirmDelete?.titulo}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         onConfirm={handleDelete}

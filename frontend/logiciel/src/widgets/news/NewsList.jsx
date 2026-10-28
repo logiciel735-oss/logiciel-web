@@ -107,7 +107,7 @@ export default function NewsList() {
       <ConfirmModal
         open={!!confirmDelete}
         title="Eliminar noticia"
-        message={`¿Eliminar "${confirmDelete?.title}"?`}
+        message={`¿Eliminar "${confirmDelete?.title}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         onConfirm={onConfirmDelete}

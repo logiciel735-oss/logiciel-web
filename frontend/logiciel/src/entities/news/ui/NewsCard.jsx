@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRightIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
 import { optimizeImage } from "../../../shared/lib/image";
+import { formatCalendarDate } from "../../../shared/utils/formatDateInput";
 
 export default function NewsCard({
   item,
@@ -11,13 +12,11 @@ export default function NewsCard({
   onDelete,
 }) {
 
-  const formattedDate = item?.date
-    ? new Date(item.date).toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })
-    : "";
+  const formattedDate = formatCalendarDate(
+    item?.date,
+    { day: "2-digit", month: "long", year: "numeric" },
+    "es-ES"
+  );
 
   return (
     <article className="card group flex flex-col overflow-hidden hover:-translate-y-1">

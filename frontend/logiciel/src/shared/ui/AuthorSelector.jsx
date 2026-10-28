@@ -2,13 +2,14 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { XMarkIcon, MagnifyingGlassIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { useMiembros } from "../../entities/member/model/useMiembros";
-import { formatPersonName, validatePersonName } from "../lib/validators";
+import { formatPersonName, validatePersonName, validateRole, ROLE_HINT } from "../lib/validators";
 
 export default function AuthorSelector({ autores = [], setAutores, label = "Autores" }) {
   const { miembros } = useMiembros();
   const [searchQ, setSearchQ]     = useState("");
   const [nombreExt, setNombreExt] = useState("");
   const [rolExt, setRolExt]       = useState("Autor");
+  const [extError, setExtError]   = useState(null);
 
   const handleAddInterno = (miembro) => {
     const yaExiste = autores.some((a) => a.miembro_id === miembro.user_id);
@@ -23,14 +24,15 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
   const handleAddExterno = () => {
     const nameError =
       validatePersonName(nombreExt, { label: "Nombre del autor" }) ||
-      validatePersonName(rolExt, { label: "Rol", required: false, max: 40 });
-    if (nameError) { toast.error(nameError); return; }
+      validateRole(rolExt);
+    if (nameError) { setExtError(nameError); toast.error(nameError); return; }
     setAutores([
       ...autores,
-      { miembro_id: "", nombre_externo: formatPersonName(nombreExt), rol: rolExt || "Autor" },
+      { miembro_id: "", nombre_externo: formatPersonName(nombreExt), rol: rolExt.trim() || "Autor" },
     ]);
     setNombreExt("");
     setRolExt("Autor");
+    setExtError(null);
   };
 
   const handleRemove = (miembro_id, nombre_externo) => {
@@ -133,15 +135,19 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
             className="input-base text-sm"
             placeholder="Nombre completo"
             value={nombreExt}
-            onChange={(e) => setNombreExt(e.target.value)}
+            onChange={(e) => { setNombreExt(e.target.value); setExtError(null); }}
           />
           <input
             className="input-base text-sm"
             placeholder="Rol (ej. Investigador, Colaborador)"
             value={rolExt}
-            onChange={(e) => setRolExt(e.target.value)}
+            maxLength={40}
+            onChange={(e) => { setRolExt(e.target.value); setExtError(null); }}
           />
         </div>
+        {extError
+          ? <p className="text-xs font-medium text-red-600" role="alert">{extError}</p>
+          : <p className="text-xs text-slate-400">Rol: {ROLE_HINT}</p>}
         <button
           type="button"
           onClick={handleAddExterno}

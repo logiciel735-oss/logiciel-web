@@ -3,6 +3,7 @@ import {
   updateDoc,
   deleteDoc,
 } from "../../../shared/firebaseEntities/firebaseEntities";
+import { cmsCache } from "../../../shared/utils/cmsCache";
 
 const COL = "noticias";
 const FIELDS = [
@@ -28,10 +29,17 @@ const normalizeAutores = (data) =>
       }
     : data;
 
+// El listado público está en caché (cms_noticias): se invalida tras cada cambio
+// para que una fecha corregida desde el detalle reordene la lista.
+const invalidarLista = (result) => {
+  cmsCache.invalidate("cms_noticias");
+  return result;
+};
+
 export const createNoticia = (data) =>
-  insertDoc(COL, { autores: [], ...normalizeAutores(data) }, FIELDS);
+  insertDoc(COL, { autores: [], ...normalizeAutores(data) }, FIELDS).then(invalidarLista);
 
 export const updateNoticia = (id, data) =>
-  updateDoc(COL, id, normalizeAutores(data), FIELDS);
+  updateDoc(COL, id, normalizeAutores(data), FIELDS).then(invalidarLista);
 
-export const deleteNoticia = (id) => deleteDoc(COL, id);
+export const deleteNoticia = (id) => deleteDoc(COL, id).then(invalidarLista);

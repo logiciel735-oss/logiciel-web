@@ -3,6 +3,7 @@ import {
   updateDoc,
   deleteDoc,
 } from "../../../shared/firebaseEntities/firebaseEntities";
+import { cmsCache } from "../../../shared/utils/cmsCache";
 
 const COL = "proyectos";
 const FIELDS = [
@@ -31,13 +32,20 @@ const normalizeIntegrantes = (data) =>
       }
     : data;
 
+// El listado público está en caché (cms_proyectos): se invalida tras cada cambio
+const invalidarLista = (result) => {
+  cmsCache.invalidate("cms_proyectos");
+  return result;
+};
+
 export const createProject = (data) =>
-  insertDoc(COL, { integrantes: [], ...normalizeIntegrantes(data) }, FIELDS);
+  insertDoc(COL, { integrantes: [], ...normalizeIntegrantes(data) }, FIELDS).then(invalidarLista);
 
 export const updateProject = (id, data) =>
-  updateDoc(COL, id, normalizeIntegrantes(data), FIELDS);
+  updateDoc(COL, id, normalizeIntegrantes(data), FIELDS).then(invalidarLista);
 
 export const deleteProject = async (id) => {
   await deleteDoc(COL, id);
+  invalidarLista();
   return true;
 };

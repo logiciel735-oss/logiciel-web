@@ -149,7 +149,7 @@ export default function SemillerosWidget() {
       <ConfirmModal
         open={!!confirmDelete}
         title="Eliminar semillero"
-        message={`¿Seguro que deseas eliminar "${confirmDelete?.nombre}"?`}
+        message={`¿Seguro que deseas eliminar "${confirmDelete?.nombre}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         type="danger"

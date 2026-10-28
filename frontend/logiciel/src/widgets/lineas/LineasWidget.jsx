@@ -143,7 +143,7 @@ export default function LineasWidget() {
         <ConfirmModal
           open={!!confirmDelete}
           title="Eliminar línea"
-          message={`Vas a eliminar "${confirmDelete?.nombre}"`}
+          message={`Vas a eliminar "${confirmDelete?.nombre}". Esta acción no se puede deshacer.`}
           confirmText="Eliminar"
           cancelText="Cancelar"
           onConfirm={handleDelete}

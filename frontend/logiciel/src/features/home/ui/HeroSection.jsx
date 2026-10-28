@@ -6,12 +6,10 @@ import { useHomeSlides } from "../model/useHomeSlides";
 import { useAutoCarousel } from "../model/useAutoCarousel";
 import { LogoIcon } from "../../../shared/ui/Logo";
 import { optimizeImage } from "../../../shared/lib/image";
+import { formatCalendarDate } from "../../../shared/utils/formatDateInput";
 
-const formatFecha = (value) => {
-  if (!value) return null;
-  const d = new Date(value);
-  return isNaN(d) ? null : d.toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
-};
+const formatFecha = (value) =>
+  formatCalendarDate(value, { day: "numeric", month: "short", year: "numeric" }) || null;
 
 const HeroSection = () => {
   const slides = useHomeSlides();

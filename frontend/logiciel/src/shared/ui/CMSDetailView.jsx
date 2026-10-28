@@ -2,7 +2,7 @@ import placeholderImg from "../assets/images/placeholder.svg";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { formatDateInput } from "../utils/formatDateInput";
+import { formatDateInput, formatCalendarDate } from "../utils/formatDateInput";
 import {
   PencilSquareIcon,
   XMarkIcon,
@@ -71,11 +71,11 @@ export default function CMSDetailView({
 
   const formatDate = (raw) => {
     if (!raw) return "Sin fecha";
-    return new Date(raw).toLocaleDateString("es-CO", {
+    return formatCalendarDate(raw, {
       year: "numeric",
       month: "long",
       day: "numeric",
-    });
+    }) || "Sin fecha";
   };
 
   const setField = (k, v) => setForm((prev) => ({ ...prev, [k]: v }));

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { optimizeImage } from "../../../shared/lib/image";
+import { formatCalendarDate } from "../../../shared/utils/formatDateInput";
 
 // Fila enlazada para listas relacionadas del perfil (proyectos, noticias).
 export default function RelatedItem({ to, image, title, subtitle, date }) {
@@ -24,7 +25,7 @@ export default function RelatedItem({ to, image, title, subtitle, date }) {
         )}
         {date && (
           <p className="mt-0.5 text-xs text-slate-400">
-            {new Date(date).toLocaleDateString("es-CO", {
+            {formatCalendarDate(date, {
               year: "numeric",
               month: "long",
               day: "numeric",

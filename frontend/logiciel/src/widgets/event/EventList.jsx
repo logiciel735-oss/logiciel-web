@@ -94,7 +94,7 @@ export default function EventList() {
       <ConfirmModal
         open={!!confirmDelete}
         title="Eliminar evento"
-        message={`¿Eliminar "${confirmDelete?.title}"?`}
+        message={`¿Eliminar "${confirmDelete?.title}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar" cancelText="Cancelar"
         onConfirm={onConfirmDelete}
         onCancel={() => setConfirmDelete(null)}

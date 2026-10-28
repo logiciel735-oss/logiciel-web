@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRightIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
 import { optimizeImage } from "../../../shared/lib/image";
+import { toCalendarDate } from "../../../shared/utils/formatDateInput";
 
 export default function EventCard({
   item,
@@ -10,7 +11,7 @@ export default function EventCard({
   onEdit,
   onDelete,
 }) {
-  const fecha = item.date ? new Date(item.date) : null;
+  const fecha = toCalendarDate(item.date);
   const dia = fecha ? fecha.toLocaleDateString("es-CO", { day: "2-digit" }) : "—";
   const mes = fecha ? fecha.toLocaleDateString("es-CO", { month: "short" }).replace(".", "") : "";
   const anio = fecha ? fecha.getFullYear() : "";

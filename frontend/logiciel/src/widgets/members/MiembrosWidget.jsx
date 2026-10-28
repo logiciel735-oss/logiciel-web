@@ -223,7 +223,7 @@ export default function MiembrosWidget() {
       <ConfirmModal
         open={!!confirmDelete}
         title="Eliminar Miembro"
-        message={`¿Seguro que deseas eliminar "${confirmDelete?.name}"?`}
+        message={`¿Seguro que deseas eliminar "${confirmDelete?.name}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         onConfirm={handleDelete}

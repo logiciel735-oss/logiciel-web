@@ -120,7 +120,7 @@ export default function AliadosInstitucionalesWidget() {
       <ConfirmModal
         open={!!confirmDelete}
         title="Eliminar aliado institucional"
-        message={`¿Seguro que deseas eliminar "${confirmDelete?.nombre || confirmDelete?.tipo || "este aliado"}"?`}
+        message={`¿Seguro que deseas eliminar "${confirmDelete?.nombre || confirmDelete?.tipo || "este aliado"}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         onConfirm={handleDelete}

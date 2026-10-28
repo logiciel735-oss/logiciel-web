@@ -75,3 +75,21 @@ export const validatePersonName = (value, { label = "Nombre", required = true, m
   if (v.length > max) return `${label}: máximo ${max} caracteres.`;
   return null;
 };
+
+/**
+ * Rol de un autor o integrante externo: además de lo que acepta un nombre,
+ * permite paréntesis, comas, barras y "&" (p. ej. "Colaboradora (UNLP)").
+ * Sin números: la BD los rechaza (autores_sin_numeros en supabase/nombres_sin_numeros.sql).
+ */
+const ROLE_REGEX = /^[\p{L}\p{M}][\p{L}\p{M} '’.,()/&-]*$/u;
+
+export const ROLE_HINT = "Letras, espacios y . , - ( ) / &; máximo 40 caracteres.";
+
+export const validateRole = (value, { label = "Rol", max = 40 } = {}) => {
+  const v = (value || "").trim();
+  if (!v) return null;
+  if (/\d/.test(v)) return `${label}: no puede contener números.`;
+  if (!ROLE_REGEX.test(v)) return `${label}: solo se permiten letras, espacios y . , - ( ) / &`;
+  if (v.length > max) return `${label}: máximo ${max} caracteres.`;
+  return null;
+};

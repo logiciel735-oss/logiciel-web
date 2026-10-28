@@ -4,8 +4,8 @@
 
 import { supabase } from "../config/supabase";
 
-// Columnas de fecha: un "" del formulario se guarda como null
-const DATE_FIELDS = ["fecha_inicio", "fecha_fin", "fecha_creacion"];
+// Columnas de fecha y hora: un "" del formulario se guarda como null
+const DATE_FIELDS = ["fecha_inicio", "fecha_fin", "fecha_creacion", "hora_inicio", "hora_fin"];
 
 /**
  * Obtener lista ordenada.

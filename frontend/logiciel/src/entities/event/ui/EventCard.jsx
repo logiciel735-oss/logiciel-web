@@ -1,9 +1,12 @@
 import placeholderImg from "../../../shared/assets/images/placeholder.svg";
 import { Link } from "react-router-dom";
-import { ArrowRightIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { ArrowRightIcon, ClockIcon, MapPinIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
 import { optimizeImage } from "../../../shared/lib/image";
 import { toCalendarDate } from "../../../shared/utils/formatDateInput";
+import { getEventStatus } from "../model/eventStatus";
+import { MODALIDADES, formatTimeRange } from "../model/eventDetails";
+import EventStatusBadge from "./EventStatusBadge";
 
 export default function EventCard({
   item,
@@ -11,6 +14,9 @@ export default function EventCard({
   onEdit,
   onDelete,
 }) {
+  const status = getEventStatus(item.date, item.dateEnd, item.timeStart, item.timeEnd);
+  const hora = formatTimeRange(item.timeStart, item.timeEnd);
+  const terminado = status?.key === "finished" || status?.key === "archived";
   const fecha = toCalendarDate(item.date);
   const dia = fecha ? fecha.toLocaleDateString("es-CO", { day: "2-digit" }) : "—";
   const mes = fecha ? fecha.toLocaleDateString("es-CO", { month: "short" }).replace(".", "") : "";
@@ -22,8 +28,10 @@ export default function EventCard({
         <img
           src={optimizeImage(item.image, 800) || placeholderImg}
           alt={item.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className={`h-full w-full object-cover transition duration-500 group-hover:scale-105 ${terminado ? "grayscale-[60%]" : ""}`}
         />
+
+        <EventStatusBadge status={status} className="absolute right-3 top-3" />
 
         {/* FECHA (bloque calendario) */}
         <div className="absolute left-3 top-3 w-14 overflow-hidden rounded-lg bg-white text-center shadow-md">
@@ -40,10 +48,21 @@ export default function EventCard({
           {item.title}
         </h3>
 
-        {item.location && (
+        {hora && (
           <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
-            <MapPinIcon className="h-4 w-4 shrink-0 text-brand-teal" />
-            <span className="line-clamp-1">{item.location}</span>
+            <ClockIcon className="h-4 w-4 shrink-0 text-brand-teal" />
+            <span>{hora}</span>
+          </p>
+        )}
+
+        {(item.location || MODALIDADES[item.modality]) && (
+          <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
+            {item.modality === "virtual"
+              ? <VideoCameraIcon className="h-4 w-4 shrink-0 text-brand-teal" />
+              : <MapPinIcon className="h-4 w-4 shrink-0 text-brand-teal" />}
+            <span className="line-clamp-1">
+              {[MODALIDADES[item.modality], item.location].filter(Boolean).join(" · ")}
+            </span>
           </p>
         )}
 

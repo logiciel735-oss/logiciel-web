@@ -88,6 +88,15 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
 - El rol solo se cambia con el selector de rol (`RoleSelect`) de la gestión de usuarios, con confirmación;
   `EditUserModal` lo muestra en solo lectura.
 
+### Eventos
+- Estado calculado en el cliente con fecha y hora (`entities/event/model/eventStatus.js`): próximo, hoy, en curso,
+  finalizado y archivado (`GRACE_DAYS` = 2 días después del fin). Nada se borra: los archivados van a la sección
+  plegable "Eventos pasados" y no salen en la portada. Etiqueta: `EventStatusBadge`.
+- Hora, modalidad y enlaces en columnas aparte (`hora_inicio`, `hora_fin`, `modalidad`, `enlace_inscripcion`,
+  `enlace_virtual`; `supabase/eventos_hora_modalidad.sql`). La hora es de Colombia; sin hora el evento es de día completo.
+- Las fechas de calendario se leen con `formatDateInput` / `toCalendarDate` (`shared/utils/formatDateInput.js`),
+  nunca con `new Date(valor)` directo: en UTC-5 daría el día anterior.
+
 ### Archivos y videos
 - Imágenes: subida directa a Cloudinary (`/image/upload`, preset *unsigned*) vía `shared/uploadFile`.
   `validateImageFile` acepta solo JPG/PNG/WEBP/GIF de hasta 5 MB; el error para el usuario va en `err.uploadMessage`.

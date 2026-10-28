@@ -4,6 +4,7 @@ import Loader from "../../../shared/components/Loader";
 import Modal from "../../../shared/ui/Modal";
 import FormField from "../../../shared/ui/FormField";
 import VideoLinksInput from "../../../shared/ui/VideoLinksInput";
+import EventDetailsFields from "../../../entities/event/ui/EventDetailsFields";
 
 const LABELS = {
   title: "Título",
@@ -105,7 +106,7 @@ export default function CMSFormModal({
         {/* CAMPOS */}
         <div className="grid gap-5 sm:grid-cols-2">
           {fields.map((key) => {
-            if (key === "videos") return null;
+            if (key === "videos" || key === "eventDetails") return null;
 
             const fullWidth = !["date", "dateEnd"].includes(key);
 
@@ -139,6 +140,11 @@ export default function CMSFormModal({
             );
           })}
         </div>
+
+        {/* EVENTOS: hora, modalidad y enlaces */}
+        {fields.includes("eventDetails") && (
+          <EventDetailsFields form={form} set={set} disabled={processing} />
+        )}
 
         {/* VIDEOS (YouTube / Google Drive) */}
         {fields.includes("videos") && (

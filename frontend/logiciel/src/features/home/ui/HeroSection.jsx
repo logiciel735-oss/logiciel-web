@@ -7,6 +7,7 @@ import { useAutoCarousel } from "../model/useAutoCarousel";
 import { LogoIcon } from "../../../shared/ui/Logo";
 import { optimizeImage } from "../../../shared/lib/image";
 import { formatCalendarDate } from "../../../shared/utils/formatDateInput";
+import EventStatusBadge from "../../../entities/event/ui/EventStatusBadge";
 
 const formatFecha = (value) =>
   formatCalendarDate(value, { day: "numeric", month: "short", year: "numeric" }) || null;
@@ -111,7 +112,10 @@ const HeroSection = () => {
                           : "opacity-80 hover:-translate-y-1 hover:opacity-100 hover:shadow-xl"
                       }`}
                     >
-                      <div className="h-36 overflow-hidden">
+                      <div className="relative h-36 overflow-hidden">
+                        {item.__status && (
+                          <EventStatusBadge status={item.__status} className="absolute left-3 top-3 z-10" />
+                        )}
                         <img
                           src={optimizeImage(item.image || item.imagen, 600) || placeholderImg}
                           alt=""

@@ -9,6 +9,7 @@ import {
 } from "../../manage-events/api/adminEventApi.js";
 import { validateDateRange } from "../../../shared/lib/validators";
 import { formatDateInput } from "../../../shared/utils/formatDateInput";
+import { validateEventDetails } from "../../../entities/event/model/eventDetails";
 
 export function useManageEvents(refresh) {
   const [openModal, setOpenModal] = useState(false);
@@ -26,8 +27,9 @@ export function useManageEvents(refresh) {
       formatDateInput(form.date),
       formatDateInput(form.dateEnd)
     );
-    if (dateError) {
-      toast.error(dateError);
+    const formError = dateError || validateEventDetails(form);
+    if (formError) {
+      toast.error(formError);
       return;
     }
 

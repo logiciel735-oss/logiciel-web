@@ -15,6 +15,12 @@ const FIELDS = [
   "ubicacion",
   "image",
   "gallery",
+  // supabase/eventos_hora_modalidad.sql
+  "hora_inicio",
+  "hora_fin",
+  "modalidad",
+  "enlace_inscripcion",
+  "enlace_virtual",
 ];
 
 // El listado público está en caché (eventos): se invalida tras cada cambio

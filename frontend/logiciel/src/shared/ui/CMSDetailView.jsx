@@ -44,6 +44,8 @@ export default function CMSDetailView({
   onDeleteClick = null,
   autoresKey = "autores",
   showVideos = false, // videos de YouTube / Google Drive
+  asideTop = null,    // contenido opcional al inicio de la columna lateral (p. ej. estado del evento)
+  extraFormFields = null, // (form, setField) => campos adicionales del formulario de edición
 }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(item || {});
@@ -363,6 +365,8 @@ export default function CMSDetailView({
 
         {/* COLUMNA LATERAL */}
         <aside className="space-y-6">
+          {asideTop}
+
           {datos.length > 0 && (
             <div className="card p-5">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Información</h2>
@@ -455,6 +459,7 @@ export default function CMSDetailView({
             setField={setField}
             showAutores={showAutores}
             autoresLabel={autoresLabel}
+            extraFormFields={extraFormFields}
           />
         </Modal>
       )}
@@ -480,7 +485,7 @@ export default function CMSDetailView({
   );
 }
 
-function EditForm({ form, setField, showAutores = false, autoresLabel = "Autores" }) {
+function EditForm({ form, setField, showAutores = false, autoresLabel = "Autores", extraFormFields = null }) {
   return (
     <div className="space-y-5">
 
@@ -531,6 +536,8 @@ function EditForm({ form, setField, showAutores = false, autoresLabel = "Autores
           <input className="input-base" value={form.location || ""} onChange={(e) => setField("location", e.target.value)} />
         </FormField>
       )}
+
+      {extraFormFields?.(form, setField)}
 
       {form.image && (
         <FormField label="Imagen principal">

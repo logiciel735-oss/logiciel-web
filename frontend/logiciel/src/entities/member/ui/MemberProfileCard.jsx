@@ -11,6 +11,7 @@ import {
 import RelatedItem from "./RelatedItem";
 import LinkedInIcon from "../../../shared/ui/LinkedInIcon";
 import { isValidLinkedIn } from "../../../shared/lib/validators";
+import { buildDetailPath } from "../../../shared/lib/slug";
 
 const InfoRow = ({ icon, label, children }) => {
   const Icon = icon;
@@ -134,7 +135,7 @@ export default function MemberProfileCard({
             {noticias.map((n) => (
               <RelatedItem
                 key={n.id}
-                to={`/news/${n.id}`}
+                to={buildDetailPath("news", n.id, n.title)}
                 image={n.image || n.gallery?.[0]}
                 title={n.title}
                 subtitle={n.summary}

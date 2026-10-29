@@ -97,6 +97,15 @@ supabase/     SQL, plantillas de correo y Edge Function notificar-contacto
 - Las fechas de calendario se leen con `formatDateInput` / `toCalendarDate` (`shared/utils/formatDateInput.js`),
   nunca con `new Date(valor)` directo: en UTC-5 daría el día anterior.
 
+### Enlaces y vista previa al compartir (noticias y eventos)
+- Enlaces `/news/<titulo-en-texto>-<uuid>` y `/events/...`: generarlos siempre con `buildDetailPath`
+  (`shared/lib/slug.js`); el detalle busca solo por el uuid del final (`extractId`), así los enlaces viejos
+  siguen funcionando, y `useCanonicalPath` corrige la barra de direcciones al título actual.
+- Open Graph: `vercel.json` envía a los robots de redes sociales (por `user-agent`) a la función
+  `api/share.js`, que devuelve `index.html` con las etiquetas del registro (bloque `<!-- og:inicio -->` …
+  `<!-- og:fin -->` de `index.html`; no quitar esos comentarios). Imagen por defecto: `public/og-default.png`.
+  La función usa `SUPABASE_URL`/`SUPABASE_ANON_KEY` o, si no existen, las `VITE_…`.
+
 ### Archivos y videos
 - Imágenes: subida directa a Cloudinary (`/image/upload`, preset *unsigned*) vía `shared/uploadFile`.
   `validateImageFile` acepta solo JPG/PNG/WEBP/GIF de hasta 5 MB; el error para el usuario va en `err.uploadMessage`.

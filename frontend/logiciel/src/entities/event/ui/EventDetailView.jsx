@@ -3,6 +3,8 @@ import { updateEvento } from "../../../features/manage-events/api/adminEventApi"
 import { validateDateRange } from "../../../shared/lib/validators";
 import { formatDateInput } from "../../../shared/utils/formatDateInput";
 import EventStatusPanel from "./EventStatusPanel";
+import ShareButtons from "../../../shared/ui/ShareButtons";
+import { buildDetailPath } from "../../../shared/lib/slug";
 import EventDetailsFields from "./EventDetailsFields";
 import { mapEventDetailsToApi } from "../model/eventMapper";
 import { MODALIDADES, formatTimeRange, validateEventDetails } from "../model/eventDetails";
@@ -20,6 +22,9 @@ export default function EventDetailView({ item, loading, refresh, isAdmin }) {
       loaderLabel="Cargando evento..."
       editTitle="Editar Evento"
       asideTop={<EventStatusPanel item={item} />}
+      asideAfterInfo={item && (
+        <ShareButtons title={item.title} path={buildDetailPath("event", item.id, item.title)} />
+      )}
       extraFields={[
         { label: "Fecha inicio", value: item?.date },
         { label: "Fecha fin", value: item?.dateEnd },

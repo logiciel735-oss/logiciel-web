@@ -7,6 +7,7 @@ import { useAutoCarousel } from "../model/useAutoCarousel";
 import { LogoIcon } from "../../../shared/ui/Logo";
 import { optimizeImage } from "../../../shared/lib/image";
 import { formatCalendarDate } from "../../../shared/utils/formatDateInput";
+import { buildDetailPath } from "../../../shared/lib/slug";
 import EventStatusBadge from "../../../entities/event/ui/EventStatusBadge";
 
 const formatFecha = (value) =>
@@ -104,7 +105,7 @@ const HeroSection = () => {
                     <Link
                       key={`${item.__type}-${item.id}`}
                       {...cardProps}
-                      to={item.__type === "event" ? `/events/${item.id}` : `/news/${item.id}`}
+                      to={buildDetailPath(item.__type, item.id, item.titulo || item.title)}
                       aria-current={isActive ? "true" : undefined}
                       className={`group/card relative flex w-[270px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-xl bg-white text-slate-800 shadow-lg transition-all duration-500 sm:w-[300px] ${
                         isActive

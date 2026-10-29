@@ -4,6 +4,7 @@ import { ArrowRightIcon, ClockIcon, MapPinIcon, VideoCameraIcon } from "@heroico
 import AdminActions from "../../../shared/ui/AdminActions";
 import { optimizeImage } from "../../../shared/lib/image";
 import { toCalendarDate } from "../../../shared/utils/formatDateInput";
+import { buildDetailPath } from "../../../shared/lib/slug";
 import { getEventStatus } from "../model/eventStatus";
 import { MODALIDADES, formatTimeRange } from "../model/eventDetails";
 import EventStatusBadge from "./EventStatusBadge";
@@ -72,7 +73,7 @@ export default function EventCard({
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
           <Link
-            to={`/events/${item.id}`}
+            to={buildDetailPath("event", item.id, item.title)}
             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-teal transition hover:text-brand-teal-dark"
           >
             Ver detalles

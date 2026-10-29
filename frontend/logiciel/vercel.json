@@ -1,5 +1,27 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/news/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|skypeuripreview|googlebot|bingbot|applebot|redditbot).*"
+        }
+      ],
+      "destination": "/api/share?type=news&slug=:slug"
+    },
+    {
+      "source": "/events/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|meta-externalagent|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|skypeuripreview|googlebot|bingbot|applebot|redditbot).*"
+        }
+      ],
+      "destination": "/api/share?type=event&slug=:slug"
+    },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

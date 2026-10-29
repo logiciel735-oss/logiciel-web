@@ -4,6 +4,7 @@ import { ArrowRightIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 import AdminActions from "../../../shared/ui/AdminActions";
 import { optimizeImage } from "../../../shared/lib/image";
 import { formatCalendarDate } from "../../../shared/utils/formatDateInput";
+import { buildDetailPath } from "../../../shared/lib/slug";
 
 export default function NewsCard({
   item,
@@ -46,7 +47,7 @@ export default function NewsCard({
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
           <Link
-            to={`/news/${item.id}`}
+            to={buildDetailPath("news", item.id, item.title)}
             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-teal transition hover:text-brand-teal-dark"
           >
             Leer más

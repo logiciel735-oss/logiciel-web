@@ -1,5 +1,7 @@
 import CMSDetailView from "../../../shared/ui/CMSDetailView";
 import { updateNoticia } from "../../../features/manage-news/api/adminNewsApi";
+import ShareButtons from "../../../shared/ui/ShareButtons";
+import { buildDetailPath } from "../../../shared/lib/slug";
 
 export default function NewsDetailView({ item, loading, refresh, isAdmin }) {
   return (
@@ -13,6 +15,9 @@ export default function NewsDetailView({ item, loading, refresh, isAdmin }) {
       notFoundLabel="Noticia no encontrada"
       loaderLabel="Cargando noticia..."
       editTitle="Editar Noticia"
+      asideAfterInfo={item && (
+        <ShareButtons title={item.title} path={buildDetailPath("news", item.id, item.title)} />
+      )}
       extraFields={[
         { label: "Fecha", value: item?.date },
       ]}

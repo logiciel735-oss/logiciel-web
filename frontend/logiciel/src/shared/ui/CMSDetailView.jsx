@@ -45,6 +45,7 @@ export default function CMSDetailView({
   autoresKey = "autores",
   showVideos = false, // videos de YouTube / Google Drive
   asideTop = null,    // contenido opcional al inicio de la columna lateral (p. ej. estado del evento)
+  asideAfterInfo = null, // contenido opcional bajo la tarjeta "Información" (p. ej. botones de compartir)
   extraFormFields = null, // (form, setField) => campos adicionales del formulario de edición
 }) {
   const [editing, setEditing] = useState(false);
@@ -382,6 +383,8 @@ export default function CMSDetailView({
               </dl>
             </div>
           )}
+
+          {asideAfterInfo}
 
           {isAdmin && (
             <div className="rounded-xl border border-dashed border-brand-teal/50 bg-brand-teal-light/60 p-4">

@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { XMarkIcon, MagnifyingGlassIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { useMiembros } from "../../entities/member/model/useMiembros";
 import { formatPersonName, validatePersonName, validateRole, ROLE_HINT } from "../lib/validators";
+import AuthorPasteImport from "./AuthorPasteImport";
 
 export default function AuthorSelector({ autores = [], setAutores, label = "Autores" }) {
   const { miembros } = useMiembros();
@@ -35,12 +36,9 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
     setExtError(null);
   };
 
-  const handleRemove = (miembro_id, nombre_externo) => {
-    setAutores(
-      autores.filter((a) =>
-        miembro_id ? a.miembro_id !== miembro_id : a.nombre_externo !== nombre_externo
-      )
-    );
+  // Por posición: así no se confunde con otro autor del mismo nombre
+  const handleRemove = (index) => {
+    setAutores(autores.filter((_, i) => i !== index));
   };
 
   // Busca por nombre y por rol (sin distinguir mayúsculas)
@@ -64,24 +62,24 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
           {autores.map((a, i) => {
             const found       = miembros.find((m) => m.user_id === a.miembro_id);
             const esExterno   = !a.miembro_id || a.miembro_id === "";
-            const displayName = esExterno ? a.nombre_externo : (found?.name || "Cargando...");
-            if (!displayName) return null;
+            // Siempre se muestra (aunque falte el nombre) para que se pueda quitar
+            const displayName = esExterno ? (a.nombre_externo || "(sin nombre)") : (found?.name || "Cargando...");
             return (
               <div
-                key={a.miembro_id || a.nombre_externo || i}
-                className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2 shadow-sm"
+                key={`${a.miembro_id || a.nombre_externo}-${i}`}
+                className="flex max-w-full items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2 shadow-sm"
               >
                 <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${esExterno ? "bg-slate-100 text-slate-500" : "bg-brand-teal text-white"}`}>
                   {displayName?.charAt(0).toUpperCase()}
                 </span>
-                <span className="text-sm font-medium text-brand-navy">{displayName}</span>
+                <span className="min-w-0 break-words text-sm font-medium text-brand-navy">{displayName}</span>
                 {esExterno && <span className="text-xs italic text-slate-400">externo</span>}
                 {a.rol && <span className="text-xs text-slate-400">· {a.rol}</span>}
                 <button
                   type="button"
-                  onClick={() => handleRemove(a.miembro_id, a.nombre_externo)}
+                  onClick={() => handleRemove(i)}
                   className="rounded-full p-0.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                  aria-label="Quitar"
+                  aria-label={`Quitar a ${displayName}`}
                 >
                   <XMarkIcon className="h-3.5 w-3.5" />
                 </button>
@@ -90,6 +88,13 @@ export default function AuthorSelector({ autores = [], setAutores, label = "Auto
           })}
         </div>
       )}
+
+      {/* PEGAR LISTA DE AUTORES */}
+      <AuthorPasteImport
+        miembros={miembros}
+        autores={autores}
+        onAdd={(nuevos) => setAutores([...autores, ...nuevos])}
+      />
 
       {/* BUSCAR MIEMBRO */}
       <div className="relative">

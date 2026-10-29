@@ -156,13 +156,11 @@ export default function CMSDetailView({
   };
 
   /* ── eliminar autor ── */
-  const handleRemoveAutor = async (miembro_id, nombre_externo) => {
+  // Quita exactamente ese autor (no todos los que compartan nombre)
+  const handleRemoveAutor = async (autor) => {
     try {
       setProcessing(true);
-      const newAutores = (item.autores || []).filter((a) => {
-        if (miembro_id) return a.miembro_id !== miembro_id;
-        return a.nombre_externo !== nombre_externo;
-      });
+      const newAutores = (item.autores || []).filter((a) => a !== autor);
       await onUpdate(item.id, { [autoresKey]: newAutores });
       toast.success("Eliminado");
       await refresh();
@@ -185,7 +183,7 @@ export default function CMSDetailView({
       const name = esExterno
         ? (a.nombre_externo || "")
         : (found?.name || null);
-      return { ...a, name, user_id: a.miembro_id, esExterno };
+      return { ...a, name, user_id: a.miembro_id, esExterno, original: a };
     });
 
   const datos = (extraFields || []).filter(({ value }) => value);
@@ -331,7 +329,7 @@ export default function CMSDetailView({
 
                     {isAdmin && (
                       <button
-                        onClick={() => handleRemoveAutor(a.miembro_id, a.nombre_externo)}
+                        onClick={() => handleRemoveAutor(a.original)}
                         className="ml-1 rounded-full p-0.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
                         aria-label="Quitar"
                       >
